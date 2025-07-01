@@ -1,6 +1,5 @@
 import React from 'react'
 import { motion } from 'framer-motion'
-import { Link } from "react-router-dom";
 // import images
 import heroPeople from '../assets/hero/doctor.webp'
 import bgWindow from '../assets/hero/window.png'
@@ -79,7 +78,7 @@ function Hero() {
     }
 
     return (
-        <section className="relative overflow-hidden flex items-center bg-gradient-to-br from-blue-50 via-white to-purple-50 w-full mx-auto C 
+        <section className="relative overflow-hidden flex items-center bg-gradient-to-br from-blue-50 via-white to-purple-50 w-full mx-auto pt-40 
         sm:pt-55 
         md:pt-75
         lg:pt-60
@@ -116,7 +115,7 @@ function Hero() {
                 md:left-[45%] md:top-[12%] md:w-[2%]
                 lg:left-[65%] lg:top-[20%] lg:w-[2%] 
                 xl:left-[65%] xl:top-[25%] xl:w-[1%]
-                2xl:left-[70%] 2xl:top-[21.9%] 2xl:w-[1%]  
+                2xl:left-[70%] 2xl:top-[18%] 2xl:w-[1%]  
                 aspect-square -translate-x-1/2 -translate-y-1/2 
                 bg-pink-400 rounded-full z-10"
                 {...bounceAnimation}
@@ -142,7 +141,7 @@ function Hero() {
                 md:left-[74%] md:top-[23%] md:w-[3%]
                 lg:left-[88%] lg:top-[35%] lg:w-[2%]
                 xl:left-[85%] xl:top-[32%] xl:w-[1%]
-                2xl:left-[85.5%] 2xl:top-[31%] 2xl:w-[1%]  
+                2xl:left-[83.5%] 2xl:top-[27%] 2xl:w-[1%]  
                 aspect-square -translate-x-1/2 -translate-y-1/2 
                 bg-white rounded-full z-10"
                 {...pulseAnimation}
@@ -231,21 +230,23 @@ function Hero() {
                         </motion.p>
                     </div>
 
-                    <motion.div className='flex justify-center pt-4
-                    lg:w-100'
-                        initial={{ opacity: 0, scale: 0.8 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ duration: 0.5, delay: 1.3 }}
-                    >
-                        <Link
-                            to="/Page_About"
-                            className="text-center bg-indigo-500 text-white font-semibold w-32 h-15 rounded-xl shadow-lg leading-[3.5rem]
-                            hover:bg-indigo-700 hover:shadow-xl transition-all duration-300"
+                    <div className='flex justify-center mt-4
+                    lg:w-100'>
+                        <motion.button
+                            className="bg-indigo-500 text-white font-semibold w-32 h-15 rounded-xl shadow-lg 
+                            hover:bg-indigo-700 hover:shadow-xl transition-all duration-300 "
+                            initial={{ opacity: 0, scale: 0.8 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ duration: 0.5, delay: 1.3 }}
+                            whileHover={{
+                                scale: 1.05,
+                                boxShadow: "0 20px 40px rgba(91, 73, 216, 0.3)"
+                            }}
+                            whileTap={{ scale: 0.95 }}
                         >
                             Read More
-                        </Link>
-                    </motion.div>
-
+                        </motion.button>
+                    </div>
                 </motion.div>
 
                 {/* RIGHT */}
