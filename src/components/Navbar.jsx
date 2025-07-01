@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { Link } from "react-router-dom";
 import logo from '../assets/logo/tlwa_logo.webp'
 
 function Navbar() {
@@ -9,22 +10,18 @@ function Navbar() {
     <nav className="bg-white sticky top-0 z-50 shadow px-8 lg:px-16 xl:px-24">
       <div className="container mx-auto flex items-center justify-between h-30">
         {/* LOGO */}
-        <a href="#">
+        <Link to="/">
           <img className='h-full w-12 xl:w-15' src={logo} alt="Logo" />
-        </a>
+        </Link>
 
         {/* Desktop menu */}
         <ul className="hidden xl:flex space-x-8 flex-wrap items-center justify-center p-8 gap-y-4">
           <li><a href="#" className="relative font-medium text-gray-700 transition hover:text-indigo-500 after:w-0 after:h-[2px] after:bg-indigo-500 after:transition-all after:duration-600 hover:after:w-full after:absolute after:left-0 after:-bottom-2">Home</a></li>
           <li><a href="#" className="relative font-medium text-gray-700 transition hover:text-indigo-500 after:w-0 after:h-[2px] after:bg-indigo-500 after:transition-all after:duration-600 hover:after:w-full after:absolute after:left-0 after:-bottom-2">Benefits</a></li>
-          <li><a href="#" className="relative font-medium text-gray-700 transition hover:text-indigo-500 after:w-0 after:h-[2px] after:bg-indigo-500 after:transition-all after:duration-600 hover:after:w-full after:absolute after:left-0 after:-bottom-2">Sister Organizations</a></li>
-          <li><a href="#" className="relative font-medium text-gray-700 transition hover:text-indigo-500 after:w-0 after:h-[2px] after:bg-indigo-500 after:transition-all after:duration-600 hover:after:w-full after:absolute after:left-0 after:-bottom-2">LM Week</a></li>
-          <li><a href="#" className="relative font-medium text-gray-700 transition hover:text-indigo-500 after:w-0 after:h-[2px] after:bg-indigo-500 after:transition-all after:duration-600 hover:after:w-full after:absolute after:left-0 after:-bottom-2">Commitee</a></li>
+          <li><a href="#" className="relative font-medium text-gray-700 transition hover:text-indigo-500 after:w-0 after:h-[2px] after:bg-indigo-500 after:transition-all after:duration-600 hover:after:w-full after:absolute after:left-0 after:-bottom-2">News</a></li>
           <li><a href="#" className="relative font-medium text-gray-700 transition hover:text-indigo-500 after:w-0 after:h-[2px] after:bg-indigo-500 after:transition-all after:duration-600 hover:after:w-full after:absolute after:left-0 after:-bottom-2">Media</a></li>
-          <li><a href="#" className="relative font-medium text-gray-700 transition hover:text-indigo-500 after:w-0 after:h-[2px] after:bg-indigo-500 after:transition-all after:duration-600 hover:after:w-full after:absolute after:left-0 after:-bottom-2">Editorial</a></li>
-          <li><a href="#" className="relative font-medium text-gray-700 transition hover:text-indigo-500 after:w-0 after:h-[2px] after:bg-indigo-500 after:transition-all after:duration-600 hover:after:w-full after:absolute after:left-0 after:-bottom-2">IBLM</a></li>
+          <li><a href="#" className="relative font-medium text-gray-700 transition hover:text-indigo-500 after:w-0 after:h-[2px] after:bg-indigo-500 after:transition-all after:duration-600 hover:after:w-full after:absolute after:left-0 after:-bottom-2">Partners</a></li>
           <li><a href="#" className="relative font-medium text-gray-700 transition hover:text-indigo-500 after:w-0 after:h-[2px] after:bg-indigo-500 after:transition-all after:duration-600 hover:after:w-full after:absolute after:left-0 after:-bottom-2">Rules and Regulations</a></li>
-          <li><a href="#" className="relative font-medium text-gray-700 transition hover:text-indigo-500 after:w-0 after:h-[2px] after:bg-indigo-500 after:transition-all after:duration-600 hover:after:w-full after:absolute after:left-0 after:-bottom-2">About Us</a></li>
           <li><a href="#" className="relative font-medium text-gray-700 transition hover:text-indigo-500 after:w-0 after:h-[2px] after:bg-indigo-500 after:transition-all after:duration-600 hover:after:w-full after:absolute after:left-0 after:-bottom-2">Contact</a></li>
         </ul>
         <button className="hidden xl:block relative overflow-hidden cursor-pointer font-medium bg-indigo-500 text-white h-15 w-25 rounded-xl transition-colors duration-600 hover:text-white group">
@@ -110,9 +107,10 @@ function Navbar() {
         ${open ? 'translate-x-0' : '-translate-x-full'}
       `}>
         <div className="flex items-center justify-between p-4">
-          <a href="#">
+          <Link to="/">
             <img className="h-12 w-auto" src={logo} alt="Logo" />
-          </a>
+          </Link>
+
           {/* Close button */}
           <button
             className="cursor-pointer border border-gray-400 rounded-lg p-1.5 text-gray-800 hover:bg-gray-100 transition"

@@ -7,10 +7,19 @@ import './App.css'
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import Benefits from './components/Benefits';
-import LMWeek from './components/LMWeek';
 import News from './components/News';
-import IBLM from './components/IBLM';
+import Media from './components/Media';
+import Partners from './components/Partners';
+import RulesAndRegulations from './components/RulesAndRegulations';
 import Contact from './components/Contact';
+import Footer from './components/Footer';
+
+
+import Editorial from './components/Editorial';
+import LMWeek from './components/LMWeek';
+
+import IBLM from './components/IBLM';
+
 
 function App() {
   const [count, setCount] = useState(0)
@@ -20,12 +29,22 @@ function App() {
       <Navbar />
       <Hero />
       <Benefits />
+      <News />
+      <Media />
+      <Partners />
+      <RulesAndRegulations />
+      <Contact />
+      <Footer />
+
+      {/* <Editorial /> */}
       {/* <LMWeek />
       <News />
       <IBLM />
-      <Contact /> */}
+       */}
     </>
+
   )
+
 }
 
 export default App

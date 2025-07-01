@@ -1,5 +1,6 @@
 import React from 'react'
 import { motion } from 'framer-motion'
+import { Link } from "react-router-dom";
 // import images
 import heroPeople from '../assets/hero/doctor.webp'
 import bgWindow from '../assets/hero/window.png'
@@ -78,7 +79,7 @@ function Hero() {
     }
 
     return (
-        <section className="relative overflow-hidden flex items-center bg-gradient-to-br from-blue-50 via-white to-purple-50 w-full mx-auto pt-40 
+        <section className="relative overflow-hidden flex items-center bg-gradient-to-br from-blue-50 via-white to-purple-50 w-full mx-auto C 
         sm:pt-55 
         md:pt-75
         lg:pt-60
@@ -230,23 +231,21 @@ function Hero() {
                         </motion.p>
                     </div>
 
-                    <div className='flex justify-center mt-4
-                    lg:w-100'>
-                        <motion.button
-                            className="bg-indigo-500 text-white font-semibold w-32 h-15 rounded-xl shadow-lg 
-                            hover:bg-indigo-700 hover:shadow-xl transition-all duration-300 "
-                            initial={{ opacity: 0, scale: 0.8 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            transition={{ duration: 0.5, delay: 1.3 }}
-                            whileHover={{
-                                scale: 1.05,
-                                boxShadow: "0 20px 40px rgba(91, 73, 216, 0.3)"
-                            }}
-                            whileTap={{ scale: 0.95 }}
+                    <motion.div className='flex justify-center pt-4
+                    lg:w-100'
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ duration: 0.5, delay: 1.3 }}
+                    >
+                        <Link
+                            to="/Page_About"
+                            className="text-center bg-indigo-500 text-white font-semibold w-32 h-15 rounded-xl shadow-lg leading-[3.5rem]
+                            hover:bg-indigo-700 hover:shadow-xl transition-all duration-300"
                         >
                             Read More
-                        </motion.button>
-                    </div>
+                        </Link>
+                    </motion.div>
+
                 </motion.div>
 
                 {/* RIGHT */}
