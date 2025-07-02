@@ -1,8 +1,10 @@
-import React, { useState } from 'react'
+import React, { useState } from 'react';
 import { Link } from "react-router-dom";
-import logo from '../assets/logo/tlwa_logo.webp'
+import logo from '../assets/logo/tlwa_logo.webp';
+// ต้องติดตั้ง react-icons ก่อน: npm install react-icons
+import { FaUserCircle } from 'react-icons/fa';
 
-function Navbar() {
+function Navbar({ onLoginClick, user, onLogout }) {
   const [open, setOpen] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
 
@@ -13,25 +15,42 @@ function Navbar() {
         <Link to="/">
           <img className='h-full w-12 xl:w-15' src={logo} alt="Logo" />
         </Link>
-
         {/* Desktop menu */}
         <ul className="hidden xl:flex space-x-8 flex-wrap items-center justify-center p-8 gap-y-4">
-          <li><a href="#" className="relative font-medium text-gray-700 transition hover:text-indigo-500 after:w-0 after:h-[2px] after:bg-indigo-500 after:transition-all after:duration-600 hover:after:w-full after:absolute after:left-0 after:-bottom-2">Home</a></li>
-          <li><a href="#" className="relative font-medium text-gray-700 transition hover:text-indigo-500 after:w-0 after:h-[2px] after:bg-indigo-500 after:transition-all after:duration-600 hover:after:w-full after:absolute after:left-0 after:-bottom-2">Benefits</a></li>
-          <li><a href="#" className="relative font-medium text-gray-700 transition hover:text-indigo-500 after:w-0 after:h-[2px] after:bg-indigo-500 after:transition-all after:duration-600 hover:after:w-full after:absolute after:left-0 after:-bottom-2">News</a></li>
-          <li><a href="#" className="relative font-medium text-gray-700 transition hover:text-indigo-500 after:w-0 after:h-[2px] after:bg-indigo-500 after:transition-all after:duration-600 hover:after:w-full after:absolute after:left-0 after:-bottom-2">Media</a></li>
-          <li><a href="#" className="relative font-medium text-gray-700 transition hover:text-indigo-500 after:w-0 after:h-[2px] after:bg-indigo-500 after:transition-all after:duration-600 hover:after:w-full after:absolute after:left-0 after:-bottom-2">Partners</a></li>
-          <li><a href="#" className="relative font-medium text-gray-700 transition hover:text-indigo-500 after:w-0 after:h-[2px] after:bg-indigo-500 after:transition-all after:duration-600 hover:after:w-full after:absolute after:left-0 after:-bottom-2">Rules and Regulations</a></li>
-          <li><a href="#" className="relative font-medium text-gray-700 transition hover:text-indigo-500 after:w-0 after:h-[2px] after:bg-indigo-500 after:transition-all after:duration-600 hover:after:w-full after:absolute after:left-0 after:-bottom-2">Contact</a></li>
+          <li><a href="#" className="relative font-medium text-gray-700 transition hover:text-indigo-500">Home</a></li>
+          <li><a href="#" className="relative font-medium text-gray-700 transition hover:text-indigo-500">Benefits</a></li>
+          <li><a href="#" className="relative font-medium text-gray-700 transition hover:text-indigo-500">News</a></li>
+          <li><a href="#" className="relative font-medium text-gray-700 transition hover:text-indigo-500">Media</a></li>
+          <li><a href="#" className="relative font-medium text-gray-700 transition hover:text-indigo-500">Partners</a></li>
+          <li><a href="#" className="relative font-medium text-gray-700 transition hover:text-indigo-500">Rules and Regulations</a></li>
+          <li><a href="#" className="relative font-medium text-gray-700 transition hover:text-indigo-500">Contact</a></li>
         </ul>
-        <button className="hidden xl:block relative overflow-hidden cursor-pointer font-medium bg-indigo-500 text-white h-15 w-25 rounded-xl transition-colors duration-600 hover:text-white group">
-          <span
-            className="absolute left-1/2 top-1/2 w-40 h-40 -translate-x-1/2 -translate-y-1/2 rounded-full bg-indigo-700 scale-0 group-hover:scale-150 transition-transform duration-700 ease-out z-0"
-            style={{ pointerEvents: 'none' }}
-            aria-hidden="true"
-          />
-          <span className="relative w-full z-10">Log in</span>
-        </button>
+
+        {/* Desktop: User Info or Login */}
+        {!user ? (
+          <button
+            className="hidden xl:block relative overflow-hidden cursor-pointer font-medium bg-indigo-500 text-white h-15 w-25 rounded-xl transition-colors duration-600 hover:bg-indigo-600 group"
+            onClick={onLoginClick}
+          >
+            <span
+              className="absolute left-1/2 top-1/2 w-40 h-40 -translate-x-1/2 -translate-y-1/2 rounded-full bg-indigo-700 scale-0 group-hover:scale-150 transition-transform duration-700 ease-out z-0"
+              style={{ pointerEvents: 'none' }}
+              aria-hidden="true"
+            />
+            <span className="relative w-full z-10">Log in</span>
+          </button>
+        ) : (
+          <div className="hidden xl:flex items-center gap-2 px-4 py-1 rounded-xl bg-indigo-50 border border-indigo-100">
+            <FaUserCircle className="text-2xl text-indigo-500" />
+            <span className="font-medium text-indigo-900">{user.firstName} {user.lastName}</span>
+            <button
+              className="ml-3 px-3 py-1 text-xs bg-red-50 border border-red-200 text-red-500 rounded-xl hover:bg-red-100 transition"
+              onClick={onLogout}
+            >
+              Logout
+            </button>
+          </div>
+        )}
 
         {/* Hamburger */}
         <button
@@ -53,39 +72,9 @@ function Navbar() {
               />
             ) : (
               <>
-                {/* เส้นบน */}
-                <line
-                  x1={isHovered ? "12" : "6"}
-                  y1="8"
-                  x2="18"
-                  y2="8"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  style={{ transition: "all 0.9s cubic-bezier(.4,0,.2,1)" }}
-                />
-                {/* เส้นกลาง */}
-                <line
-                  x1="6"
-                  y1="12"
-                  x2="18"
-                  y2="12"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  style={{ transition: "all 0.9s cubic-bezier(.4,0,.2,1)" }}
-                />
-                {/* เส้นล่าง */}
-                <line
-                  x1={isHovered ? "6" : "12"}
-                  y1="16"
-                  x2="18"
-                  y2="16"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  style={{ transition: "all 0.9s cubic-bezier(.4,0,.2,1)" }}
-                />
+                <line x1={isHovered ? "12" : "6"} y1="8" x2="18" y2="8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                <line x1="6" y1="12" x2="18" y2="12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                <line x1={isHovered ? "6" : "12"} y1="16" x2="18" y2="16" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
               </>
             )}
           </svg>
@@ -110,8 +99,6 @@ function Navbar() {
           <Link to="/">
             <img className="h-12 w-auto" src={logo} alt="Logo" />
           </Link>
-
-          {/* Close button */}
           <button
             className="cursor-pointer border border-gray-400 rounded-lg p-1.5 text-gray-800 hover:bg-gray-100 transition"
             onClick={() => setOpen(false)}
@@ -125,33 +112,49 @@ function Navbar() {
         </div>
         <nav className="flex flex-col justify-between h-full p-4">
           <ul className="flex flex-col mt-1 flex-1">
-            {/* ใช้ ul > li > a เดิมทุกอย่าง */}
-            <li><a href="#" className="relative font-medium text-gray-700 transition hover:text-indigo-500 px-5 py-3 block border-b border-indigo-100">Home</a></li>
-            <li><a href="#" className="relative font-medium text-gray-700 transition hover:text-indigo-500 px-5 py-3 block border-b border-indigo-100">Benefits</a></li>
-            <li><a href="#" className="relative font-medium text-gray-700 transition hover:text-indigo-500 px-5 py-3 block border-b border-indigo-100">Sister Organizations</a></li>
-            <li><a href="#" className="relative font-medium text-gray-700 transition hover:text-indigo-500 px-5 py-3 block border-b border-indigo-100">LM Week</a></li>
-            <li><a href="#" className="relative font-medium text-gray-700 transition hover:text-indigo-500 px-5 py-3 block border-b border-indigo-100">Commitee</a></li>
-            <li><a href="#" className="relative font-medium text-gray-700 transition hover:text-indigo-500 px-5 py-3 block border-b border-indigo-100">Media</a></li>
-            <li><a href="#" className="relative font-medium text-gray-700 transition hover:text-indigo-500 px-5 py-3 block border-b border-indigo-100">Editorial</a></li>
-            <li><a href="#" className="relative font-medium text-gray-700 transition hover:text-indigo-500 px-5 py-3 block border-b border-indigo-100">IBLM</a></li>
-            <li><a href="#" className="relative font-medium text-gray-700 transition hover:text-indigo-500 px-5 py-3 block border-b border-indigo-100">Rules and Regulations</a></li>
-            <li><a href="#" className="relative font-medium text-gray-700 transition hover:text-indigo-500 px-5 py-3 block border-b border-indigo-100">About Us</a></li>
-            <li><a href="#" className="relative font-medium text-gray-700 transition hover:text-indigo-500 px-5 py-3 block border-b border-indigo-100">Contact</a></li>
+            <li><a href="#" className="relative font-medium text-gray-700 hover:text-indigo-500 px-5 py-3 block border-b border-indigo-100">Home</a></li>
+            <li><a href="#" className="relative font-medium text-gray-700 hover:text-indigo-500 px-5 py-3 block border-b border-indigo-100">Benefits</a></li>
+            <li><a href="#" className="relative font-medium text-gray-700 hover:text-indigo-500 px-5 py-3 block border-b border-indigo-100">Sister Organizations</a></li>
+            <li><a href="#" className="relative font-medium text-gray-700 hover:text-indigo-500 px-5 py-3 block border-b border-indigo-100">LM Week</a></li>
+            <li><a href="#" className="relative font-medium text-gray-700 hover:text-indigo-500 px-5 py-3 block border-b border-indigo-100">Commitee</a></li>
+            <li><a href="#" className="relative font-medium text-gray-700 hover:text-indigo-500 px-5 py-3 block border-b border-indigo-100">Media</a></li>
+            <li><a href="#" className="relative font-medium text-gray-700 hover:text-indigo-500 px-5 py-3 block border-b border-indigo-100">Editorial</a></li>
+            <li><a href="#" className="relative font-medium text-gray-700 hover:text-indigo-500 px-5 py-3 block border-b border-indigo-100">IBLM</a></li>
+            <li><a href="#" className="relative font-medium text-gray-700 hover:text-indigo-500 px-5 py-3 block border-b border-indigo-100">Rules and Regulations</a></li>
+            <li><a href="#" className="relative font-medium text-gray-700 hover:text-indigo-500 px-5 py-3 block border-b border-indigo-100">About Us</a></li>
+            <li><a href="#" className="relative font-medium text-gray-700 hover:text-indigo-500 px-5 py-3 block border-b border-indigo-100">Contact</a></li>
           </ul>
           <div className='flex justify-center mt-4'>
-            <button className="relative overflow-hidden cursor-pointer font-medium bg-indigo-500 text-white px-8 py-2 rounded-xl transition-colors duration-600 hover:text-white group">
-              <span
-                className="absolute left-1/2 top-1/2 w-40 h-40 -translate-x-1/2 -translate-y-1/2 rounded-full bg-indigo-700 scale-0 group-hover:scale-150 transition-transform duration-700 ease-out z-0"
-                style={{ pointerEvents: 'none' }}
-                aria-hidden="true"
-              />
-              <span className="relative z-10">Log in</span>
-            </button>
+            {/* ด้าน mobile - login หรือ user */}
+            {!user ? (
+              <button
+                className="relative overflow-hidden cursor-pointer font-medium bg-indigo-500 text-white px-8 py-2 rounded-xl transition-colors duration-600 hover:text-white group"
+                onClick={() => { setOpen(false); onLoginClick(); }}
+              >
+                <span
+                  className="absolute left-1/2 top-1/2 w-40 h-40 -translate-x-1/2 -translate-y-1/2 rounded-full bg-indigo-700 scale-0 group-hover:scale-150 transition-transform duration-700 ease-out z-0"
+                  style={{ pointerEvents: 'none' }}
+                  aria-hidden="true"
+                />
+                <span className="relative z-10">Log in</span>
+              </button>
+            ) : (
+              <div className="flex items-center gap-2 px-4 py-1 rounded-xl bg-indigo-50 border border-indigo-100">
+                <FaUserCircle className="text-2xl text-indigo-500" />
+                <span className="font-medium text-indigo-900">{user.firstName} {user.lastName}</span>
+                <button
+                  className="ml-3 px-3 py-1 text-xs bg-red-50 border border-red-200 text-red-500 rounded-xl hover:bg-red-100 transition"
+                  onClick={() => { setOpen(false); onLogout(); }}
+                >
+                  Logout
+                </button>
+              </div>
+            )}
           </div>
         </nav>
       </div>
     </nav>
-  )
+  );
 }
 
-export default Navbar
+export default Navbar;
