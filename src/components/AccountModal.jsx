@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
 import api from "../api";
-import { useUser } from "../contexts/UserContext"; // << เพิ่มตรงนี้
+import { useUser } from "../contexts/UserContext";
 
 export default function AccountModal({ open, onClose }) {
-  const { user, updateUser } = useUser(); // << ใช้ context
+  const { user, updateUser } = useUser();
+
   const [form, setForm] = useState({
     prefix: "",
     firstName: "",
@@ -16,7 +17,12 @@ export default function AccountModal({ open, onClose }) {
   const [popup, setPopup] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
-  // โหลดข้อมูล user เมื่อ modal เปิด
+  // Debug user
+  useEffect(() => {
+    console.log("user context:", user); // <--- Debug ดู user data
+  }, [user]);
+
+  // โหลดข้อมูล user
   useEffect(() => {
     if (user && open) {
       setForm({
@@ -33,7 +39,6 @@ export default function AccountModal({ open, onClose }) {
     }
   }, [user, open]);
 
-  // Validation function
   const validate = () => {
     const newErrors = {};
     if (!form.prefix) newErrors.prefix = "กรุณาเลือกคำนำหน้า";
@@ -62,10 +67,11 @@ export default function AccountModal({ open, onClose }) {
       return;
     }
     try {
+      // Debug ส่งค่าก่อนยิง api
+      console.log("update form:", form, "user id:", user?.id);
       const res = await api.put(`/api/users/${user.id}`, form);
       setPopup("บันทึกสำเร็จ");
-      // update user ใน context ทันที (ข้อมูลล่าสุดจาก DB)
-      updateUser({ ...user, ...form, ...res.data.user }); // ถ้ามี res.data.user ใช้อันนี้, ถ้าไม่มีใช้ {...user, ...form}
+      updateUser({ ...user, ...form, ...res.data.user });
       setTimeout(() => {
         setPopup('');
         if (onClose) onClose();
@@ -74,6 +80,7 @@ export default function AccountModal({ open, onClose }) {
       setPopup('');
       setErrors({ api: err.response?.data?.message || "เกิดข้อผิดพลาด" });
       setSubmitting(false);
+      console.error("Update error:", err);
     }
   };
 
@@ -86,7 +93,6 @@ export default function AccountModal({ open, onClose }) {
       autoComplete="off"
     >
       <div className="relative w-full max-w-2xl rounded-2xl shadow-2xl bg-white backdrop-blur-xl border border-gray-200 px-8 py-8 transition-all duration-200">
-        {/* Close Button */}
         <button
           type="button"
           className="absolute top-3 right-3 bg-gray-200 hover:bg-red-400 text-gray-500 hover:text-white rounded-full w-9 h-9 flex items-center justify-center transition"
@@ -99,18 +105,11 @@ export default function AccountModal({ open, onClose }) {
           </svg>
         </button>
         <h2 className="text-2xl font-bold mb-6 text-gray-800 tracking-tight">แก้ไขข้อมูลบัญชี</h2>
-
-        {errors.api && (
-          <div className="mb-4 text-red-500 text-sm">{errors.api}</div>
-        )}
-        {popup && (
-          <div className="mb-4 text-green-600 text-sm">{popup}</div>
-        )}
-
+        {errors.api && <div className="mb-4 text-red-500 text-sm">{errors.api}</div>}
+        {popup && <div className="mb-4 text-green-600 text-sm">{popup}</div>}
         <div className="flex flex-col md:flex-row gap-6">
           {/* Left Column */}
           <div className="flex-1 flex flex-col gap-3">
-            {/* Prefix */}
             <div>
               <label className="block mb-1 text-gray-700 font-medium text-sm">คำนำหน้า</label>
               <select
@@ -128,7 +127,6 @@ export default function AccountModal({ open, onClose }) {
               </select>
               {errors.prefix && <span className="text-red-500 text-xs">{errors.prefix}</span>}
             </div>
-            {/* First Name */}
             <div>
               <label className="block mb-1 text-gray-700 font-medium text-sm">ชื่อจริง</label>
               <input
@@ -142,7 +140,6 @@ export default function AccountModal({ open, onClose }) {
               />
               {errors.firstName && <span className="text-red-500 text-xs">{errors.firstName}</span>}
             </div>
-            {/* Last Name */}
             <div>
               <label className="block mb-1 text-gray-700 font-medium text-sm">นามสกุล</label>
               <input
@@ -156,7 +153,6 @@ export default function AccountModal({ open, onClose }) {
               />
               {errors.lastName && <span className="text-red-500 text-xs">{errors.lastName}</span>}
             </div>
-            {/* Address */}
             <div>
               <label className="block mb-1 text-gray-700 font-medium text-sm">ที่อยู่</label>
               <textarea
@@ -170,7 +166,6 @@ export default function AccountModal({ open, onClose }) {
               />
               {errors.address && <span className="text-red-500 text-xs">{errors.address}</span>}
             </div>
-            {/* Phone */}
             <div>
               <label className="block mb-1 text-gray-700 font-medium text-sm">เบอร์โทรศัพท์</label>
               <input
@@ -187,7 +182,6 @@ export default function AccountModal({ open, onClose }) {
           </div>
           {/* Right Column */}
           <div className="flex-1 flex flex-col gap-3">
-            {/* Email */}
             <div>
               <label className="block mb-1 text-gray-700 font-medium text-sm">Email</label>
               <input
