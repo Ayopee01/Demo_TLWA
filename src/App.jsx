@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import axios from 'axios';
 import Login from './components/Login';
 import Register from './components/Register';
 import ForgotPassword from './components/ForgotPassword';
@@ -14,12 +15,21 @@ import RulesAndRegulations from './components/RulesAndRegulations';
 import Contact from './components/Contact';
 import Footer from './components/Footer';
 
-// ให้รับ handleLogout ด้วย!
-function MainContent({ setModal, user, handleLogout }) {
+// -- กรณีต้องการดึงข้อมูล user ใหม่หลัง update --
+async function getUserById(id) {
+  const res = await axios.get(`/api/users/${id}`);
+  return res.data.user;
+}
+
+function MainContent({ setModal, user, handleLogout, handleUserUpdate }) {
   return (
     <>
-      {/* ส่ง onLogout ไป Navbar */}
-      <Navbar onLoginClick={() => setModal("login")} user={user} onLogout={handleLogout} />
+      <Navbar
+        onLoginClick={() => setModal("login")}
+        user={user}
+        onLogout={handleLogout}
+        onUserUpdated={handleUserUpdate} // เพิ่ม prop นี้
+      />
       <Hero />
       <Benefits />
       <News />
@@ -50,14 +60,31 @@ function App() {
     localStorage.removeItem("user");
   };
 
+  // ฟังก์ชันสำหรับ update ข้อมูล user ที่แก้ไขใน AccountModal
+  const handleUserUpdate = async () => {
+    if (user) {
+      try {
+        const latest = await getUserById(user.id);
+        setUser(latest);
+        localStorage.setItem("user", JSON.stringify(latest));
+      } catch (err) {
+        // ถ้าดึงไม่ได้ก็ไม่ต้องทำอะไร หรือแจ้งเตือนได้
+      }
+    }
+  };
+
   return (
     <BrowserRouter>
       <Routes>
         <Route
           path="/"
           element={
-            // ส่ง handleLogout เข้า MainContent
-            <MainContent setModal={setModal} user={user} handleLogout={handleLogout} />
+            <MainContent
+              setModal={setModal}
+              user={user}
+              handleLogout={handleLogout}
+              handleUserUpdate={handleUserUpdate}
+            />
           }
         />
         <Route path="/reset-password" element={<ResetPassword />} />
@@ -90,7 +117,6 @@ function App() {
           />
         </div>
       )}
-      {/* {user && <button onClick={handleLogout}>Logout</button>} */}
     </BrowserRouter>
   );
 }

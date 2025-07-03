@@ -135,6 +135,27 @@ app.post('/api/login', async (req, res) => {
   });
 });
 
+// PUT /api/users/:id
+
+// PUT /api/users/:id  --- แก้ไขข้อมูล user ตาม id
+app.put('/api/users/:id', async (req, res) => {
+  const { id } = req.params;
+  const { prefix, firstName, lastName, address, phone, email } = req.body;
+  try {
+    await pool.query(
+      `UPDATE users SET prefix=?, firstName=?, lastName=?, address=?, phone=?, email=? WHERE id=?`,
+      [prefix, firstName, lastName, address, phone, email, id]
+    );
+    const [rows] = await pool.query('SELECT * FROM users WHERE id=?', [id]);
+    if (rows.length === 0) return res.status(404).json({ message: 'User not found' });
+    const user = rows[0];
+    delete user.password;
+    res.json({ message: 'อัปเดตสำเร็จ', user });
+  } catch (err) {
+    res.status(500).json({ message: 'เกิดข้อผิดพลาดขณะอัปเดต' });
+  }
+});
+
 // Start server
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));

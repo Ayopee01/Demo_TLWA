@@ -1,94 +1,130 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Link } from "react-router-dom";
 import logo from '../assets/logo/tlwa_logo.webp';
-// ต้องติดตั้ง react-icons ก่อน: npm install react-icons
-import { FaUserCircle } from 'react-icons/fa';
+import { FaUserCircle, FaChevronDown } from 'react-icons/fa';
+import MemberModal from './MemberModal';
+import AccountModal from './AccountModal';
 
-function Navbar({ onLoginClick, user, onLogout }) {
-  const [open, setOpen] = useState(false);
-  const [isHovered, setIsHovered] = useState(false);
+function Navbar({ onLoginClick, user, onLogout, onUserUpdated }) {
+  const [open, setOpen] = useState(false); // Mobile menu
+  const [dropdown, setDropdown] = useState(false);
+  const [showMemberModal, setShowMemberModal] = useState(false);
+  const [showAccountModal, setShowAccountModal] = useState(false);
+  const dropdownRef = useRef(null);
+
+  // ปิด dropdown เมื่อคลิกข้างนอก
+  useEffect(() => {
+    if (!dropdown) return;
+    const handleClick = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) setDropdown(false);
+    };
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, [dropdown]);
+
+  // เมนูหลัก
+  const navLinks = [
+    { label: "Home", href: "#" },
+    { label: "Benefits", href: "#" },
+    { label: "News", href: "#" },
+    { label: "Media", href: "#" },
+    { label: "Partners", href: "#" },
+    { label: "Rules and Regulations", href: "#" },
+    { label: "Contact", href: "#" },
+  ];
 
   return (
     <nav className="bg-white sticky top-0 z-50 shadow px-8 lg:px-16 xl:px-24">
       <div className="container mx-auto flex items-center justify-between h-30">
         {/* LOGO */}
         <Link to="/">
-          <img className='h-full w-12 xl:w-15' src={logo} alt="Logo" />
+          <img className="h-full w-12 xl:w-15" src={logo} alt="Logo" />
         </Link>
-        {/* Desktop menu */}
-        <ul className="hidden xl:flex space-x-8 flex-wrap items-center justify-center p-8 gap-y-4">
-          <li><a href="#" className="relative font-medium text-gray-700 transition hover:text-indigo-500">Home</a></li>
-          <li><a href="#" className="relative font-medium text-gray-700 transition hover:text-indigo-500">Benefits</a></li>
-          <li><a href="#" className="relative font-medium text-gray-700 transition hover:text-indigo-500">News</a></li>
-          <li><a href="#" className="relative font-medium text-gray-700 transition hover:text-indigo-500">Media</a></li>
-          <li><a href="#" className="relative font-medium text-gray-700 transition hover:text-indigo-500">Partners</a></li>
-          <li><a href="#" className="relative font-medium text-gray-700 transition hover:text-indigo-500">Rules and Regulations</a></li>
-          <li><a href="#" className="relative font-medium text-gray-700 transition hover:text-indigo-500">Contact</a></li>
+        {/* Desktop Nav */}
+        <ul className="hidden xl:flex space-x-8 items-center p-8">
+          {navLinks.map(link => (
+            <li key={link.label}>
+              <a href={link.href} className="relative font-medium text-gray-700 transition hover:text-indigo-500">{link.label}</a>
+            </li>
+          ))}
         </ul>
-
-        {/* Desktop: User Info or Login */}
-        {!user ? (
-          <button
-            className="hidden xl:block relative overflow-hidden cursor-pointer font-medium bg-indigo-500 text-white h-15 w-25 rounded-xl transition-colors duration-600 hover:bg-indigo-600 group"
-            onClick={onLoginClick}
-          >
-            <span
-              className="absolute left-1/2 top-1/2 w-40 h-40 -translate-x-1/2 -translate-y-1/2 rounded-full bg-indigo-700 scale-0 group-hover:scale-150 transition-transform duration-700 ease-out z-0"
-              style={{ pointerEvents: 'none' }}
-              aria-hidden="true"
-            />
-            <span className="relative w-full z-10">Log in</span>
-          </button>
-        ) : (
-          <div className="hidden xl:flex items-center gap-2 px-4 py-1 rounded-xl bg-indigo-50 border border-indigo-100">
-            <FaUserCircle className="text-2xl text-indigo-500" />
-            <span className="font-medium text-indigo-900">{user.firstName} {user.lastName}</span>
+        {/* Desktop: Login/User */}
+        <div className="hidden xl:flex items-center">
+          {!user ? (
             <button
-              className="ml-3 px-3 py-1 text-xs bg-red-50 border border-red-200 text-red-500 rounded-xl hover:bg-red-100 transition"
-              onClick={onLogout}
+              className="relative overflow-hidden cursor-pointer font-medium bg-indigo-500 text-white h-15 w-25 rounded-xl transition-colors duration-600 hover:bg-indigo-600 group"
+              onClick={onLoginClick}
             >
-              Logout
+              <span className="relative w-full z-10">Log in</span>
             </button>
-          </div>
-        )}
-
-        {/* Hamburger */}
+          ) : (
+            <div ref={dropdownRef} className="relative flex items-center">
+              <button
+                className="flex items-center gap-1 px-3 py-1 rounded-xl bg-indigo-50 border border-indigo-100 hover:bg-indigo-100 transition"
+                onClick={() => setDropdown((d) => !d)}
+                tabIndex={0}
+              >
+                <FaUserCircle className="text-2xl text-indigo-500" />
+                <span className="font-medium text-indigo-900">{user.firstName} {user.lastName}</span>
+                <FaChevronDown className="ml-1 text-indigo-500" />
+              </button>
+              {/* Dropdown */}
+              {dropdown && (
+                <div className="absolute right-0 top-12 mt-2 w-44 bg-white border rounded-xl shadow z-50">
+                  <ul className="py-2 text-sm text-indigo-900">
+                    <li>
+                      <button
+                        className="w-full text-left px-5 py-2 hover:bg-indigo-50"
+                        onClick={() => { setDropdown(false); setShowMemberModal(true); }}
+                      >
+                        Member
+                      </button>
+                    </li>
+                    <li>
+                      <button
+                        className="w-full text-left px-5 py-2 hover:bg-indigo-50"
+                        onClick={() => { setDropdown(false); setShowAccountModal(true); }}
+                      >
+                        Account
+                      </button>
+                    </li>
+                    <li>
+                      <button
+                        className="w-full text-left px-5 py-2 hover:bg-red-50 text-red-500"
+                        onClick={() => { setDropdown(false); onLogout(); }}
+                      >
+                        Logout
+                      </button>
+                    </li>
+                  </ul>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+        {/* Mobile Hamburger */}
         <button
-          className="cursor-pointer xl:hidden flex items-center justify-center w-12 h-12 rounded-full bg-gray-600 focus:outline-none hover:bg-gray-700"
+          className="xl:hidden flex items-center justify-center w-12 h-12 rounded-full bg-gray-600 focus:outline-none hover:bg-gray-700"
           aria-label="Toggle menu"
-          onClick={() => setOpen(!open)}
-          onMouseEnter={() => setIsHovered(true)}
-          onMouseLeave={() => setIsHovered(false)}
+          onClick={() => setOpen(o => !o)}
         >
           <svg className="w-10 h-10 text-white" fill="none" viewBox="0 0 24 24">
-            {open ? (
-              // X Icon
-              <path
-                stroke="currentColor"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M6 18L18 6M6 6l12 12"
-              />
-            ) : (
-              <>
-                <line x1={isHovered ? "12" : "6"} y1="8" x2="18" y2="8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+            {open
+              ? <path stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              : (<>
+                <line x1="6" y1="8" x2="18" y2="8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
                 <line x1="6" y1="12" x2="18" y2="12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-                <line x1={isHovered ? "6" : "12"} y1="16" x2="18" y2="16" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-              </>
-            )}
+                <line x1="6" y1="16" x2="18" y2="16" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+              </>)
+            }
           </svg>
         </button>
       </div>
 
       {/* Overlay */}
-      <div
-        className={`fixed inset-0 z-40 bg-black opacity-70 transition-opacity duration-300
-        ${open ? "block" : "hidden"}`}
-        onClick={() => setOpen(false)}
-      />
+      {open && <div className="fixed inset-0 z-40 bg-black opacity-70 transition-opacity duration-300" onClick={() => setOpen(false)} />}
 
-      {/* Side Drawer */}
+      {/* Mobile Drawer */}
       <div className={`
         fixed top-0 left-0 z-50 h-full w-4/5 max-w-xs bg-white shadow-2xl
         transition-transform duration-300 border-r border-gray-200
@@ -112,30 +148,18 @@ function Navbar({ onLoginClick, user, onLogout }) {
         </div>
         <nav className="flex flex-col justify-between h-full p-4">
           <ul className="flex flex-col mt-1 flex-1">
-            <li><a href="#" className="relative font-medium text-gray-700 hover:text-indigo-500 px-5 py-3 block border-b border-indigo-100">Home</a></li>
-            <li><a href="#" className="relative font-medium text-gray-700 hover:text-indigo-500 px-5 py-3 block border-b border-indigo-100">Benefits</a></li>
-            <li><a href="#" className="relative font-medium text-gray-700 hover:text-indigo-500 px-5 py-3 block border-b border-indigo-100">Sister Organizations</a></li>
-            <li><a href="#" className="relative font-medium text-gray-700 hover:text-indigo-500 px-5 py-3 block border-b border-indigo-100">LM Week</a></li>
-            <li><a href="#" className="relative font-medium text-gray-700 hover:text-indigo-500 px-5 py-3 block border-b border-indigo-100">Commitee</a></li>
-            <li><a href="#" className="relative font-medium text-gray-700 hover:text-indigo-500 px-5 py-3 block border-b border-indigo-100">Media</a></li>
-            <li><a href="#" className="relative font-medium text-gray-700 hover:text-indigo-500 px-5 py-3 block border-b border-indigo-100">Editorial</a></li>
-            <li><a href="#" className="relative font-medium text-gray-700 hover:text-indigo-500 px-5 py-3 block border-b border-indigo-100">IBLM</a></li>
-            <li><a href="#" className="relative font-medium text-gray-700 hover:text-indigo-500 px-5 py-3 block border-b border-indigo-100">Rules and Regulations</a></li>
-            <li><a href="#" className="relative font-medium text-gray-700 hover:text-indigo-500 px-5 py-3 block border-b border-indigo-100">About Us</a></li>
-            <li><a href="#" className="relative font-medium text-gray-700 hover:text-indigo-500 px-5 py-3 block border-b border-indigo-100">Contact</a></li>
+            {navLinks.map(link => (
+              <li key={link.label}>
+                <a href={link.href} className="relative font-medium text-gray-700 hover:text-indigo-500 px-5 py-3 block border-b border-indigo-100">{link.label}</a>
+              </li>
+            ))}
           </ul>
           <div className='flex justify-center mt-4'>
-            {/* ด้าน mobile - login หรือ user */}
             {!user ? (
               <button
                 className="relative overflow-hidden cursor-pointer font-medium bg-indigo-500 text-white px-8 py-2 rounded-xl transition-colors duration-600 hover:text-white group"
                 onClick={() => { setOpen(false); onLoginClick(); }}
               >
-                <span
-                  className="absolute left-1/2 top-1/2 w-40 h-40 -translate-x-1/2 -translate-y-1/2 rounded-full bg-indigo-700 scale-0 group-hover:scale-150 transition-transform duration-700 ease-out z-0"
-                  style={{ pointerEvents: 'none' }}
-                  aria-hidden="true"
-                />
                 <span className="relative z-10">Log in</span>
               </button>
             ) : (
@@ -153,6 +177,9 @@ function Navbar({ onLoginClick, user, onLogout }) {
           </div>
         </nav>
       </div>
+      {/* Popup Modals */}
+      <MemberModal open={showMemberModal} onClose={() => setShowMemberModal(false)} />
+      <AccountModal open={showAccountModal} onClose={() => setShowAccountModal(false)} user={user} onUserUpdated={onUserUpdated} />
     </nav>
   );
 }
