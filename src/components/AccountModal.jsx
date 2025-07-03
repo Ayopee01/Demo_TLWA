@@ -14,15 +14,10 @@ export default function AccountModal({ open, onClose }) {
     email: "",
   });
   const [errors, setErrors] = useState({});
-  const [popup, setPopup] = useState('');
+  const [popup, setPopup] = useState({ message: "", type: "" }); // { message: "...", type: "success"|"error" }
   const [submitting, setSubmitting] = useState(false);
 
-  // Debug user
-  useEffect(() => {
-    console.log("user context:", user); // <--- Debug ดู user data
-  }, [user]);
-
-  // โหลดข้อมูล user
+  // โหลดข้อมูล user เข้า form ทันทีที่ user เปลี่ยนหรือ modal เปิด
   useEffect(() => {
     if (user && open) {
       setForm({
@@ -34,7 +29,7 @@ export default function AccountModal({ open, onClose }) {
         email: user.email || "",
       });
       setErrors({});
-      setPopup('');
+      setPopup({ message: "", type: "" });
       setSubmitting(false);
     }
   }, [user, open]);
@@ -54,34 +49,39 @@ export default function AccountModal({ open, onClose }) {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
     setErrors((prev) => ({ ...prev, [name]: undefined, api: undefined }));
+    setPopup({ message: "", type: "" });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setSubmitting(true);
-    setPopup('');
-    const newErrors = validate();
-    setErrors(newErrors);
-    if (Object.keys(newErrors).length > 0) {
-      setSubmitting(false);
+    if (!user || !user.id) {
+      setPopup({ message: "ไม่พบ user id", type: "error" });
       return;
     }
+    const validationErrors = validate();
+    if (Object.keys(validationErrors).length) {
+      setErrors(validationErrors);
+      setPopup({ message: "กรุณากรอกข้อมูลให้ครบถ้วน", type: "error" });
+      return;
+    }
+    setSubmitting(true);
     try {
-      // Debug ส่งค่าก่อนยิง api
-      console.log("update form:", form, "user id:", user?.id);
       const res = await api.put(`/api/users/${user.id}`, form);
-      setPopup("บันทึกสำเร็จ");
+      setPopup({ message: "แก้ไขข้อมูลเรียบร้อย", type: "success" });
       updateUser({ ...user, ...form, ...res.data.user });
       setTimeout(() => {
-        setPopup('');
+        setPopup({ message: "", type: "" });
         if (onClose) onClose();
       }, 1200);
     } catch (err) {
-      setPopup('');
+      setPopup({
+        message: err.response?.data?.message || "เกิดข้อผิดพลาดในการบันทึก",
+        type: "error",
+      });
       setErrors({ api: err.response?.data?.message || "เกิดข้อผิดพลาด" });
-      setSubmitting(false);
       console.error("Update error:", err);
     }
+    setSubmitting(false);
   };
 
   if (!open) return null;
@@ -105,8 +105,13 @@ export default function AccountModal({ open, onClose }) {
           </svg>
         </button>
         <h2 className="text-2xl font-bold mb-6 text-gray-800 tracking-tight">แก้ไขข้อมูลบัญชี</h2>
-        {errors.api && <div className="mb-4 text-red-500 text-sm">{errors.api}</div>}
-        {popup && <div className="mb-4 text-green-600 text-sm">{popup}</div>}
+
+        {/* Success/Error Popup */}
+        {popup.message && (
+          <div className={`mb-4 text-sm ${popup.type === "success" ? "text-green-600" : "text-red-500"}`}>
+            {popup.message}
+          </div>
+        )}
         <div className="flex flex-col md:flex-row gap-6">
           {/* Left Column */}
           <div className="flex-1 flex flex-col gap-3">
