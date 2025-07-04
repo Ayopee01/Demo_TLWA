@@ -1,5 +1,3 @@
-// server.js
-
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
@@ -10,11 +8,10 @@ const nodemailer = require('nodemailer');
 const crypto = require('crypto');
 
 const app = express();
-
 app.use(cors());
 app.use(express.json());
 
-// 1. Nodemailer Transport
+// === Nodemailer ===
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
@@ -23,7 +20,7 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-// 2. Forgot Password (Send Reset Email)
+// === Forgot Password ===
 app.post('/api/forgot-password', async (req, res) => {
   try {
     const { email } = req.body;
@@ -31,20 +28,15 @@ app.post('/api/forgot-password', async (req, res) => {
     if (rows.length === 0)
       return res.status(400).json({ message: 'ไม่พบอีเมลนี้ในระบบ' });
 
-    // สร้าง token และหมดอายุใน 1 ชั่วโมง
     const resetToken = crypto.randomBytes(32).toString('hex');
-    const expires = new Date(Date.now() + 60 * 60 * 1000); // 1 ชม.
+    const expires = new Date(Date.now() + 60 * 60 * 1000);
 
-    // อัปเดต token+expires ลง DB
     await pool.query(
       'UPDATE users SET reset_token=?, reset_token_expires=? WHERE email=?',
       [resetToken, expires, email]
     );
 
-    // สร้างลิงค์ Reset Password (แก้ url ตรงนี้ถ้า deploy จริง)
     const resetLink = `http://localhost:5173/reset-password?token=${resetToken}&email=${encodeURIComponent(email)}`;
-
-    // ส่งอีเมล
     const mailOptions = {
       from: `"Support" <${process.env.EMAIL_USER}>`,
       to: email,
@@ -61,27 +53,21 @@ app.post('/api/forgot-password', async (req, res) => {
   }
 });
 
-// 3. Reset Password (User ส่ง token + password)
+// === Reset Password ===
 app.post('/api/reset-password', async (req, res) => {
   try {
     const { email, token, password } = req.body;
-    if (!email || !token || !password) {
+    if (!email || !token || !password)
       return res.status(400).json({ message: 'ข้อมูลไม่ครบถ้วน' });
-    }
 
-    // ตรวจสอบ token+หมดอายุ
     const [rows] = await pool.query(
       'SELECT * FROM users WHERE email=? AND reset_token=? AND reset_token_expires > NOW()',
       [email, token]
     );
-    if (rows.length === 0) {
+    if (rows.length === 0)
       return res.status(400).json({ message: 'ลิงก์หมดอายุหรือไม่ถูกต้อง' });
-    }
 
-    // hash password ใหม่
     const hashed = await bcrypt.hash(password, 10);
-
-    // อัปเดตรหัสผ่าน+ล้าง token
     await pool.query(
       'UPDATE users SET password=?, reset_token=NULL, reset_token_expires=NULL WHERE email=?',
       [hashed, email]
@@ -93,20 +79,28 @@ app.post('/api/reset-password', async (req, res) => {
   }
 });
 
-// 4. Register
+// === Register ===
 app.post('/api/register', async (req, res) => {
   try {
-    const { prefix, firstName, lastName, address, phone, email, password } = req.body;
-    if (!prefix || !firstName || !lastName || !address || !phone || !email || !password) {
+    const {
+      prefix, firstName, lastName, firstNameEn, lastNameEn, address, phone, email, password
+    } = req.body;
+    if (!prefix || !firstName || !lastName || !firstNameEn || !lastNameEn || !address || !phone || !email || !password) {
       return res.status(400).json({ message: 'ข้อมูลไม่ครบถ้วน' });
     }
-    const [user] = await pool.query('SELECT id FROM users WHERE email = ?', [email]);
-    if (user.length > 0) return res.status(400).json({ message: 'อีเมลนี้ถูกใช้ไปแล้ว' });
+    const [userByEmail] = await pool.query('SELECT id FROM users WHERE email = ?', [email]);
+    if (userByEmail.length > 0)
+      return res.status(400).json({ message: 'อีเมลนี้ถูกใช้ไปแล้ว' });
+
+    const [userByPhone] = await pool.query('SELECT id FROM users WHERE phone = ?', [phone]);
+    if (userByPhone.length > 0)
+      return res.status(400).json({ message: 'เบอร์โทรนี้ถูกใช้ไปแล้ว' });
+
     const hashed = await bcrypt.hash(password, 10);
     await pool.query(
-      `INSERT INTO users (prefix, firstName, lastName, address, phone, email, password)
-      VALUES (?, ?, ?, ?, ?, ?, ?)`,
-      [prefix, firstName, lastName, address, phone, email, hashed]
+      `INSERT INTO users (prefix, firstName, lastName, firstNameEn, lastNameEn, address, phone, email, password)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [prefix, firstName, lastName, firstNameEn, lastNameEn, address, phone, email, hashed]
     );
     res.json({ message: 'สมัครสมาชิกสำเร็จ' });
   } catch (err) {
@@ -115,35 +109,27 @@ app.post('/api/register', async (req, res) => {
   }
 });
 
-// 5. Login (ปรับปรุง FULL Try-Catch + LOG)
+// === Login ===
 app.post('/api/login', async (req, res) => {
   try {
     const { email, password } = req.body;
-    if (!email || !password) {
+    if (!email || !password)
       return res.status(400).json({ message: 'ข้อมูลไม่ครบถ้วน' });
-    }
+
     const [rows] = await pool.query('SELECT * FROM users WHERE email = ?', [email]);
-    if (rows.length === 0) {
+    if (rows.length === 0)
       return res.status(400).json({ message: 'User not found' });
-    }
 
     const user = rows[0];
-
-    // ตรวจสอบ password
-    if (!user.password) {
-      console.error('User password is empty in DB:', user);
+    if (!user.password)
       return res.status(400).json({ message: 'รหัสผ่านผิดพลาด' });
-    }
 
     const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
+    if (!isMatch)
       return res.status(400).json({ message: 'Invalid credentials' });
-    }
 
-    if (!process.env.JWT_SECRET) {
-      console.error('JWT_SECRET is not defined in .env');
+    if (!process.env.JWT_SECRET)
       return res.status(500).json({ message: 'Server configuration error' });
-    }
 
     const token = jwt.sign(
       { id: user.id, email: user.email },
@@ -158,6 +144,11 @@ app.post('/api/login', async (req, res) => {
         id: user.id,
         firstName: user.firstName,
         lastName: user.lastName,
+        firstNameEn: user.firstNameEn,
+        lastNameEn: user.lastNameEn,
+        prefix: user.prefix,
+        address: user.address,
+        phone: user.phone,
         email: user.email
       }
     });
@@ -167,19 +158,46 @@ app.post('/api/login', async (req, res) => {
   }
 });
 
-// 6. Update user by id
+// === Get user by id ===
+app.get('/api/users/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    const [rows] = await pool.query(
+      'SELECT id, prefix, firstName, lastName, firstNameEn, lastNameEn, address, phone, email FROM users WHERE id=?', [id]
+    );
+    if (rows.length === 0) return res.status(404).json({ message: 'User not found' });
+    res.json({ user: rows[0] });
+  } catch (err) {
+    console.error('GET USER ERROR:', err);
+    res.status(500).json({ message: 'เกิดข้อผิดพลาด', error: err.message });
+  }
+});
+
+// === Update user by id (with check for duplicate phone) ===
 app.put('/api/users/:id', async (req, res) => {
   const { id } = req.params;
-  const { prefix, firstName, lastName, address, phone, email } = req.body;
+  const { prefix, firstName, lastName, firstNameEn, lastNameEn, address, phone, email } = req.body;
   try {
-    await pool.query(
-      `UPDATE users SET prefix=?, firstName=?, lastName=?, address=?, phone=?, email=? WHERE id=?`,
-      [prefix, firstName, lastName, address, phone, email, id]
+    // เช็คเบอร์โทรซ้ำ (ยกเว้น user ตัวเอง)
+    const [exist] = await pool.query(
+      'SELECT id FROM users WHERE phone=? AND id<>?',
+      [phone, id]
     );
-    const [rows] = await pool.query('SELECT * FROM users WHERE id=?', [id]);
+    if (exist.length > 0)
+      return res.status(400).json({ message: 'เบอร์โทรนี้ถูกใช้งานแล้ว' });
+
+    await pool.query(
+      `UPDATE users 
+        SET prefix=?, firstName=?, lastName=?, firstNameEn=?, lastNameEn=?, address=?, phone=?, email=?
+      WHERE id=?`,
+      [prefix, firstName, lastName, firstNameEn, lastNameEn, address, phone, email, id]
+    );
+    const [rows] = await pool.query(
+      'SELECT id, prefix, firstName, lastName, firstNameEn, lastNameEn, address, phone, email FROM users WHERE id=?',
+      [id]
+    );
     if (rows.length === 0) return res.status(404).json({ message: 'User not found' });
     const user = rows[0];
-    delete user.password;
     res.json({ message: 'อัปเดตสำเร็จ', user });
   } catch (err) {
     console.error('UPDATE USER ERROR:', err);
@@ -187,6 +205,15 @@ app.put('/api/users/:id', async (req, res) => {
   }
 });
 
-// Start server
+// === เช็คเบอร์ซ้ำ ===
+app.get('/api/users/check-phone', async (req, res) => {
+  const { phone, excludeId } = req.query;
+  const [rows] = await pool.query(
+    'SELECT id FROM users WHERE phone = ? AND id != ?', [phone, excludeId || 0]
+  );
+  res.json({ duplicate: rows.length > 0 });
+});
+
+// === Start server ===
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));

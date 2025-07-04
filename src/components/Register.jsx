@@ -6,6 +6,8 @@ export default function Register({ onClose, onSwitchToLogin }) {
     prefix: '',
     firstName: '',
     lastName: '',
+    firstNameEn: '',
+    lastNameEn: '',
     address: '',
     phone: '',
     email: '',
@@ -22,6 +24,8 @@ export default function Register({ onClose, onSwitchToLogin }) {
     if (!form.prefix) newErrors.prefix = "กรุณาเลือกคำนำหน้า";
     if (!form.firstName) newErrors.firstName = "กรุณากรอกชื่อจริง";
     if (!form.lastName) newErrors.lastName = "กรุณากรอกนามสกุล";
+    if (!form.firstNameEn) newErrors.firstNameEn = "Please enter your First Name (English)";
+    if (!form.lastNameEn) newErrors.lastNameEn = "Please enter your Last Name (English)";
     if (!form.address) newErrors.address = "กรุณากรอกที่อยู่";
     if (!form.phone) newErrors.phone = "กรุณากรอกเบอร์โทรศัพท์";
     else if (!/^0\d{8,9}$/.test(form.phone)) newErrors.phone = "เบอร์โทรไม่ถูกต้อง (ต้องขึ้นต้นด้วย 0 และ 9-10 หลัก)";
@@ -65,7 +69,6 @@ export default function Register({ onClose, onSwitchToLogin }) {
     }
   };
 
-  // เมื่อกด overlay ถ้า target ไม่ใช่ form ให้ปิด popup
   const handleOverlayClick = (e) => {
     if (formRef.current && !formRef.current.contains(e.target)) {
       onClose && onClose();
@@ -87,8 +90,6 @@ export default function Register({ onClose, onSwitchToLogin }) {
           max-w-xs sm:max-w-sm md:max-w-md lg:max-w-2xl
           transition-all duration-200
           overflow-y-auto
-          sm:overflow-y-auto sm:overflow-x-auto md:overflow-x-auto
-          lg:overflow-visible
           max-h-[90dvh]
         `}
         style={{
@@ -162,33 +163,33 @@ export default function Register({ onClose, onSwitchToLogin }) {
               />
               {errors.lastName && <span className="text-red-500 text-xs">{errors.lastName}</span>}
             </div>
-            {/* ที่อยู่ */}
+            {/* First Name (English) */}
             <div>
-              <label className="block mb-1 text-gray-700 font-medium text-sm">ที่อยู่</label>
-              <textarea
-                name="address"
-                rows={2}
-                className={`w-full border px-3 py-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400 transition ${errors.address ? 'border-red-400 focus:ring-red-400' : 'border-gray-300 focus:border-blue-400'}`}
-                value={form.address}
-                onChange={handleChange}
-                placeholder="กรอกที่อยู่"
-                disabled={submitting}
-              />
-              {errors.address && <span className="text-red-500 text-xs">{errors.address}</span>}
-            </div>
-            {/* เบอร์โทรศัพท์ */}
-            <div>
-              <label className="block mb-1 text-gray-700 font-medium text-sm">เบอร์โทรศัพท์</label>
+              <label className="block mb-1 text-gray-700 font-medium text-sm">First Name (English)</label>
               <input
-                name="phone"
-                type="tel"
-                className={`w-full border px-3 py-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400 transition ${errors.phone ? 'border-red-400 focus:ring-red-400' : 'border-gray-300 focus:border-blue-400'}`}
-                value={form.phone}
+                name="firstNameEn"
+                type="text"
+                className={`w-full border px-3 py-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400 transition ${errors.firstNameEn ? 'border-red-400 focus:ring-red-400' : 'border-gray-300 focus:border-blue-400'}`}
+                value={form.firstNameEn}
                 onChange={handleChange}
-                placeholder="0812345678"
+                placeholder="Enter First Name in English"
                 disabled={submitting}
               />
-              {errors.phone && <span className="text-red-500 text-xs">{errors.phone}</span>}
+              {errors.firstNameEn && <span className="text-red-500 text-xs">{errors.firstNameEn}</span>}
+            </div>
+            {/* Last Name (English) */}
+            <div>
+              <label className="block mb-1 text-gray-700 font-medium text-sm">Last Name (English)</label>
+              <input
+                name="lastNameEn"
+                type="text"
+                className={`w-full border px-3 py-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400 transition ${errors.lastNameEn ? 'border-red-400 focus:ring-red-400' : 'border-gray-300 focus:border-blue-400'}`}
+                value={form.lastNameEn}
+                onChange={handleChange}
+                placeholder="Enter Last Name in English"
+                disabled={submitting}
+              />
+              {errors.lastNameEn && <span className="text-red-500 text-xs">{errors.lastNameEn}</span>}
             </div>
           </div>
           {/* Right Column */}
@@ -237,6 +238,34 @@ export default function Register({ onClose, onSwitchToLogin }) {
                 disabled={submitting}
               />
               {errors.confirmPassword && <span className="text-red-500 text-xs">{errors.confirmPassword}</span>}
+            </div>
+            {/* เบอร์โทรศัพท์ */}
+            <div>
+              <label className="block mb-1 text-gray-700 font-medium text-sm">เบอร์โทรศัพท์</label>
+              <input
+                name="phone"
+                type="tel"
+                className={`w-full border px-3 py-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400 transition ${errors.phone ? 'border-red-400 focus:ring-red-400' : 'border-gray-300 focus:border-blue-400'}`}
+                value={form.phone}
+                onChange={handleChange}
+                placeholder="0812345678"
+                disabled={submitting}
+              />
+              {errors.phone && <span className="text-red-500 text-xs">{errors.phone}</span>}
+            </div>
+            {/* ที่อยู่ */}
+            <div>
+              <label className="block mb-1 text-gray-700 font-medium text-sm">ที่อยู่</label>
+              <textarea
+                name="address"
+                rows={2}
+                className={`w-full border px-3 py-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400 transition ${errors.address ? 'border-red-400 focus:ring-red-400' : 'border-gray-300 focus:border-blue-400'}`}
+                value={form.address}
+                onChange={handleChange}
+                placeholder="กรอกที่อยู่"
+                disabled={submitting}
+              />
+              {errors.address && <span className="text-red-500 text-xs">{errors.address}</span>}
             </div>
           </div>
         </div>

@@ -3,7 +3,6 @@ import emailjs from '@emailjs/browser';
 import { useForm } from 'react-hook-form';
 import { section } from 'framer-motion/client';
 
-
 function Contact() {
     const form = useRef();
     const { register, handleSubmit, reset, formState: { errors } } = useForm();

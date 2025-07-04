@@ -4,15 +4,20 @@ import logo from '../assets/logo/tlwa_logo.webp';
 import { FaUserCircle, FaChevronDown } from 'react-icons/fa';
 import MemberModal from './MemberModal';
 import AccountModal from './AccountModal';
+import { useUser } from "../contexts/UserContext";
 
-function Navbar({ onLoginClick, user, onLogout, onUserUpdated }) {
-  const [open, setOpen] = useState(false); // Mobile menu
-  const [dropdown, setDropdown] = useState(false);
+function Navbar({ onLoginClick }) {
+  const { user, logoutUser } = useUser();
+
+  const [open, setOpen] = useState(false); // Mobile drawer
+  const [dropdown, setDropdown] = useState(false); // Desktop user dropdown
+  const [mobileUserDropdown, setMobileUserDropdown] = useState(false); // Mobile user dropdown
   const [showMemberModal, setShowMemberModal] = useState(false);
   const [showAccountModal, setShowAccountModal] = useState(false);
+
   const dropdownRef = useRef(null);
 
-  // ปิด dropdown เมื่อคลิกข้างนอก
+  // ปิด dropdown (desktop) เมื่อคลิกข้างนอก
   useEffect(() => {
     if (!dropdown) return;
     const handleClick = (e) => {
@@ -21,6 +26,18 @@ function Navbar({ onLoginClick, user, onLogout, onUserUpdated }) {
     document.addEventListener('mousedown', handleClick);
     return () => document.removeEventListener('mousedown', handleClick);
   }, [dropdown]);
+
+  // ปิด user dropdown (mobile) เมื่อคลิกข้างนอก
+  useEffect(() => {
+    if (!mobileUserDropdown) return;
+    const handleClick = (e) => {
+      if (!e.target.closest('.mobile-user-dropdown-btn') && !e.target.closest('.mobile-user-dropdown-popup')) {
+        setMobileUserDropdown(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, [mobileUserDropdown]);
 
   // เมนูหลัก
   const navLinks = [
@@ -40,6 +57,7 @@ function Navbar({ onLoginClick, user, onLogout, onUserUpdated }) {
         <Link to="/">
           <img className="h-full w-12 xl:w-15" src={logo} alt="Logo" />
         </Link>
+
         {/* Desktop Nav */}
         <ul className="hidden xl:flex space-x-8 items-center p-8">
           {navLinks.map(link => (
@@ -48,6 +66,7 @@ function Navbar({ onLoginClick, user, onLogout, onUserUpdated }) {
             </li>
           ))}
         </ul>
+
         {/* Desktop: Login/User */}
         <div className="hidden xl:flex items-center">
           {!user ? (
@@ -91,7 +110,7 @@ function Navbar({ onLoginClick, user, onLogout, onUserUpdated }) {
                     <li>
                       <button
                         className="w-full text-left px-5 py-2 hover:bg-red-50 text-red-500"
-                        onClick={() => { setDropdown(false); onLogout(); }}
+                        onClick={() => { setDropdown(false); logoutUser(); }}
                       >
                         Logout
                       </button>
@@ -102,6 +121,7 @@ function Navbar({ onLoginClick, user, onLogout, onUserUpdated }) {
             </div>
           )}
         </div>
+
         {/* Mobile Hamburger */}
         <button
           className="xl:hidden flex items-center justify-center w-12 h-12 rounded-full bg-gray-600 focus:outline-none hover:bg-gray-700"
@@ -154,7 +174,8 @@ function Navbar({ onLoginClick, user, onLogout, onUserUpdated }) {
               </li>
             ))}
           </ul>
-          <div className='flex justify-center mt-4'>
+          {/* Mobile User Dropdown */}
+          <div className='flex flex-col justify-center mt-4 relative'>
             {!user ? (
               <button
                 className="relative overflow-hidden cursor-pointer font-medium bg-indigo-500 text-white px-8 py-2 rounded-xl transition-colors duration-600 hover:text-white group"
@@ -163,23 +184,77 @@ function Navbar({ onLoginClick, user, onLogout, onUserUpdated }) {
                 <span className="relative z-10">Log in</span>
               </button>
             ) : (
-              <div className="flex items-center gap-2 px-4 py-1 rounded-xl bg-indigo-50 border border-indigo-100">
-                <FaUserCircle className="text-2xl text-indigo-500" />
-                <span className="font-medium text-indigo-900">{user.firstName} {user.lastName}</span>
+              <div className="relative w-full flex justify-center">
                 <button
-                  className="ml-3 px-3 py-1 text-xs bg-red-50 border border-red-200 text-red-500 rounded-xl hover:bg-red-100 transition"
-                  onClick={() => { setOpen(false); onLogout(); }}
+                  className="flex items-center gap-2 w-full max-w-[240px] px-4 py-2 rounded-xl bg-indigo-50 border border-indigo-100 mobile-user-dropdown-btn"
+                  onClick={() => setMobileUserDropdown((d) => !d)}
                 >
-                  Logout
+                  <FaUserCircle className="text-2xl text-indigo-500" />
+                  <span className="font-medium text-indigo-900 truncate">{user.firstName} {user.lastName}</span>
+                  <FaChevronDown className="ml-1 text-indigo-500" />
                 </button>
+                {/* Dropdown Popup เล็ก + อยู่ด้านบน + ขนาดพอดีเมนู */}
+                {mobileUserDropdown && (
+                  <div
+                    className="
+                      absolute
+                      bottom-[110%] left-1/2
+                      -translate-x-1/2
+                      w-full max-w-[220px]
+                      bg-white border rounded-xl shadow-lg z-50
+                      flex flex-col items-stretch
+                      mobile-user-dropdown-popup
+                    "
+                  >
+                    <ul className="py-1 text-sm text-indigo-900">
+                      <li>
+                        <button
+                          className="w-full text-left px-5 py-2 hover:bg-indigo-50 rounded-t-xl"
+                          onClick={() => {
+                            setOpen(false);
+                            setShowMemberModal(true);
+                            setMobileUserDropdown(false);
+                          }}
+                        >
+                          Member
+                        </button>
+                      </li>
+                      <li>
+                        <button
+                          className="w-full text-left px-5 py-2 hover:bg-indigo-50"
+                          onClick={() => {
+                            setOpen(false);
+                            setShowAccountModal(true);
+                            setMobileUserDropdown(false);
+                          }}
+                        >
+                          Account
+                        </button>
+                      </li>
+                      <li>
+                        <button
+                          className="w-full text-left px-5 py-2 hover:bg-red-50 text-red-500 rounded-b-xl"
+                          onClick={() => {
+                            setOpen(false);
+                            logoutUser();
+                            setMobileUserDropdown(false);
+                          }}
+                        >
+                          Logout
+                        </button>
+                      </li>
+                    </ul>
+                  </div>
+                )}
               </div>
             )}
           </div>
         </nav>
       </div>
+
       {/* Popup Modals */}
       <MemberModal open={showMemberModal} onClose={() => setShowMemberModal(false)} />
-      <AccountModal open={showAccountModal} onClose={() => setShowAccountModal(false)} user={user} onUserUpdated={onUserUpdated} />
+      <AccountModal open={showAccountModal} onClose={() => setShowAccountModal(false)} />
     </nav>
   );
 }
