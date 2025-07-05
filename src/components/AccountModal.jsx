@@ -1,9 +1,13 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import api from "../api";
 import { useUser } from "../contexts/UserContext";
 
+const THAI_REGEX = /^[\u0E00-\u0E7F\s]+$/;         // อักษรไทย + เว้นวรรค
+const ENGLISH_REGEX = /^[A-Za-z\s]+$/;             // ภาษาอังกฤษ + เว้นวรรค
+
 export default function AccountModal({ open, onClose }) {
   const { user, updateUser } = useUser();
+  const formRef = useRef(null);
 
   const [form, setForm] = useState({
     prefix: "",
@@ -16,17 +20,8 @@ export default function AccountModal({ open, onClose }) {
     email: "",
   });
   const [errors, setErrors] = useState({});
-  const [popup, setPopup] = useState({ message: "", type: "" });
+  const [popup, setPopup] = useState("");
   const [submitting, setSubmitting] = useState(false);
-
-  // Password fields
-  const [passwords, setPasswords] = useState({
-    oldPassword: "",
-    newPassword: "",
-    confirmPassword: ""
-  });
-  const [pwError, setPwError] = useState("");
-  const [pwSuccess, setPwSuccess] = useState("");
 
   useEffect(() => {
     if (user && open) {
@@ -41,144 +36,101 @@ export default function AccountModal({ open, onClose }) {
         email: user.email || "",
       });
       setErrors({});
-      setPopup({ message: "", type: "" });
+      setPopup("");
       setSubmitting(false);
-      setPasswords({
-        oldPassword: "",
-        newPassword: "",
-        confirmPassword: ""
-      });
-      setPwError("");
-      setPwSuccess("");
     }
   }, [user, open]);
 
-  // Validate
+  // -------------------
+  // Validation
+  // -------------------
   const validate = () => {
     const newErrors = {};
     if (!form.prefix) newErrors.prefix = "กรุณาเลือกคำนำหน้า";
     if (!form.firstName) newErrors.firstName = "กรุณากรอกชื่อจริง";
+    else if (!THAI_REGEX.test(form.firstName)) newErrors.firstName = "กรุณากรอกเป็นภาษาไทย";
     if (!form.lastName) newErrors.lastName = "กรุณากรอกนามสกุล";
-    if (!form.firstNameEn) newErrors.firstNameEn = "Please enter your First Name (English)";
-    if (!form.lastNameEn) newErrors.lastNameEn = "Please enter your Last Name (English)";
+    else if (!THAI_REGEX.test(form.lastName)) newErrors.lastName = "กรุณากรอกเป็นภาษาไทย";
+    if (!form.firstNameEn) newErrors.firstNameEn = "กรุณากรอกชื่อภาษาอังกฤษ";
+    else if (!ENGLISH_REGEX.test(form.firstNameEn)) newErrors.firstNameEn = "กรุณากรอกเป็นภาษาอังกฤษ";
+    if (!form.lastNameEn) newErrors.lastNameEn = "กรุณากรอกนามสกุลภาษาอังกฤษ";
+    else if (!ENGLISH_REGEX.test(form.lastNameEn)) newErrors.lastNameEn = "กรุณากรอกเป็นภาษาอังกฤษ";
     if (!form.address) newErrors.address = "กรุณากรอกที่อยู่";
     if (!form.phone) newErrors.phone = "กรุณากรอกเบอร์โทรศัพท์";
-    else if (!/^0\d{8,9}$/.test(form.phone)) newErrors.phone = "เบอร์โทรไม่ถูกต้อง (ต้องขึ้นต้นด้วย 0 และ 9-10 หลัก)";
+    else if (!/^0\d{8,9}$/.test(form.phone)) newErrors.phone = "กรุณากรอกให้ครบ 9-10 หลัก";
     return newErrors;
   };
 
-  // Duplicate phone
-  const checkPhoneDuplicate = async (phone) => {
-    try {
-      const res = await api.get(`/api/users/check-phone`, {
-        params: { phone, excludeId: user?.id },
-      });
-      return res.data.duplicate;
-    } catch {
-      return false;
-    }
-  };
-
-  const handleChange = async (e) => {
+  // -------------------
+  // Handler
+  // -------------------
+  const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
     setErrors((prev) => ({ ...prev, [name]: undefined, api: undefined }));
-    setPopup({ message: "", type: "" });
-
-    if (name === "phone" && value && /^0\d{8,9}$/.test(value)) {
-      if (value !== user?.phone) {
-        const duplicate = await checkPhoneDuplicate(value);
-        if (duplicate) {
-          setErrors((prev) => ({ ...prev, phone: "เบอร์นี้ถูกใช้แล้ว" }));
-        }
-      }
-    }
+    setPopup("");
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!user || !user.id) {
-      setPopup({ message: "ไม่พบ user id", type: "error" });
+      setPopup("ไม่พบ user id");
       return;
     }
     const validationErrors = validate();
     if (Object.keys(validationErrors).length) {
       setErrors(validationErrors);
-      setPopup({ message: "กรุณากรอกข้อมูลให้ครบถ้วน", type: "error" });
+      setPopup("กรุณากรอกข้อมูลให้ครบถ้วน");
       return;
-    }
-    if (form.phone !== user.phone) {
-      const duplicate = await checkPhoneDuplicate(form.phone);
-      if (duplicate) {
-        setErrors({ ...validationErrors, phone: "เบอร์นี้ถูกใช้แล้ว" });
-        setPopup({ message: "เบอร์นี้ถูกใช้แล้ว", type: "error" });
-        return;
-      }
     }
     setSubmitting(true);
     try {
       const res = await api.put(`/api/users/${user.id}`, form);
-      setPopup({ message: "แก้ไขข้อมูลเรียบร้อย", type: "success" });
+      setPopup("แก้ไขข้อมูลเรียบร้อย");
       updateUser({ ...user, ...form, ...res.data.user });
       setTimeout(() => {
-        setPopup({ message: "", type: "" });
+        setPopup("");
         if (onClose) onClose();
       }, 1200);
     } catch (err) {
-      setPopup({
-        message: err.response?.data?.message || "เกิดข้อผิดพลาดในการบันทึก",
-        type: "error",
-      });
+      setPopup(err.response?.data?.message || "เกิดข้อผิดพลาดในการบันทึก");
       setErrors({ api: err.response?.data?.message || "เกิดข้อผิดพลาด" });
-      console.error("Update error:", err);
     }
     setSubmitting(false);
   };
 
-  // ====== เปลี่ยนรหัสผ่าน ======
-  const handlePasswordChange = (e) => {
-    setPasswords({ ...passwords, [e.target.name]: e.target.value });
-    setPwError("");
-    setPwSuccess("");
-  };
-
-  const handleChangePassword = async (e) => {
-    e.preventDefault();
-    setPwError("");
-    setPwSuccess("");
-    if (!passwords.oldPassword || !passwords.newPassword || !passwords.confirmPassword) {
-      setPwError("กรุณากรอกข้อมูลให้ครบถ้วน");
-      return;
-    }
-    if (passwords.newPassword.length < 6) {
-      setPwError("รหัสผ่านใหม่ต้องอย่างน้อย 6 ตัวอักษร");
-      return;
-    }
-    if (passwords.newPassword !== passwords.confirmPassword) {
-      setPwError("รหัสผ่านใหม่ไม่ตรงกัน");
-      return;
-    }
-    try {
-      await api.put(`/api/users/${user.id}/change-password`, {
-        oldPassword: passwords.oldPassword,
-        newPassword: passwords.newPassword
-      });
-      setPwSuccess("เปลี่ยนรหัสผ่านสำเร็จ");
-      setPasswords({ oldPassword: "", newPassword: "", confirmPassword: "" });
-    } catch (err) {
-      setPwError(err.response?.data?.message || "เกิดข้อผิดพลาดในการเปลี่ยนรหัสผ่าน");
+  const handleOverlayClick = (e) => {
+    if (formRef.current && !formRef.current.contains(e.target)) {
+      onClose && onClose();
     }
   };
 
   if (!open) return null;
 
   return (
-    <form
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40"
-      onSubmit={handleSubmit}
-      autoComplete="off"
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-lg"
+      onMouseDown={handleOverlayClick}
     >
-      <div className="relative w-full max-w-2xl rounded-2xl shadow-2xl bg-white backdrop-blur-xl border border-gray-200 px-5 py-7 md:px-10 md:py-10 transition-all duration-200">
+      <form
+        ref={formRef}
+        className={`
+        relative w-full flex flex-col items-center
+          rounded-2xl shadow-2xl
+          bg-white border border-gray-200
+          py-5 px-8 transition-all duration-200
+          overflow-y-auto
+          max-h-[67dvh]
+          max-w-sm sm:max-w-lg
+          `}
+        style={{
+          WebkitOverflowScrolling: 'touch',
+        }}
+        onSubmit={handleSubmit}
+        onMouseDown={e => e.stopPropagation()}
+        autoComplete="off"
+      >
+        {/* ปุ่มปิด */}
         <button
           type="button"
           className="absolute top-3 right-3 bg-gray-200 hover:bg-red-400 text-gray-500 hover:text-white rounded-full w-9 h-9 flex items-center justify-center transition"
@@ -190,194 +142,169 @@ export default function AccountModal({ open, onClose }) {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
           </svg>
         </button>
-        <h2 className="text-2xl font-bold mb-6 text-gray-800 tracking-tight">แก้ไขข้อมูลบัญชี</h2>
-        {popup.message && (
-          <div className={`mb-4 text-sm ${popup.type === "success" ? "text-green-600" : "text-red-500"}`}>
-            {popup.message}
-          </div>
-        )}
-        <div className="flex flex-col md:flex-row gap-6">
+        <h2 className="text-2xl font-bold mb-6 text-gray-800 tracking-tight">Edit Account</h2>
+        {errors.api && <div className="mb-4 text-red-500 text-sm">{errors.api}</div>}
+        {popup && <div className="mb-4 text-green-600 text-sm">{popup}</div>}
+
+        <div className="flex flex-col md:flex-row gap-4 min-w-[280px] items-center md:items-start">
           {/* Left Column */}
-          <div className="flex-1 flex flex-col gap-3">
+          <div className="flex-1 flex flex-col gap-3 min-w-0">
             {/* คำนำหน้า */}
             <div>
-              <label className="block mb-1 text-gray-700 font-medium text-sm">คำนำหน้า</label>
+              <div className="flex gap-3">
+                <label className="block mb-1 text-gray-700 font-medium text-sm">คำนำหน้า</label>
+                {errors.prefix && <span className="text-red-500 font-medium text-sm">{errors.prefix}</span>}
+              </div>
               <select
                 name="prefix"
-                className={`w-full border px-3 py-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400 transition ${errors.prefix ? 'border-red-400 focus:ring-red-400' : 'border-gray-300 focus:border-blue-400'}`}
+                className={`border px-3 py-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400 transition ${errors.prefix ? 'border-red-400 focus:ring-red-400' : 'border-gray-300 focus:border-blue-400'}`}
                 value={form.prefix}
                 onChange={handleChange}
                 disabled={submitting}
               >
                 <option value="">เลือกคำนำหน้า</option>
-                <option value="นาย">นาย</option>
-                <option value="นาง">นาง</option>
-                <option value="นางสาว">นางสาว</option>
-                <option value="อื่นๆ">อื่นๆ</option>
+                <option value="นาย">นาย / Mr.</option>
+                <option value="นาง">นาง / Mrs.</option>
+                <option value="นางสาว">นางสาว / Miss</option>
               </select>
-              {errors.prefix && <span className="text-red-500 text-xs">{errors.prefix}</span>}
             </div>
             {/* ชื่อจริง */}
             <div>
-              <label className="block mb-1 text-gray-700 font-medium text-sm">ชื่อจริง</label>
+              <div className="flex gap-3">
+                <label className="block mb-1 text-gray-700 font-medium text-sm">ชื่อจริง</label>
+                {errors.firstName && <span className="text-red-500 font-medium text-sm">{errors.firstName}</span>}
+              </div>
               <input
                 name="firstName"
                 type="text"
-                className={`w-full border px-3 py-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400 transition ${errors.firstName ? 'border-red-400 focus:ring-red-400' : 'border-gray-300 focus:border-blue-400'}`}
+                className={`border px-3 py-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400 transition ${errors.firstName ? 'border-red-400 focus:ring-red-400' : 'border-gray-300 focus:border-blue-400'}`}
                 value={form.firstName}
                 onChange={handleChange}
                 placeholder="กรอกชื่อจริง"
                 disabled={submitting}
+                autoComplete="off"
               />
-              {errors.firstName && <span className="text-red-500 text-xs">{errors.firstName}</span>}
             </div>
             {/* นามสกุล */}
             <div>
-              <label className="block mb-1 text-gray-700 font-medium text-sm">นามสกุล</label>
+              <div className="flex gap-3">
+                <label className="block mb-1 text-gray-700 font-medium text-sm">นามสกุล</label>
+                {errors.lastName && <span className="text-red-500 font-medium text-sm">{errors.lastName}</span>}
+              </div>
               <input
                 name="lastName"
                 type="text"
-                className={`w-full border px-3 py-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400 transition ${errors.lastName ? 'border-red-400 focus:ring-red-400' : 'border-gray-300 focus:border-blue-400'}`}
+                className={`border px-3 py-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400 transition ${errors.lastName ? 'border-red-400 focus:ring-red-400' : 'border-gray-300 focus:border-blue-400'}`}
                 value={form.lastName}
                 onChange={handleChange}
                 placeholder="กรอกนามสกุล"
                 disabled={submitting}
+                autoComplete="off"
               />
-              {errors.lastName && <span className="text-red-500 text-xs">{errors.lastName}</span>}
             </div>
             {/* First Name (English) */}
             <div>
-              <label className="block mb-1 text-gray-700 font-medium text-sm">First Name (English)</label>
+              <div className="flex flex-col">
+                <label className="block mb-1 text-gray-700 font-medium text-sm">First Name (English)</label>
+                {errors.firstNameEn && <span className="text-red-500 font-medium text-sm">{errors.firstNameEn}</span>}
+              </div>
               <input
                 name="firstNameEn"
                 type="text"
-                className={`w-full border px-3 py-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400 transition ${errors.firstNameEn ? 'border-red-400 focus:ring-red-400' : 'border-gray-300 focus:border-blue-400'}`}
+                className={`border px-3 py-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400 transition ${errors.firstNameEn ? 'border-red-400 focus:ring-red-400' : 'border-gray-300 focus:border-blue-400'}`}
                 value={form.firstNameEn}
                 onChange={handleChange}
-                placeholder="Enter First Name in English"
+                placeholder="First Name"
                 disabled={submitting}
+                autoComplete="off"
               />
-              {errors.firstNameEn && <span className="text-red-500 text-xs">{errors.firstNameEn}</span>}
             </div>
             {/* Last Name (English) */}
             <div>
-              <label className="block mb-1 text-gray-700 font-medium text-sm">Last Name (English)</label>
+              <div className="flex flex-col">
+                <label className="block mb-1 text-gray-700 font-medium text-sm">Last Name (English)</label>
+                {errors.lastNameEn && <span className="text-red-500 font-medium text-sm">{errors.lastNameEn}</span>}
+              </div>
               <input
                 name="lastNameEn"
                 type="text"
-                className={`w-full border px-3 py-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400 transition ${errors.lastNameEn ? 'border-red-400 focus:ring-red-400' : 'border-gray-300 focus:border-blue-400'}`}
+                className={`border px-3 py-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400 transition ${errors.lastNameEn ? 'border-red-400 focus:ring-red-400' : 'border-gray-300 focus:border-blue-400'}`}
                 value={form.lastNameEn}
                 onChange={handleChange}
-                placeholder="Enter Last Name in English"
+                placeholder="Last Name"
                 disabled={submitting}
+                autoComplete="off"
               />
-              {errors.lastNameEn && <span className="text-red-500 text-xs">{errors.lastNameEn}</span>}
             </div>
+          </div>
+          {/* Right Column */}
+          <div className="flex-1 flex flex-col gap-3 min-w-0">
             {/* Email */}
             <div>
               <label className="block mb-1 text-gray-700 font-medium text-sm">Email</label>
               <input
                 name="email"
                 type="email"
-                className="w-full border px-3 py-2 rounded-xl bg-gray-100 text-gray-500 cursor-not-allowed"
+                className="border px-3 py-2 rounded-xl bg-gray-100 text-gray-500 cursor-not-allowed"
                 value={form.email}
                 readOnly
                 disabled
               />
             </div>
-          </div>
-          {/* Right Column */}
-          <div className="flex-1 flex flex-col gap-3">
-
-            {/* Change Password Section */}
-            <div>
-              <h3 className="font-bold text-base mb-1 text-gray-700">เปลี่ยนรหัสผ่าน</h3>
-              <form onSubmit={handleChangePassword} className="flex flex-col gap-2">
-                <input
-                  name="oldPassword"
-                  type="password"
-                  className="w-full border px-3 py-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400"
-                  placeholder="รหัสผ่านเดิม"
-                  value={passwords.oldPassword}
-                  onChange={handlePasswordChange}
-                  autoComplete="current-password"
-                />
-                <input
-                  name="newPassword"
-                  type="password"
-                  className="w-full border px-3 py-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400"
-                  placeholder="รหัสผ่านใหม่"
-                  value={passwords.newPassword}
-                  onChange={handlePasswordChange}
-                  autoComplete="new-password"
-                />
-                <input
-                  name="confirmPassword"
-                  type="password"
-                  className="w-full border px-3 py-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400"
-                  placeholder="ยืนยันรหัสผ่านใหม่"
-                  value={passwords.confirmPassword}
-                  onChange={handlePasswordChange}
-                  autoComplete="new-password"
-                />
-                {pwError && <div className="text-red-500 text-xs">{pwError}</div>}
-                {pwSuccess && <div className="text-green-600 text-xs">{pwSuccess}</div>}
-                <button
-                  type="submit"
-                  className="w-full mt-1 py-2 rounded-xl bg-gradient-to-r from-blue-500 via-indigo-500 to-violet-500 text-white font-semibold shadow-md hover:from-blue-600 hover:to-indigo-600 transition-all text-base"
-                >
-                  บันทึกการเปลี่ยนรหัสผ่าน
-                </button>
-              </form>
-            </div>
-            {/* ที่อยู่ */}
-            <div>
-              <label className="block mb-1 text-gray-700 font-medium text-sm">ที่อยู่</label>
-              <textarea
-                name="address"
-                rows={2}
-                className={`w-full border px-3 py-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400 transition ${errors.address ? 'border-red-400 focus:ring-red-400' : 'border-gray-300 focus:border-blue-400'}`}
-                value={form.address}
-                onChange={handleChange}
-                placeholder="กรอกที่อยู่"
-                disabled={submitting}
-              />
-              {errors.address && <span className="text-red-500 text-xs">{errors.address}</span>}
-            </div>
             {/* เบอร์โทรศัพท์ */}
             <div>
-              <label className="block mb-1 text-gray-700 font-medium text-sm">เบอร์โทรศัพท์</label>
+              <div className="flex flex-col">
+                <label className="block mb-1 text-gray-700 font-medium text-sm">เบอร์โทรศัพท์</label>
+                {errors.phone && <span className="text-red-500 font-medium text-sm">{errors.phone}</span>}
+              </div>
               <input
                 name="phone"
                 type="tel"
-                className={`w-full border px-3 py-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400 transition ${errors.phone ? 'border-red-400 focus:ring-red-400' : 'border-gray-300 focus:border-blue-400'}`}
+                className={`border px-3 py-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400 transition ${errors.phone ? 'border-red-400 focus:ring-red-400' : 'border-gray-300 focus:border-blue-400'}`}
                 value={form.phone}
                 onChange={handleChange}
                 placeholder="0812345678"
                 disabled={submitting}
+                autoComplete="off"
               />
-              {errors.phone && <span className="text-red-500 text-xs">{errors.phone}</span>}
+            </div>
+            {/* ที่อยู่ */}
+            <div>
+              <div className="flex gap-3">
+                <label className="block mb-1 text-gray-700 font-medium text-sm">ที่อยู่</label>
+                {errors.address && <span className="text-red-500 font-medium text-sm">{errors.address}</span>}
+              </div>
+              <textarea
+                name="address"
+                rows={2}
+                className={`border px-6 py-4 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400 transition ${errors.address ? 'border-red-400 focus:ring-red-400' : 'border-gray-300 focus:border-blue-400'}`}
+                value={form.address}
+                onChange={handleChange}
+                placeholder="กรอกที่อยู่"
+                disabled={submitting}
+                autoComplete="off"
+              />
             </div>
           </div>
         </div>
         <button
           type="submit"
-          className="w-full mt-7 py-2 rounded-xl bg-gradient-to-r from-blue-500 via-indigo-500 to-violet-500 text-white font-semibold shadow-md hover:from-blue-600 hover:to-indigo-600 transition-all text-lg"
+          className="px-8 mt-5 py-2 rounded-xl bg-gradient-to-r from-blue-500 via-indigo-500 to-violet-500 text-white font-semibold shadow-md hover:from-blue-600 hover:to-indigo-600 transition-all text-lg"
           disabled={submitting}
         >
-          {submitting ? "กำลังบันทึก..." : "บันทึก"}
+          {submitting ? "Saving..." : "Save"}
         </button>
-        <div className="mt-5 flex justify-end items-center gap-2">
+        <div className="mt-2 flex w-full justify-end">
           <button
             type="button"
             className="text-gray-500 hover:text-blue-600 text-sm hover:underline transition"
             onClick={onClose}
             disabled={submitting}
           >
-            ยกเลิก
+            Cancel
           </button>
         </div>
-      </div>
-    </form>
+      </form>
+    </div>
   );
 }

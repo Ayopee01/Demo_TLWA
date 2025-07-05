@@ -1,6 +1,9 @@
 import { useState, useRef } from "react";
 import axios from "axios";
 
+const THAI_REGEX = /^[\u0E00-\u0E7F\s]+$/;
+const ENGLISH_REGEX = /^[A-Za-z\s]+$/;
+
 export default function Register({ onClose, onSwitchToLogin }) {
   const [form, setForm] = useState({
     prefix: '',
@@ -23,12 +26,16 @@ export default function Register({ onClose, onSwitchToLogin }) {
     const newErrors = {};
     if (!form.prefix) newErrors.prefix = "กรุณาเลือกคำนำหน้า";
     if (!form.firstName) newErrors.firstName = "กรุณากรอกชื่อจริง";
+    else if (!THAI_REGEX.test(form.firstName)) newErrors.firstName = "กรุณากรอกเป็นภาษาไทย";
     if (!form.lastName) newErrors.lastName = "กรุณากรอกนามสกุล";
-    if (!form.firstNameEn) newErrors.firstNameEn = "Please enter your First Name (English)";
-    if (!form.lastNameEn) newErrors.lastNameEn = "Please enter your Last Name (English)";
+    else if (!THAI_REGEX.test(form.lastName)) newErrors.lastName = "กรุณากรอกเป็นภาษาไทย";
+    if (!form.firstNameEn) newErrors.firstNameEn = "กรุณากรอกชื่อภาษาอังกฤษ";
+    else if (!ENGLISH_REGEX.test(form.firstNameEn)) newErrors.firstNameEn = "กรุณากรอกเป็นภาษาอังกฤษ";
+    if (!form.lastNameEn) newErrors.lastNameEn = "กรุณากรอกนามสกุลภาษาอังกฤษ";
+    else if (!ENGLISH_REGEX.test(form.lastNameEn)) newErrors.lastNameEn = "กรุณากรอกเป็นภาษาอังกฤษ";
     if (!form.address) newErrors.address = "กรุณากรอกที่อยู่";
     if (!form.phone) newErrors.phone = "กรุณากรอกเบอร์โทรศัพท์";
-    else if (!/^0\d{8,9}$/.test(form.phone)) newErrors.phone = "เบอร์โทรไม่ถูกต้อง (ต้องขึ้นต้นด้วย 0 และ 9-10 หลัก)";
+    else if (!/^0\d{8,9}$/.test(form.phone)) newErrors.phone = "กรุณากรอกให้ครบ 9-10 หลัก";
     if (!form.email) newErrors.email = "กรุณากรอกอีเมล";
     else if (!/\S+@\S+\.\S+/.test(form.email)) newErrors.email = "อีเมลไม่ถูกต้อง";
     if (!form.password) newErrors.password = "กรุณากรอกรหัสผ่าน";
@@ -83,14 +90,13 @@ export default function Register({ onClose, onSwitchToLogin }) {
       <form
         ref={formRef}
         className={`
-          relative w-full
+          relative w-full flex flex-col items-center
           rounded-2xl shadow-2xl
           bg-white backdrop-blur-xl border border-gray-200
-          px-3 py-5
-          max-w-xs sm:max-w-sm md:max-w-md lg:max-w-2xl
-          transition-all duration-200
+          py-5 px-8 transition-all duration-200
           overflow-y-auto
-          max-h-[90dvh]
+          max-h-[67dvh]
+          max-w-sm sm:max-w-lg
         `}
         style={{
           WebkitOverflowScrolling: 'touch',
@@ -114,169 +120,192 @@ export default function Register({ onClose, onSwitchToLogin }) {
         {errors.api && <div className="mb-4 text-red-500 text-sm">{errors.api}</div>}
         {popup && <div className="mb-4 text-green-600 text-sm">{popup}</div>}
 
-        <div className="flex flex-col md:flex-row gap-4 min-w-[280px]">
+        <div className="flex flex-col md:flex-row gap-4 min-w-[280px] items-center md:items-start">
           {/* Left Column */}
           <div className="flex-1 flex flex-col gap-3 min-w-0">
             {/* คำนำหน้า */}
             <div>
-              <label className="block mb-1 text-gray-700 font-medium text-sm">คำนำหน้า</label>
+              <div className="flex gap-3">
+                <label className="block mb-1 text-gray-700 font-medium text-sm">คำนำหน้า</label>
+                {errors.prefix && <span className="text-red-500 font-medium text-sm">{errors.prefix}</span>}
+              </div>
               <select
                 name="prefix"
-                className={`w-full border px-3 py-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400 transition ${errors.prefix ? 'border-red-400 focus:ring-red-400' : 'border-gray-300 focus:border-blue-400'}`}
+                className={`border px-3 py-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400 transition ${errors.prefix ? 'border-red-400 focus:ring-red-400' : 'border-gray-300 focus:border-blue-400'}`}
                 value={form.prefix}
                 onChange={handleChange}
                 disabled={submitting}
               >
                 <option value="">เลือกคำนำหน้า</option>
-                <option value="นาย">นาย</option>
-                <option value="นาง">นาง</option>
-                <option value="นางสาว">นางสาว</option>
-                <option value="อื่นๆ">อื่นๆ</option>
+                <option value="นาย">นาย / Mr.</option>
+                <option value="นาง">นาง / Mrs.</option>
+                <option value="นางสาว">นางสาว / Miss</option>
               </select>
-              {errors.prefix && <span className="text-red-500 text-xs">{errors.prefix}</span>}
             </div>
             {/* ชื่อจริง */}
             <div>
-              <label className="block mb-1 text-gray-700 font-medium text-sm">ชื่อจริง</label>
+              <div className="flex gap-3">
+                <label className="block mb-1 text-gray-700 font-medium text-sm">ชื่อจริง</label>
+                {errors.firstName && <span className="text-red-500 font-medium text-sm">{errors.firstName}</span>}
+              </div>
               <input
                 name="firstName"
                 type="text"
-                className={`w-full border px-3 py-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400 transition ${errors.firstName ? 'border-red-400 focus:ring-red-400' : 'border-gray-300 focus:border-blue-400'}`}
+                className={`border px-3 py-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400 transition ${errors.firstName ? 'border-red-400 focus:ring-red-400' : 'border-gray-300 focus:border-blue-400'}`}
                 value={form.firstName}
                 onChange={handleChange}
                 placeholder="กรอกชื่อจริง"
                 disabled={submitting}
+                autoComplete="off"
               />
-              {errors.firstName && <span className="text-red-500 text-xs">{errors.firstName}</span>}
             </div>
             {/* นามสกุล */}
             <div>
-              <label className="block mb-1 text-gray-700 font-medium text-sm">นามสกุล</label>
+              <div className="flex gap-3">
+                <label className="block mb-1 text-gray-700 font-medium text-sm">นามสกุล</label>
+                {errors.lastName && <span className="text-red-500 font-medium text-sm">{errors.lastName}</span>}
+              </div>
               <input
                 name="lastName"
                 type="text"
-                className={`w-full border px-3 py-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400 transition ${errors.lastName ? 'border-red-400 focus:ring-red-400' : 'border-gray-300 focus:border-blue-400'}`}
+                className={`border px-3 py-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400 transition ${errors.lastName ? 'border-red-400 focus:ring-red-400' : 'border-gray-300 focus:border-blue-400'}`}
                 value={form.lastName}
                 onChange={handleChange}
                 placeholder="กรอกนามสกุล"
                 disabled={submitting}
+                autoComplete="off"
               />
-              {errors.lastName && <span className="text-red-500 text-xs">{errors.lastName}</span>}
             </div>
             {/* First Name (English) */}
             <div>
-              <label className="block mb-1 text-gray-700 font-medium text-sm">First Name (English)</label>
+              <div className="flex flex-col">
+                <label className="block mb-1 text-gray-700 font-medium text-sm">First Name (English)</label>
+                {errors.firstNameEn && <span className="text-red-500 font-medium text-sm">{errors.firstNameEn}</span>}
+              </div>
               <input
                 name="firstNameEn"
                 type="text"
-                className={`w-full border px-3 py-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400 transition ${errors.firstNameEn ? 'border-red-400 focus:ring-red-400' : 'border-gray-300 focus:border-blue-400'}`}
+                className={`border px-3 py-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400 transition ${errors.firstNameEn ? 'border-red-400 focus:ring-red-400' : 'border-gray-300 focus:border-blue-400'}`}
                 value={form.firstNameEn}
                 onChange={handleChange}
-                placeholder="Enter First Name in English"
+                placeholder="First Name"
                 disabled={submitting}
+                autoComplete="off"
               />
-              {errors.firstNameEn && <span className="text-red-500 text-xs">{errors.firstNameEn}</span>}
             </div>
             {/* Last Name (English) */}
             <div>
-              <label className="block mb-1 text-gray-700 font-medium text-sm">Last Name (English)</label>
+              <div className="flex flex-col">
+                <label className="block mb-1 text-gray-700 font-medium text-sm">Last Name (English)</label>
+                {errors.lastNameEn && <span className="text-red-500 font-medium text-sm">{errors.lastNameEn}</span>}
+              </div>
               <input
                 name="lastNameEn"
                 type="text"
-                className={`w-full border px-3 py-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400 transition ${errors.lastNameEn ? 'border-red-400 focus:ring-red-400' : 'border-gray-300 focus:border-blue-400'}`}
+                className={`border px-3 py-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400 transition ${errors.lastNameEn ? 'border-red-400 focus:ring-red-400' : 'border-gray-300 focus:border-blue-400'}`}
                 value={form.lastNameEn}
                 onChange={handleChange}
-                placeholder="Enter Last Name in English"
+                placeholder="Last Name"
                 disabled={submitting}
+                autoComplete="off"
               />
-              {errors.lastNameEn && <span className="text-red-500 text-xs">{errors.lastNameEn}</span>}
             </div>
           </div>
           {/* Right Column */}
           <div className="flex-1 flex flex-col gap-3 min-w-0">
             {/* Email */}
             <div>
-              <label className="block mb-1 text-gray-700 font-medium text-sm">Email</label>
+              <div className="flex gap-3">
+                <label className="block mb-1 text-gray-700 font-medium text-sm">Email</label>
+                {errors.email && <span className="text-red-500 font-medium text-sm">{errors.email}</span>}
+              </div>
               <input
                 name="email"
                 type="email"
-                className={`w-full border px-3 py-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400 transition ${errors.email ? 'border-red-400 focus:ring-red-400' : 'border-gray-300 focus:border-blue-400'}`}
+                className={`border px-3 py-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400 transition ${errors.email ? 'border-red-400 focus:ring-red-400' : 'border-gray-300 focus:border-blue-400'}`}
                 value={form.email}
                 onChange={handleChange}
                 autoComplete="username"
                 placeholder="your@email.com"
                 disabled={submitting}
               />
-              {errors.email && <span className="text-red-500 text-xs">{errors.email}</span>}
             </div>
             {/* Password */}
             <div>
-              <label className="block mb-1 text-gray-700 font-medium text-sm">Password</label>
+              <div className="flex gap-3">
+                <label className="block mb-1 text-gray-700 font-medium text-sm">Password</label>
+                {errors.password && <span className="text-red-500 font-medium text-sm">{errors.password}</span>}
+              </div>
               <input
                 name="password"
                 type="password"
-                className={`w-full border px-3 py-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400 transition ${errors.password ? 'border-red-400 focus:ring-red-400' : 'border-gray-300 focus:border-blue-400'}`}
+                className={`border px-3 py-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400 transition ${errors.password ? 'border-red-400 focus:ring-red-400' : 'border-gray-300 focus:border-blue-400'}`}
                 value={form.password}
                 onChange={handleChange}
                 autoComplete="new-password"
                 placeholder="สร้างรหัสผ่าน"
                 disabled={submitting}
               />
-              {errors.password && <span className="text-red-500 text-xs">{errors.password}</span>}
             </div>
             {/* Confirm Password */}
             <div>
-              <label className="block mb-1 text-gray-700 font-medium text-sm">Confirm Password</label>
+              <div className="flex flex-col">
+                <label className="block mb-1 text-gray-700 font-medium text-sm">Confirm Password</label>
+                {errors.confirmPassword && <span className="text-red-500 font-medium text-sm">{errors.confirmPassword}</span>}
+              </div>
               <input
                 name="confirmPassword"
                 type="password"
-                className={`w-full border px-3 py-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400 transition ${errors.confirmPassword ? 'border-red-400 focus:ring-red-400' : 'border-gray-300 focus:border-blue-400'}`}
+                className={`border px-3 py-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400 transition ${errors.confirmPassword ? 'border-red-400 focus:ring-red-400' : 'border-gray-300 focus:border-blue-400'}`}
                 value={form.confirmPassword}
                 onChange={handleChange}
                 autoComplete="new-password"
                 placeholder="ยืนยันรหัสผ่าน"
                 disabled={submitting}
               />
-              {errors.confirmPassword && <span className="text-red-500 text-xs">{errors.confirmPassword}</span>}
             </div>
             {/* เบอร์โทรศัพท์ */}
             <div>
-              <label className="block mb-1 text-gray-700 font-medium text-sm">เบอร์โทรศัพท์</label>
+              <div className="flex flex-col">
+                <label className="block mb-1 text-gray-700 font-medium text-sm">เบอร์โทรศัพท์</label>
+                {errors.phone && <span className="text-red-500 font-medium text-sm">{errors.phone}</span>}
+              </div>
               <input
                 name="phone"
                 type="tel"
-                className={`w-full border px-3 py-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400 transition ${errors.phone ? 'border-red-400 focus:ring-red-400' : 'border-gray-300 focus:border-blue-400'}`}
+                className={`border px-3 py-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400 transition ${errors.phone ? 'border-red-400 focus:ring-red-400' : 'border-gray-300 focus:border-blue-400'}`}
                 value={form.phone}
                 onChange={handleChange}
                 placeholder="0812345678"
                 disabled={submitting}
               />
-              {errors.phone && <span className="text-red-500 text-xs">{errors.phone}</span>}
             </div>
             {/* ที่อยู่ */}
             <div>
-              <label className="block mb-1 text-gray-700 font-medium text-sm">ที่อยู่</label>
+              <div className="flex gap-3">
+                <label className="block mb-1 text-gray-700 font-medium text-sm">ที่อยู่</label>
+                {errors.address && <span className="text-red-500 font-medium text-sm">{errors.address}</span>}
+              </div>
               <textarea
                 name="address"
                 rows={2}
-                className={`w-full border px-3 py-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400 transition ${errors.address ? 'border-red-400 focus:ring-red-400' : 'border-gray-300 focus:border-blue-400'}`}
+                className={`border px-6 py-4 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400 transition ${errors.address ? 'border-red-400 focus:ring-red-400' : 'border-gray-300 focus:border-blue-400'}`}
                 value={form.address}
                 onChange={handleChange}
                 placeholder="กรอกที่อยู่"
                 disabled={submitting}
               />
-              {errors.address && <span className="text-red-500 text-xs">{errors.address}</span>}
             </div>
           </div>
         </div>
         <button
           type="submit"
-          className="w-full mt-7 py-2 rounded-xl bg-gradient-to-r from-blue-500 via-indigo-500 to-violet-500 text-white font-semibold shadow-md hover:from-blue-600 hover:to-indigo-600 transition-all text-lg"
+          className="px-8 mt-5 py-2 rounded-xl bg-gradient-to-r from-blue-500 via-indigo-500 to-violet-500 text-white font-semibold shadow-md hover:from-blue-600 hover:to-indigo-600 transition-all text-lg"
           disabled={submitting}
         >
           {submitting ? "กำลังสมัคร..." : "Register"}
         </button>
-        <div className="mt-5 flex justify-between items-center gap-2">
+        <div className="mt-2 flex w-full">
           <button
             type="button"
             className="text-gray-500 hover:text-blue-600 text-sm hover:underline transition"
