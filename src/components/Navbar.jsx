@@ -79,7 +79,7 @@ function Navbar({ onLoginClick }) {
           ) : (
             <div ref={dropdownRef} className="relative flex items-center">
               <button
-                className="flex items-center gap-1 px-3 py-1 rounded-xl bg-indigo-50 border border-indigo-100 hover:bg-indigo-100 transition"
+                className="flex items-center cursor-pointer gap-1 px-3 py-1 rounded-xl bg-indigo-50 border border-indigo-100 hover:bg-indigo-100 transition"
                 onClick={() => setDropdown((d) => !d)}
                 tabIndex={0}
               >
@@ -124,7 +124,7 @@ function Navbar({ onLoginClick }) {
 
         {/* Mobile Hamburger */}
         <button
-          className="xl:hidden flex items-center justify-center w-12 h-12 rounded-full bg-gray-600 focus:outline-none hover:bg-gray-700"
+          className="cursor-pointer xl:hidden flex items-center justify-center w-12 h-12 rounded-full bg-gray-600 focus:outline-none hover:bg-gray-700"
           aria-label="Toggle menu"
           onClick={() => setOpen(o => !o)}
         >
@@ -186,7 +186,7 @@ function Navbar({ onLoginClick }) {
             ) : (
               <div className="relative w-full flex justify-center">
                 <button
-                  className="flex items-center gap-2 w-full max-w-[240px] px-4 py-2 rounded-xl bg-indigo-50 border border-indigo-100 mobile-user-dropdown-btn"
+                  className="flex items-center cursor-pointer gap-2 w-full max-w-[240px] px-4 py-2 rounded-xl bg-indigo-50 border border-indigo-100 mobile-user-dropdown-btn"
                   onClick={() => setMobileUserDropdown((d) => !d)}
                 >
                   <FaUserCircle className="text-2xl text-indigo-500" />

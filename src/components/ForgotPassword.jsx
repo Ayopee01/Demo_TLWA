@@ -47,7 +47,7 @@ export default function ForgotPassword({ onClose, onSwitchToLogin }) {
         {/* Close Button */}
         <button
           type="button"
-          className="absolute top-3 right-3 bg-gray-200 hover:bg-red-400 text-gray-500 hover:text-white rounded-full w-9 h-9 flex items-center justify-center transition"
+          className="cursor-pointer absolute top-3 right-3 bg-gray-200 hover:bg-red-400 text-gray-500 hover:text-white rounded-full w-9 h-9 flex items-center justify-center transition"
           onClick={onClose}
           aria-label="Close"
         >
@@ -70,16 +70,18 @@ export default function ForgotPassword({ onClose, onSwitchToLogin }) {
             placeholder="your@email.com"
           />
         </div>
-        <button
-          type="submit"
-          className="w-full py-2 rounded-xl bg-gradient-to-r from-blue-500 via-indigo-500 to-violet-500 text-white font-semibold shadow-md hover:from-blue-600 hover:to-indigo-600 transition-all text-lg mt-1"
-        >
-          Send Link
-        </button>
+        <div className="flex justify-center">
+          <button
+            type="submit"
+            className="cursor-pointer px-8 py-2 rounded-xl bg-gradient-to-r from-blue-500 via-indigo-500 to-violet-500 text-white font-semibold shadow-md hover:from-blue-600 hover:to-indigo-600 transition-all text-lg mt-1"
+          >
+            Send Link
+          </button>
+        </div>
         <div className="mt-5 flex justify-between items-center gap-2">
           <button
             type="button"
-            className="text-gray-500 hover:text-blue-600 text-sm hover:underline transition"
+            className="cursor-pointer text-gray-500 transition duration-300 hover:text-blue-600 text-sm hover:underline transition"
             onClick={onSwitchToLogin}
           >
             Back to Login

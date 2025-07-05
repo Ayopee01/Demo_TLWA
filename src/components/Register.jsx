@@ -107,7 +107,7 @@ export default function Register({ onClose, onSwitchToLogin }) {
         {/* ปุ่มปิด */}
         <button
           type="button"
-          className="absolute top-3 right-3 bg-gray-200 hover:bg-red-400 text-gray-500 hover:text-white rounded-full w-9 h-9 flex items-center justify-center transition"
+          className="cursor-pointer absolute top-3 right-3 bg-gray-200 hover:bg-red-400 text-gray-500 hover:text-white rounded-full w-9 h-9 flex items-center justify-center transition"
           onClick={onClose}
           aria-label="Close"
           disabled={submitting}
@@ -131,7 +131,7 @@ export default function Register({ onClose, onSwitchToLogin }) {
               </div>
               <select
                 name="prefix"
-                className={`border px-3 py-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400 transition ${errors.prefix ? 'border-red-400 focus:ring-red-400' : 'border-gray-300 focus:border-blue-400'}`}
+                className={`cursor-pointer border px-3 py-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400 transition ${errors.prefix ? 'border-red-400 focus:ring-red-400' : 'border-gray-300 focus:border-blue-400'}`}
                 value={form.prefix}
                 onChange={handleChange}
                 disabled={submitting}
@@ -300,7 +300,7 @@ export default function Register({ onClose, onSwitchToLogin }) {
         </div>
         <button
           type="submit"
-          className="px-8 mt-5 py-2 rounded-xl bg-gradient-to-r from-blue-500 via-indigo-500 to-violet-500 text-white font-semibold shadow-md hover:from-blue-600 hover:to-indigo-600 transition-all text-lg"
+          className="cursor-pointer px-8 mt-5 py-2 rounded-xl bg-gradient-to-r from-blue-500 via-indigo-500 to-violet-500 text-white font-semibold shadow-md transition duration-300 hover:from-blue-600 hover:to-indigo-600 transition-all text-lg"
           disabled={submitting}
         >
           {submitting ? "กำลังสมัคร..." : "Register"}
@@ -308,7 +308,7 @@ export default function Register({ onClose, onSwitchToLogin }) {
         <div className="mt-2 flex w-full">
           <button
             type="button"
-            className="text-gray-500 hover:text-blue-600 text-sm hover:underline transition"
+            className="cursor-pointer text-gray-500 transition duration-300 hover:text-blue-600 text-sm hover:underline transition"
             onClick={onSwitchToLogin}
             disabled={submitting}
           >

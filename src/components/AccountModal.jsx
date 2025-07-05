@@ -133,7 +133,7 @@ export default function AccountModal({ open, onClose }) {
         {/* ปุ่มปิด */}
         <button
           type="button"
-          className="absolute top-3 right-3 bg-gray-200 hover:bg-red-400 text-gray-500 hover:text-white rounded-full w-9 h-9 flex items-center justify-center transition"
+          className="absolute top-3 right-3 bg-gray-200 cursor-pointer hover:bg-red-400 text-gray-500 hover:text-white rounded-full w-9 h-9 flex items-center justify-center transition"
           onClick={onClose}
           aria-label="Close"
           disabled={submitting}
@@ -157,7 +157,7 @@ export default function AccountModal({ open, onClose }) {
               </div>
               <select
                 name="prefix"
-                className={`border px-3 py-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400 transition ${errors.prefix ? 'border-red-400 focus:ring-red-400' : 'border-gray-300 focus:border-blue-400'}`}
+                className={`cursor-pointer border px-3 py-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400 transition ${errors.prefix ? 'border-red-400 focus:ring-red-400' : 'border-gray-300 focus:border-blue-400'}`}
                 value={form.prefix}
                 onChange={handleChange}
                 disabled={submitting}
@@ -289,7 +289,7 @@ export default function AccountModal({ open, onClose }) {
         </div>
         <button
           type="submit"
-          className="px-8 mt-5 py-2 rounded-xl bg-gradient-to-r from-blue-500 via-indigo-500 to-violet-500 text-white font-semibold shadow-md hover:from-blue-600 hover:to-indigo-600 transition-all text-lg"
+          className="cursor-pointer px-8 mt-5 py-2 rounded-xl bg-gradient-to-r from-blue-500 via-indigo-500 to-violet-500 text-white font-semibold shadow-md hover:from-blue-600 hover:to-indigo-600 transition-all text-lg"
           disabled={submitting}
         >
           {submitting ? "Saving..." : "Save"}
@@ -297,7 +297,7 @@ export default function AccountModal({ open, onClose }) {
         <div className="mt-2 flex w-full justify-end">
           <button
             type="button"
-            className="text-gray-500 hover:text-blue-600 text-sm hover:underline transition"
+            className="cursor-pointer text-gray-500 hover:text-blue-600 text-sm hover:underline transition"
             onClick={onClose}
             disabled={submitting}
           >
