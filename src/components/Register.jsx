@@ -300,7 +300,7 @@ export default function Register({ onClose, onSwitchToLogin }) {
         </div>
         <button
           type="submit"
-          className="cursor-pointer px-8 mt-5 py-2 rounded-xl bg-gradient-to-r from-blue-500 via-indigo-500 to-violet-500 text-white font-semibold shadow-md transition duration-300 hover:from-blue-600 hover:to-indigo-600 transition-all text-lg"
+          className="cursor-pointer w-full mb-3 mt-5 py-2 rounded-xl bg-gradient-to-r from-blue-500 via-indigo-500 to-violet-500 text-white font-semibold shadow-md transition duration-300 hover:from-blue-600 hover:to-indigo-600 transition-all text-lg"
           disabled={submitting}
         >
           {submitting ? "กำลังสมัคร..." : "Register"}

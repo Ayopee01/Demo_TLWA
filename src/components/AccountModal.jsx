@@ -289,7 +289,7 @@ export default function AccountModal({ open, onClose }) {
         </div>
         <button
           type="submit"
-          className="cursor-pointer px-8 mt-5 py-2 rounded-xl bg-gradient-to-r from-blue-500 via-indigo-500 to-violet-500 text-white font-semibold shadow-md hover:from-blue-600 hover:to-indigo-600 transition-all text-lg"
+          className="cursor-pointer w-full mt-5 mb-3 py-2 rounded-xl bg-gradient-to-r from-blue-500 via-indigo-500 to-violet-500 text-white font-semibold shadow-md hover:from-blue-600 hover:to-indigo-600 transition-all text-lg"
           disabled={submitting}
         >
           {submitting ? "Saving..." : "Save"}

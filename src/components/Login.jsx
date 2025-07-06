@@ -92,7 +92,7 @@ export default function Login({ onClose, onSwitchToRegister, onSwitchToForgot, o
         <div className="flex justify-center">
           <button
             type="submit"
-            className="cursor-pointer px-8 py-2 rounded-xl bg-gradient-to-r from-blue-500 via-indigo-500 to-violet-500 text-white font-semibold shadow-md hover:from-blue-600 hover:to-indigo-600 transition-all text-lg mt-1"
+            className="w-full cursor-pointer py-2 rounded-xl bg-gradient-to-r from-blue-500 via-indigo-500 to-violet-500 text-white font-semibold shadow-md hover:from-blue-600 hover:to-indigo-600 transition-all text-lg mt-1"
           >
             Log in
           </button>

@@ -73,7 +73,7 @@ export default function ForgotPassword({ onClose, onSwitchToLogin }) {
         <div className="flex justify-center">
           <button
             type="submit"
-            className="cursor-pointer px-8 py-2 rounded-xl bg-gradient-to-r from-blue-500 via-indigo-500 to-violet-500 text-white font-semibold shadow-md hover:from-blue-600 hover:to-indigo-600 transition-all text-lg mt-1"
+            className="cursor-pointer w-full py-2 rounded-xl bg-gradient-to-r from-blue-500 via-indigo-500 to-violet-500 text-white font-semibold shadow-md hover:from-blue-600 hover:to-indigo-600 transition-all text-lg mt-1"
           >
             Send Link
           </button>
