@@ -16,8 +16,8 @@ function calculateAgeFromDate(dateStr) {
 }
 
 const lineIdRegex = /^[a-z0-9._-]{3,}$/;
-const thRegex = /^[ก-๏]+$/;
-const enRegex = /^[a-zA-Z]+$/;
+const thRegex = /^[ก-ฮะ-์.]+$/;
+const enRegex = /^[A-Za-z.]+$/;
 const thMin3 = /^[ก-๏]{3,}$/;
 const enMin3 = /^[a-zA-Z]{3,}$/;
 
@@ -680,7 +680,7 @@ export default function MemberModal({ open, onClose }) {
               </div>
             </div>
             <div>
-              <label className="block font-semibold mb-1">ประเภทใบเสร็จรับเงิน</label>
+              <label className="block font-semibold mb-1">*หมายเหตุ ตามข้อกำหนดของกรมสรรพากรระบุให้การออกใบเสร็จรับเงินต้องมีเลขประจำตัวผู้เสียภาษีของนิติบุคคลหรือบุคคลธรรมดาทางสมาคมจึงขอข้อมูลเพิ่มเติมดังนี้</label>
               <div className="flex flex-col gap-2">
                 <label className="flex gap-2 items-center">
                   <input
@@ -751,7 +751,7 @@ export default function MemberModal({ open, onClose }) {
 
         {/* Step 5 */}
         {step === 5 && (
-          <div className="flex flex-col gap-6">
+          <div className="flex flex-col">
             <label className="block font-semibold mb-2">
               หากไม่ระบุข้อมูลทางสมาคมขอสงวนสิทธิ์ที่จะไม่รับเป็นสมาชิกเนื่องจากไม่สามารถออกใบเสร็จรับเงินให้ได้ กรุณาเลือกยินยอมเพื่อรับรองและรับทราบตามรายละเอียดดังนี้
             </label>
@@ -761,21 +761,21 @@ export default function MemberModal({ open, onClose }) {
                 name="agreeRule"
                 checked={form.agreeRule}
                 onChange={handleChange}
-                className="mt-2 accent-blue-600 w-5 h-5"
+                className="mt-1.5"
               />
               <div>
                 <span>
                   ข้าพเจ้าขอรับรองว่าจะปฏิบัติตามกฎระเบียบและข้อบังคับของสมาคมทุกประการ
                 </span>
-                <div className="text-sm mt-1">
+                <div className="font-semibold mt-1">
                   (อ่านรายละเอียดข้อบังคับที่{" "}
                   <a
                     href="https://www.TLWA.or.th"
-                    className="text-blue-500 underline hover:text-violet-700 transition"
+                    className="text-blue-500 hover:text-blue-800 transition"
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    เว็บไซต์ TLWA
+                    Website TLWA
                   </a>
                   )
                 </div>
@@ -790,7 +790,7 @@ export default function MemberModal({ open, onClose }) {
                 name="agreeConfirm"
                 checked={form.agreeConfirm}
                 onChange={handleChange}
-                className="mt-2 accent-blue-600 w-5 h-5"
+                className="mt-1.5 accent-blue-600"
               />
               <span>
                 ข้าพเจ้ารับทราบว่าการสมัครเป็นสมาชิกสามัญจะเสร็จสมบูรณ์เมื่อข้าพเจ้าได้รับการรับรองจากคณะกรรมการของสมาคมและสมาคมได้แจ้งยืนยันให้ชำระค่าธรรมเนียมจำนวน 1,750 บาทโดยชำระเงินให้แล้วเสร็จภายใน 30 วันนับจากการแจ้งรับเป็นสมาชิกสามัญ หากเกินกำหนดดังกล่าวข้าพเจ้ายินดีให้สมาคมยกเลิกการรับเป็นสมาชิกสามัญ
@@ -800,7 +800,8 @@ export default function MemberModal({ open, onClose }) {
               <div className="text-xs text-red-500">{errors.agreeConfirm}</div>
             )}
             <div className="mt-4">
-              <label className="block font-semibold mb-2">การคุ้มครองข้อมูลส่วนบุคคล</label>
+              <label className="block font-semibold mb-2">การคุ้มครองข้อมูลส่วนบุคคล
+              </label>
               <div className="flex flex-col gap-2">
                 <label className="flex gap-2 items-center">
                   <input
@@ -808,9 +809,9 @@ export default function MemberModal({ open, onClose }) {
                     name="pdpa1"
                     checked={form.pdpa1}
                     onChange={handleChange}
-                    className="accent-blue-600"
+                    className="mb-24 accent-blue-600"
                   />
-                  ยินยอมให้สมาคมใช้ข้อมูลสำหรับการเป็นสมาชิกและกิจกรรมของสมาคม
+                  ข้าพเจ้าขอให้ความยินยอมแก่สมาคมในการเก็บรวบรวมข้อมูลเพื่อใช้เปิดเผยและโอนไปในหน่วยงานที่เกี่ยวข้องสำหรับการเป็นสมาชิกและการดำเนินกิจกรรมของสมาคมทั้งนี้ในกรณีที่ข้าพเจ้าไม่ได้ให้ความยินยอมข้างต้นข้าพเจ้ารับทราบว่ามีผลต่อการพิจารณาใบสมัครสมาชิกสามัญของข้าพเจ้าและอาจเป็นผลให้สมาคมวัยสามารถดำเนินการหรือให้บริการแก่ข้าพเจ้าได้ทั้งหมดหรือบางส่วน
                 </label>
                 <label className="flex gap-2 items-center">
                   <input
