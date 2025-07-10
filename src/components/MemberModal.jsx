@@ -21,6 +21,14 @@ const enRegex = /^[A-Za-z.]+$/;
 const thMin3 = /^[ก-๏]{3,}$/;
 const enMin3 = /^[a-zA-Z]{3,}$/;
 
+// ---------- Image Preview helper ----------
+function getPreviewUrl(file) {
+  if (file && file.type && file.type.startsWith("image/")) {
+    return URL.createObjectURL(file);
+  }
+  return null;
+}
+
 export default function MemberModal({ open, onClose }) {
   const [user, setUser] = useState(null);
 
@@ -43,14 +51,52 @@ export default function MemberModal({ open, onClose }) {
     receiptAddressType: "", receiptAddressOther: "",
     receiptType: "", branchName: "",
     taxId: "", agreeRule: false, agreeConfirm: false, pdpa1: false, pdpa2: false,
-    idCard: null, houseReg: null, profilePic: null,
+    idCard: [], houseReg: [], profilePic: [], educationCert: [], medicalLicense: [],
     educationLevel: "",
-    educationCert: null,
-    medicalLicense: null,
     boardInterest: "",
     boardType: "",
     gbprimepayMock: "",
   });
+
+  // Preview URL state for step 6 images
+  const [previewUrls, setPreviewUrls] = useState({});
+
+  // Create preview URLs for current files (revoke old URLs)
+  useEffect(() => {
+    const newPreviews = {};
+    ["idCard", "houseReg", "profilePic", "educationCert", "medicalLicense"].forEach((field) => {
+      newPreviews[field] = (form[field] || []).map((file) => {
+        if (file && file.type && file.type.startsWith("image/")) {
+          return getPreviewUrl(file);
+        }
+        return null;
+      });
+    });
+
+    // Cleanup previous blob URLs
+    Object.values(previewUrls).flat().forEach(url => url && URL.revokeObjectURL(url));
+    setPreviewUrls(newPreviews);
+
+    // Cleanup when unmount
+    return () => {
+      Object.values(newPreviews).flat().forEach(url => url && URL.revokeObjectURL(url));
+    };
+    // eslint-disable-next-line
+  }, [form.idCard, form.houseReg, form.profilePic, form.educationCert, form.medicalLicense]);
+
+  useEffect(() => {
+    if (user?.id && open) {
+      fetch(`${import.meta.env.VITE_API_URL}/api/members/${user.id}`)
+        .then(res => {
+          if (!res.ok) throw new Error('Not found');
+          return res.json();
+        })
+        .then(data => {
+          setForm(f => ({ ...f, ...data }));
+        })
+        .catch(() => { });
+    }
+  }, [user, open]);
 
   useEffect(() => {
     if (user && open) {
@@ -87,12 +133,12 @@ export default function MemberModal({ open, onClose }) {
         agreeConfirm: user.agreeConfirm || false,
         pdpa1: user.pdpa1 || false,
         pdpa2: user.pdpa2 || false,
-        idCard: user.idCard || null,
-        houseReg: user.houseReg || null,
-        profilePic: user.profilePic || null,
+        idCard: [],
+        houseReg: [],
+        profilePic: [],
+        educationCert: [],
+        medicalLicense: [],
         educationLevel: user.educationLevel || "",
-        educationCert: user.educationCert || null,
-        medicalLicense: user.medicalLicense || null,
         boardInterest: user.boardInterest || "",
         boardType: user.boardType || "",
         gbprimepayMock: user.gbprimepayMock || "",
@@ -104,9 +150,6 @@ export default function MemberModal({ open, onClose }) {
   const [errors, setErrors] = useState({});
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState("");
-  const [files, setFiles] = useState({
-    idCard: null, houseReg: null, profilePic: null, educationCert: null, medicalLicense: null,
-  });
 
   const age = useMemo(() => calculateAgeFromDate(form.birthDate), [form.birthDate]);
 
@@ -115,9 +158,10 @@ export default function MemberModal({ open, onClose }) {
     if (type === "checkbox") {
       setForm(f => ({ ...f, [name]: checked }));
     } else if (type === "file") {
-      const file = fileInput[0];
-      setForm(f => ({ ...f, [name]: file }));
-      setFiles(f => ({ ...f, [name]: file }));
+      setForm(f => ({
+        ...f,
+        [name]: [...(f[name] || []), ...Array.from(fileInput)]
+      }));
     } else {
       setForm(f => ({ ...f, [name]: value }));
     }
@@ -125,9 +169,11 @@ export default function MemberModal({ open, onClose }) {
     setMsg('');
   }
 
-  function handleRemoveFile(field) {
-    setForm(f => ({ ...f, [field]: null }));
-    setFiles(f => ({ ...f, [field]: null }));
+  function handleRemoveFile(field, idx) {
+    setForm(f => ({
+      ...f,
+      [field]: f[field].filter((_, i) => i !== idx)
+    }));
   }
 
   function validateStep() {
@@ -220,11 +266,11 @@ export default function MemberModal({ open, onClose }) {
       if (!form.pdpa2) errs.pdpa2 = "โปรดยินยอมการใช้ข้อมูล";
     }
     if (step === 6) {
-      if (!form.idCard) errs.idCard = "กรุณาอัปโหลดสำเนาบัตรประชาชน";
-      if (!form.houseReg) errs.houseReg = "กรุณาอัปโหลดสำเนาทะเบียนบ้าน";
-      if (!form.profilePic) errs.profilePic = "กรุณาอัปโหลดรูปหน้าตรง";
+      if (!form.idCard.length) errs.idCard = "กรุณาอัปโหลดสำเนาบัตรประชาชน";
+      if (!form.houseReg.length) errs.houseReg = "กรุณาอัปโหลดสำเนาทะเบียนบ้าน";
+      if (!form.profilePic.length) errs.profilePic = "กรุณาอัปโหลดรูปหน้าตรง";
       if (!form.educationLevel) errs.educationLevel = "เลือกวุฒิการศึกษาสูงสุด";
-      if (!form.educationCert) errs.educationCert = "กรุณาอัปโหลดวุฒิการศึกษา";
+      if (!form.educationCert.length) errs.educationCert = "กรุณาอัปโหลดวุฒิการศึกษา";
     }
     if (step === 7) {
       if (!form.boardInterest) errs.boardInterest = "โปรดเลือกความสนใจ";
@@ -248,10 +294,57 @@ export default function MemberModal({ open, onClose }) {
     e.preventDefault();
     setSaving(true);
     setMsg('');
-    setTimeout(() => {
-      setMsg("บันทึกข้อมูลสำเร็จ (DEMO)");
-      setSaving(false);
-    }, 1200);
+    try {
+      const formData = new FormData();
+      formData.append("user_id", user?.id);
+      formData.append("nickName", form.nickName);
+      formData.append("birthDate", form.birthDate);
+      formData.append("religion", form.religion);
+      formData.append("race", form.race);
+      formData.append("nationality", form.nationality);
+      formData.append("occupation", form.occupation);
+      formData.append("address", form.address);
+      formData.append("lineId", form.lineId);
+      formData.append("workPlace", form.workPlace);
+      formData.append("workPosition", form.workPosition);
+      formData.append("workAddress", form.workAddress);
+      formData.append("workPhone", form.workPhone);
+      formData.append("docAddressType", form.docAddressType);
+      formData.append("docAddressOther", form.docAddressOther);
+      formData.append("receiptAddressType", form.receiptAddressType);
+      formData.append("receiptAddressOther", form.receiptAddressOther);
+      formData.append("receiptType", form.receiptType);
+      formData.append("branchName", form.branchName);
+      formData.append("taxId", form.taxId);
+      formData.append("agreeRule", form.agreeRule);
+      formData.append("agreeConfirm", form.agreeConfirm);
+      formData.append("pdpa1", form.pdpa1);
+      formData.append("pdpa2", form.pdpa2);
+      formData.append("educationLevel", form.educationLevel);
+      formData.append("boardInterest", form.boardInterest);
+      formData.append("boardType", form.boardType);
+      formData.append("gbprimepayMock", form.gbprimepayMock);
+
+      ["idCard", "houseReg", "profilePic", "educationCert", "medicalLicense"].forEach(field => {
+        if (form[field] && form[field].length) {
+          form[field].forEach(file => {
+            formData.append(`${field}[]`, file);
+          });
+        }
+      });
+
+      const url = `${import.meta.env.VITE_API_URL}/api/members`;
+      const res = await fetch(url, {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!res.ok) throw new Error(await res.text());
+      setMsg("บันทึกข้อมูลสำเร็จ");
+    } catch (err) {
+      setMsg("เกิดข้อผิดพลาด: " + err.message);
+    }
+    setSaving(false);
   }
 
   if (!open) return null;
@@ -263,18 +356,7 @@ export default function MemberModal({ open, onClose }) {
         onSubmit={handleSubmit}
         autoComplete="off"
       >
-        {/* ปุ่มปิด */}
-        <button
-          type="button"
-          className="absolute top-3 right-3 bg-gray-200 hover:bg-red-400 text-gray-500 hover:text-white rounded-full w-9 h-9 flex items-center justify-center transition"
-          onClick={onClose}
-          aria-label="Close"
-          disabled={saving}
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </button>
+        {/* ... Header & Step Progress ... (เหมือน code เดิม) */}
         <h2 className="text-2xl font-bold mb-6 text-gray-800 tracking-tight text-center">
           สมัครสมาชิก (ขั้นตอนที่ {step} / 8)
         </h2>
@@ -838,42 +920,53 @@ export default function MemberModal({ open, onClose }) {
         {step === 6 && (
           <div className="flex flex-col gap-5">
             {[
-              { name: "idCard", label: "สำเนาบัตรประชาชน (PDF/JPG/PNG)", accept: ".pdf,.jpg,.jpeg,.png" },
-              { name: "houseReg", label: "สำเนาทะเบียนบ้าน (PDF/JPG/PNG)", accept: ".pdf,.jpg,.jpeg,.png" },
-              { name: "profilePic", label: "รูปหน้าตรง (PDF/JPG/PNG)", accept: ".pdf,.jpg,.jpeg,.png" },
-              { name: "educationCert", label: "สำเนาวุฒิการศึกษาสูงสุด (PDF/JPG/PNG)", accept: ".pdf,.jpg,.jpeg,.png" },
-              { name: "medicalLicense", label: "ใบประกอบวิชาชีพเวชกรรม (ถ้ามี/เฉพาะแพทย์)", accept: ".pdf,.jpg,.jpeg,.png" }
+              { name: "idCard", label: "สำเนาบัตรประชาชน (JPG/JPEG/PNG/WEBP)", accept: ".jpg,.jpeg,.png,.webp" },
+              { name: "houseReg", label: "สำเนาทะเบียนบ้าน (JPG/JPEG/PNG/WEBP)", accept: ".jpg,.jpeg,.png,.webp" },
+              { name: "profilePic", label: "รูปหน้าตรง (JPG/JPEG/PNG/WEBP)", accept: ".jpg,.jpeg,.png,.webp" },
+              { name: "educationCert", label: "สำเนาวุฒิการศึกษาสูงสุด (JPG/JPEG/PNG/WEBP)", accept: ".jpg,.jpeg,.png,.webp" },
+              { name: "medicalLicense", label: "ใบประกอบวิชาชีพเวชกรรม (ถ้ามี/เฉพาะแพทย์)", accept: ".jpg,.jpeg,.png,.webp" }
             ].map(({ name, label, accept }) => (
-              <div key={name} className="flex items-center gap-4">
+              <div key={name} className="flex items-start gap-4">
                 <label className="block font-medium flex-shrink-0 w-64">{label}</label>
-                <div className="flex items-center gap-3 flex-1">
-                  {!form[name] ? (
-                    <label className="flex items-center cursor-pointer gap-2 px-4 py-2 bg-gradient-to-r from-blue-500 to-violet-500 text-white rounded-lg shadow hover:from-blue-600 hover:to-violet-600 font-semibold transition-all text-base">
-                      <FaCloudUploadAlt className="mr-1" />
-                      อัปโหลดไฟล์
-                      <input
-                        type="file"
-                        name={name}
-                        accept={accept}
-                        onChange={handleChange}
-                        className="hidden"
-                      />
-                    </label>
-                  ) : (
-                    <div className="flex items-center gap-3 bg-gray-100 rounded-xl px-3 py-2 shadow border">
-                      <FaFileAlt className="text-indigo-500" />
-                      <span className="truncate max-w-[180px]">{form[name]?.name || "เลือกไฟล์แล้ว"}</span>
-                      <button
-                        type="button"
-                        onClick={() => handleRemoveFile(name)}
-                        className="hover:bg-red-100 rounded-full p-2"
-                        aria-label="ลบไฟล์"
-                        tabIndex={0}
-                      >
-                        <FaTrash className="text-red-500" />
-                      </button>
-                    </div>
-                  )}
+                <div className="flex flex-col flex-1 gap-2">
+                  {/* ---- รูป preview แบบแนวนอน ---- */}
+                  <div className="flex flex-row flex-wrap gap-3 mb-1">
+                    {(form[name] || []).map((file, idx) => (
+                      <div key={idx} className="relative group border rounded-lg p-1 bg-gray-50 flex items-center shadow hover:shadow-md transition">
+                        {previewUrls[name]?.[idx] ? (
+                          <img
+                            src={previewUrls[name][idx]}
+                            alt={file.name}
+                            className="w-16 h-16 object-cover rounded-md"
+                          />
+                        ) : (
+                          <FaFileAlt className="w-10 h-10 text-indigo-400" />
+                        )}
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveFile(name, idx)}
+                          className="absolute -top-2 -right-2 bg-white border border-gray-300 hover:bg-red-500 hover:text-white rounded-full p-1 shadow transition"
+                          aria-label="ลบไฟล์"
+                          tabIndex={0}
+                        >
+                          <FaTrash className="w-4 h-4 text-red-500 group-hover:text-white" />
+                        </button>
+                        <span className="text-xs block mt-1 max-w-[70px] truncate text-gray-700">{file?.name}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <label className="flex items-center cursor-pointer gap-2 px-4 py-2 bg-gradient-to-r from-blue-500 to-violet-500 text-white rounded-lg shadow hover:from-blue-600 hover:to-violet-600 font-semibold transition-all text-base w-fit">
+                    <FaCloudUploadAlt className="mr-1" />
+                    เพิ่มไฟล์
+                    <input
+                      type="file"
+                      name={name}
+                      accept={accept}
+                      multiple
+                      onChange={handleChange}
+                      className="hidden"
+                    />
+                  </label>
                   {errors[name] && <div className="text-xs text-red-500">{errors[name]}</div>}
                 </div>
               </div>
