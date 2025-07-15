@@ -6,6 +6,7 @@ import ForgotPassword from "./components/ForgotPassword";
 import ResetPassword from "./components/ResetPassword";
 import Navbar from "./components/Navbar";
 import Hero from "./components/Hero";
+import Conference from "./components/Conference";
 import Benefits from "./components/Benefits";
 import News from "./components/News";
 import Media from "./components/Media";
@@ -21,6 +22,7 @@ function MainContent({ setModal }) {
     <>
       <Navbar onLoginClick={() => setModal("login")} onAccountClick={() => setModal("account")} />
       <Hero />
+      <Conference />
       <Benefits />
       <News />
       <Media />

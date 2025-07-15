@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react'
 
-
 // Import logo1
 import logo1 from '../assets/partners/logo1/1.webp'
 import logo2 from '../assets/partners/logo1/2.webp'
@@ -244,7 +243,7 @@ function Partners() {
   const remaining = logos.slice(10)
 
   return (
-    <section className="bg-gradient-to-b from-blue-600 to-indigo-700 text-white py-20 px-4">
+    <section id="partners" section className="bg-gradient-to-b from-blue-600 to-indigo-700 text-white py-20 px-4">
       {/* Header */}
       <div className="text-center mb-12">
         <h3 className="text-pink-300 font-semibold text-xl mb-2">Partners</h3>

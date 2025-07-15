@@ -1,7 +1,7 @@
 import React from 'react'
 import { motion } from 'framer-motion'
 // import images
-import heroPeople from '../assets/hero/doctor.webp'
+import heroPeople from '../assets/hero/doctor.png'
 import bgWindow from '../assets/hero/window.png'
 import bgChecklist from '../assets/hero/chat-group.png'
 
@@ -78,7 +78,7 @@ function Hero() {
     }
 
     return (
-        <section className="relative overflow-hidden flex items-center bg-gradient-to-br from-blue-50 via-white to-purple-50 w-full mx-auto pt-40 
+        <section id="hero" section className="relative overflow-hidden flex items-center bg-gradient-to-br from-blue-50 via-white to-purple-50 w-full mx-auto pt-40 
         sm:pt-55 
         md:pt-75
         lg:pt-60
@@ -298,11 +298,11 @@ function Hero() {
                         src={heroPeople}
                         alt="Thai Medical Team"
                         className="relative z-30 -left-[2%] top-0 w-[90%] 
-                        sm:left-[0%] sm:top-0 sm:w-[70%] 
+                        sm:left-[5%] sm:top-0 sm:w-[70%] 
                         md:left-[0%] md:-top-15 md:w-[60%]
-                        lg:left-[0%] lg:-top-0 lg:w-[80%]
-                        xl:left-[0%] xl:-top-0 xl:w-[90%]
-                        2xl:left-[0%] 2xl:-top-0 2xl:w-[90%]    
+                        lg:left-[5%] lg:-bottom-10 lg:w-[85%]
+                        xl:left-[10%] xl:-top-0 xl:w-[80%]
+                        2xl:left-[10%] 2xl:-top-0 2xl:w-[90%]    
                         drop-shadow-2xl rounded-lg"
                         draggable={false}
                         initial={{ opacity: 0, scale: 0.9, y: 30 }}
@@ -342,7 +342,7 @@ function Hero() {
                         sm:left-[14%] sm:bottom-[1%] sm:w-[8%]
                         md:left-[19%] md:bottom-[19%] md:w-[7%]
                         lg:left-[9%] lg:bottom-[7%] lg:w-[9%]
-                        xl:left-[4%] xl:bottom-[5%] xl:w-[10%]
+                        xl:left-[15%] xl:bottom-[5%] xl:w-[10%]
                         2xl:left-[4%] 2xl:bottom-[5%] 2xl:w-[10%]   
                         aspect-square -translate-x-1/2 -translate-y-1/2 
                         border-4 border-dotted border-blue-300 rounded-full z-20"

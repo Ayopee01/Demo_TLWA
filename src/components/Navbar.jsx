@@ -17,6 +17,16 @@ function Navbar({ onLoginClick }) {
 
   const dropdownRef = useRef(null);
 
+  // scrollIntoView
+  const handleNavClick = (href) => (e) => {
+    e.preventDefault();
+    setOpen(false); // ถ้าใช้ Drawer
+    const section = document.querySelector(href);
+    if (section) {
+      section.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  };
+
   // ปิด dropdown (desktop) เมื่อคลิกข้างนอก
   useEffect(() => {
     if (!dropdown) return;
@@ -41,17 +51,19 @@ function Navbar({ onLoginClick }) {
 
   // เมนูหลัก
   const navLinks = [
-    { label: "Home", href: "#" },
-    { label: "Benefits", href: "#" },
-    { label: "News", href: "#" },
-    { label: "Media", href: "#" },
-    { label: "Partners", href: "#" },
-    { label: "Rules and Regulations", href: "#" },
-    { label: "Contact", href: "#" },
+    { label: "Home", href: "#hero" },
+    { label: "Conference", href: "#conference" },
+    { label: "Benefits", href: "#benefits" },
+    { label: "News", href: "#news" },
+    { label: "Media", href: "#media" },
+    { label: "Partners", href: "#partners" },
+    { label: "Rules and Regulations", href: "#rules" },
+    { label: "Contact", href: "#contact" },
   ];
 
   return (
     <nav className="bg-white sticky top-0 z-50 shadow px-8 lg:px-16 xl:px-24">
+
       <div className="container mx-auto flex items-center justify-between h-30">
         {/* LOGO */}
         <Link to="/">
@@ -62,10 +74,17 @@ function Navbar({ onLoginClick }) {
         <ul className="hidden xl:flex space-x-8 items-center p-8">
           {navLinks.map(link => (
             <li key={link.label}>
-              <a href={link.href} className="relative font-medium text-gray-700 transition hover:text-indigo-500">{link.label}</a>
+              <a
+                href={link.href}
+                onClick={handleNavClick(link.href)}
+                className="relative font-medium text-gray-700 transition hover:text-indigo-500"
+              >
+                {link.label}
+              </a>
             </li>
           ))}
         </ul>
+
 
         {/* Desktop: Login/User */}
         <div className="hidden xl:flex items-center">
@@ -170,7 +189,13 @@ function Navbar({ onLoginClick }) {
           <ul className="flex flex-col mt-1 flex-1">
             {navLinks.map(link => (
               <li key={link.label}>
-                <a href={link.href} className="relative font-medium text-gray-700 hover:text-indigo-500 px-5 py-3 block border-b border-indigo-100">{link.label}</a>
+                <a
+                  href={link.href}
+                  onClick={handleNavClick(link.href)}
+                  className="relative font-medium text-gray-700 hover:text-indigo-500 px-5 py-3 block border-b border-indigo-100"
+                >
+                  {link.label}
+                </a>
               </li>
             ))}
           </ul>

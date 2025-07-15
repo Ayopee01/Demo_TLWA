@@ -2,7 +2,7 @@ import React from 'react'
 
 function Media() {
   return (
-        <section className="relative bg-[#f5f9fc] text-gray-800 py-20 px-4 overflow-hidden">
+        <section id="media" section className="relative bg-[#f5f9fc] text-gray-800 py-20 px-4 overflow-hidden">
       {/* Heading */}
       <div className="text-center mb-12">
         <h2 className="text-pink-600 font-semibold text-xl mb-2">WELL-BEING...</h2>

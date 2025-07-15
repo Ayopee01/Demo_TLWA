@@ -2,8 +2,8 @@ import { useState, useEffect, useRef } from "react";
 import api from "../api";
 import { useUser } from "../contexts/UserContext";
 
-const THAI_REGEX = /^[\u0E00-\u0E7F\s]+$/;         // อักษรไทย + เว้นวรรค
-const ENGLISH_REGEX = /^[A-Za-z\s]+$/;             // ภาษาอังกฤษ + เว้นวรรค
+const THAI_REGEX = /^[\u0E00-\u0E7F\s]+$/;
+const ENGLISH_REGEX = /^[A-Za-z\s]+$/;
 
 export default function AccountModal({ open, onClose }) {
   const { user, updateUser } = useUser();
@@ -23,6 +23,7 @@ export default function AccountModal({ open, onClose }) {
   const [popup, setPopup] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
+  // ======== Prefill from user (context) ==========
   useEffect(() => {
     if (user && open) {
       setForm({
@@ -41,9 +42,7 @@ export default function AccountModal({ open, onClose }) {
     }
   }, [user, open]);
 
-  // -------------------
-  // Validation
-  // -------------------
+  // ============= Validation =======================
   const validate = () => {
     const newErrors = {};
     if (!form.prefix) newErrors.prefix = "กรุณาเลือกคำนำหน้า";
@@ -61,9 +60,7 @@ export default function AccountModal({ open, onClose }) {
     return newErrors;
   };
 
-  // -------------------
-  // Handler
-  // -------------------
+  // ============ Handler ================
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
@@ -71,6 +68,7 @@ export default function AccountModal({ open, onClose }) {
     setPopup("");
   };
 
+  // ============ SUBMIT ===============
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!user || !user.id) {
@@ -85,9 +83,17 @@ export default function AccountModal({ open, onClose }) {
     }
     setSubmitting(true);
     try {
-      const res = await api.put(`/api/users/${user.id}`, form);
+      await api.put(`/api/users/${user.id}`, form);
+
+      // ===== Fetch user profile สดหลังบันทึก =====
+      const resUser = await api.get(`/api/users/${user.id}`);
+      const userFresh = resUser.data?.user;
+      if (userFresh) {
+        updateUser(userFresh);
+        localStorage.setItem('user', JSON.stringify(userFresh));
+      }
+
       setPopup("แก้ไขข้อมูลเรียบร้อย");
-      updateUser({ ...user, ...form, ...res.data.user });
       setTimeout(() => {
         setPopup("");
         if (onClose) onClose();
@@ -99,6 +105,7 @@ export default function AccountModal({ open, onClose }) {
     setSubmitting(false);
   };
 
+  // ============ Overlay click for close ===============
   const handleOverlayClick = (e) => {
     if (formRef.current && !formRef.current.contains(e.target)) {
       onClose && onClose();
@@ -115,14 +122,14 @@ export default function AccountModal({ open, onClose }) {
       <form
         ref={formRef}
         className={`
-        relative w-full flex flex-col items-center
+          relative w-full flex flex-col items-center
           rounded-2xl shadow-2xl
           bg-white border border-gray-200
           py-5 px-8 transition-all duration-200
           overflow-y-auto
           max-h-[67dvh]
           max-w-sm sm:max-w-lg
-          `}
+        `}
         style={{
           WebkitOverflowScrolling: 'touch',
         }}

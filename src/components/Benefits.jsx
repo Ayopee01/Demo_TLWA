@@ -196,7 +196,7 @@ function Benefits() {
   }
 
   return (
-    <section className="relative bg-gray-900 text-white py-24 px-4 overflow-hidden">
+    <section id="benefits" section className="relative bg-gray-900 text-white py-24 px-4 overflow-hidden">
       {/* Animated BG decor */}
       <AnimatedCircle className="absolute -left-32 bottom-0 w-72 h-72 bg-gray-800 opacity-60 rounded-full" delay={0} />
       <AnimatedCircle className="absolute left-32 top-96 w-6 h-6 bg-gray-800 opacity-40 rounded-full" delay={1400} />

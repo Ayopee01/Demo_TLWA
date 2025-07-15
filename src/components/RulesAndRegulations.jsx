@@ -14,7 +14,7 @@ const RulesAndRegulations = () => {
   }, [showFull])
 
   return (
-    <section className="bg-[#0B1120] text-white py-20 px-6 lg:px-12">
+    <section id="rules" section className="bg-[#0B1120] text-white py-20 px-6 lg:px-12">
       <div className="max-w-5xl mx-auto space-y-8">
         <h1 className="text-4xl font-extrabold text-pink-400 mb-4">
           ข้อบังคับสมาคมเวชศาสตร์วิถีชีวิตและสุขภาวะไทย

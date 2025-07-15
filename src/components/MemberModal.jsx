@@ -1,5 +1,6 @@
-import React, { useState, useEffect, useMemo } from "react";
-import { FaFileAlt, FaTrash, FaCloudUploadAlt } from "react-icons/fa";
+import React, { useState, useEffect, useMemo, useRef } from "react";
+import { FaFileAlt, FaTrash, FaCloudUploadAlt, FaRegEdit } from "react-icons/fa";
+import { useUser } from "../contexts/UserContext";
 
 const RELIGIONS = [
   "พุทธ", "คริสต์", "อิสลาม", "ฮินดู", "ซิกข์", "ยูดาย", "เชน", "เต๋า", "ชินโต", "Baháʼí", "ลัทธิขงจื๊อ", "ไม่มีศาสนา"
@@ -7,21 +8,20 @@ const RELIGIONS = [
 
 function calculateAgeFromDate(dateStr) {
   if (!dateStr) return "";
-  const today = new Date();
   const birthDate = new Date(dateStr);
+  const today = new Date();
   let age = today.getFullYear() - birthDate.getFullYear();
   const m = today.getMonth() - birthDate.getMonth();
   if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) age--;
   return age;
 }
 
-const lineIdRegex = /^[a-z0-9._-]{3,}$/;
-const thRegex = /^[ก-ฮะ-์.]+$/;
-const enRegex = /^[A-Za-z.]+$/;
-const thMin3 = /^[ก-๏]{3,}$/;
-const enMin3 = /^[a-zA-Z]{3,}$/;
-
-// ---------- Image Preview helper ----------
+function formatDateThai(dateStr) {
+  if (!dateStr) return "-";
+  const d = new Date(dateStr);
+  if (isNaN(d)) return dateStr;
+  return d.toLocaleDateString("th-TH", { year: "numeric", month: "long", day: "numeric" });
+}
 function getPreviewUrl(file) {
   if (file && file.type && file.type.startsWith("image/")) {
     return URL.createObjectURL(file);
@@ -30,17 +30,12 @@ function getPreviewUrl(file) {
 }
 
 export default function MemberModal({ open, onClose }) {
-  const [user, setUser] = useState(null);
+  const { user, updateUser, loginUser } = useUser();
+  const formRef = useRef(null);
+  const localKey = user ? `memberData_${user.id}` : null;
 
-  useEffect(() => {
-    if (open) {
-      const raw = localStorage.getItem("user");
-      if (raw) setUser(JSON.parse(raw));
-    }
-  }, [open]);
-
-  const [form, setForm] = useState({
-    prefix: "", prefixEn: "",
+  const defaultForm = {
+    prefixTh: "", prefixEn: "", suffixEn: "",
     firstName: "", lastName: "",
     firstNameEn: "", lastNameEn: "",
     nickName: "", birthDate: "",
@@ -55,236 +50,240 @@ export default function MemberModal({ open, onClose }) {
     educationLevel: "",
     boardInterest: "",
     boardType: "",
-    gbprimepayMock: "",
-  });
+    qrImage: "",
+    paymentRef: "",
+  };
 
-  // Preview URL state for step 6 images
-  const [previewUrls, setPreviewUrls] = useState({});
-
-  // Create preview URLs for current files (revoke old URLs)
-  useEffect(() => {
-    const newPreviews = {};
-    ["idCard", "houseReg", "profilePic", "educationCert", "medicalLicense"].forEach((field) => {
-      newPreviews[field] = (form[field] || []).map((file) => {
-        if (file && file.type && file.type.startsWith("image/")) {
-          return getPreviewUrl(file);
-        }
-        return null;
-      });
-    });
-
-    // Cleanup previous blob URLs
-    Object.values(previewUrls).flat().forEach(url => url && URL.revokeObjectURL(url));
-    setPreviewUrls(newPreviews);
-
-    // Cleanup when unmount
-    return () => {
-      Object.values(newPreviews).flat().forEach(url => url && URL.revokeObjectURL(url));
-    };
-    // eslint-disable-next-line
-  }, [form.idCard, form.houseReg, form.profilePic, form.educationCert, form.medicalLicense]);
-
-  useEffect(() => {
-    if (user?.id && open) {
-      fetch(`${import.meta.env.VITE_API_URL}/api/members/${user.id}`)
-        .then(res => {
-          if (!res.ok) throw new Error('Not found');
-          return res.json();
-        })
-        .then(data => {
-          setForm(f => ({ ...f, ...data }));
-        })
-        .catch(() => { });
-    }
-  }, [user, open]);
-
-  useEffect(() => {
-    if (user && open) {
-      setForm(f => ({
-        ...f,
-        prefix: "",
-        prefixEn: user.prefixEn || "",
-        firstName: user.firstName || "",
-        lastName: user.lastName || "",
-        firstNameEn: user.firstNameEn || "",
-        lastNameEn: user.lastNameEn || "",
-        nickName: user.nickName || "",
-        birthDate: user.birthDate || "",
-        religion: user.religion || "",
-        race: user.race || "",
-        nationality: user.nationality || "",
-        occupation: user.occupation || "",
-        address: user.address || "",
-        phone: user.phone || "",
-        email: user.email || "",
-        lineId: user.lineId || "",
-        workPlace: user.workPlace || "",
-        workPosition: user.workPosition || "",
-        workAddress: user.workAddress || "",
-        workPhone: user.workPhone || "",
-        docAddressType: user.docAddressType || "",
-        docAddressOther: user.docAddressOther || "",
-        receiptAddressType: user.receiptAddressType || "",
-        receiptAddressOther: user.receiptAddressOther || "",
-        receiptType: user.receiptType || "",
-        branchName: user.branchName || "",
-        taxId: user.taxId || "",
-        agreeRule: user.agreeRule || false,
-        agreeConfirm: user.agreeConfirm || false,
-        pdpa1: user.pdpa1 || false,
-        pdpa2: user.pdpa2 || false,
-        idCard: [],
-        houseReg: [],
-        profilePic: [],
-        educationCert: [],
-        medicalLicense: [],
-        educationLevel: user.educationLevel || "",
-        boardInterest: user.boardInterest || "",
-        boardType: user.boardType || "",
-        gbprimepayMock: user.gbprimepayMock || "",
-      }));
-    }
-  }, [user, open]);
-
+  const [form, setForm] = useState(defaultForm);
+  const [memberData, setMemberData] = useState(null);
+  const [isEdit, setIsEdit] = useState(false);
+  const [isMember, setIsMember] = useState(false);
   const [step, setStep] = useState(1);
   const [errors, setErrors] = useState({});
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState("");
+  const [payMethod, setPayMethod] = useState("qr");
+  const [cardForm, setCardForm] = useState({ number: "", name: "", expiry: "", cvc: "" });
+  const [cardErr, setCardErr] = useState({});
+  const [previewUrls, setPreviewUrls] = useState({});
+  const [allMembers, setAllMembers] = useState([]);
 
-  const age = useMemo(() => calculateAgeFromDate(form.birthDate), [form.birthDate]);
+  // Sync localStorage memberData_x (ตอน edit)
+  function syncEditLocal(formObj) {
+    if (isEdit && step >= 1 && step <= 6 && user && localKey) {
+      localStorage.setItem(localKey, JSON.stringify(formObj));
+    }
+  }
+
+  // อัปเดตข้อมูล user บน server
+  async function updateUserInfoOnServer(userId, form) {
+    const userData = {
+      prefix: form.prefixTh || "",
+      firstName: form.firstName || "",
+      lastName: form.lastName || "",
+      firstNameEn: form.firstNameEn || "",
+      lastNameEn: form.lastNameEn || "",
+      address: form.address || ""
+    };
+    if (form.phone) userData.phone = form.phone;
+    await fetch(`${import.meta.env.VITE_API_URL}/api/users/${userId}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(userData)
+    });
+  }
+
+  // โหลดข้อมูลเดิม
+  useEffect(() => {
+    if (!open || !user) return;
+    const saved = localStorage.getItem(localKey);
+    if (saved) {
+      setForm(f => ({ ...defaultForm, ...JSON.parse(saved) }));
+      return;
+    }
+    setForm(f => ({
+      ...defaultForm,
+      firstName: user.firstName || "",
+      lastName: user.lastName || "",
+      firstNameEn: user.firstNameEn || "",
+      lastNameEn: user.lastNameEn || "",
+      prefixTh: user.prefix || "",
+      email: user.email || "",
+      phone: user.phone || "",
+      address: user.address || "",
+    }));
+  }, [user, open, localKey]);
+
+  useEffect(() => {
+    async function fetchMember() {
+      if (user?.id && open) {
+        try {
+          const res = await fetch(`${import.meta.env.VITE_API_URL}/api/members/user/${user.id}`);
+          if (res.ok) {
+            const data = await res.json();
+            setIsMember(true);
+            setMemberData(data);
+            setIsEdit(false);
+            setForm(f => ({ ...f, ...data }));
+          } else {
+            setIsMember(false);
+            setMemberData(null);
+            setIsEdit(false);
+          }
+        } catch {
+          setIsMember(false);
+          setMemberData(null);
+          setIsEdit(false);
+        }
+      }
+      setStep(1);
+    }
+    fetchMember();
+  }, [user, open]);
+
+  useEffect(() => {
+    async function fetchAllMembers() {
+      try {
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/api/members`);
+        if (res.ok) {
+          const arr = await res.json();
+          setAllMembers(Array.isArray(arr) ? arr : []);
+        }
+      } catch {
+        setAllMembers([]);
+      }
+    }
+    if (open) fetchAllMembers();
+  }, [open]);
+
+  useEffect(() => {
+    const newPreviews = {};
+    ["idCard", "houseReg", "profilePic", "educationCert", "medicalLicense"].forEach((field) => {
+      newPreviews[field] = (form[field] || []).map((file) => getPreviewUrl(file));
+    });
+    Object.values(previewUrls).flat().forEach(url => url && URL.revokeObjectURL(url));
+    setPreviewUrls(newPreviews);
+    return () => Object.values(newPreviews).flat().forEach(url => url && URL.revokeObjectURL(url));
+  }, [form.idCard, form.houseReg, form.profilePic, form.educationCert, form.medicalLicense]);
+
+  function validateStep(stepToCheck = step, values = form) {
+    const err = {};
+    if (stepToCheck === 1) {
+      if (!values.prefixTh) err.prefixTh = "กรุณากรอกคำนำหน้า (TH)";
+      if (!values.firstName) err.firstName = "กรุณากรอกชื่อ (TH)";
+      if (!values.lastName) err.lastName = "กรุณากรอกนามสกุล (TH)";
+      if (!values.firstNameEn) err.firstNameEn = "กรุณากรอกชื่อ (EN)";
+      if (!values.lastNameEn) err.lastNameEn = "กรุณากรอกนามสกุล (EN)";
+      if (!values.birthDate) err.birthDate = "กรุณากรอกวันเกิด";
+      if (!values.religion) err.religion = "กรุณาเลือกศาสนา";
+    }
+    if (stepToCheck === 2) {
+      if (!values.race) err.race = "กรุณากรอกเชื้อชาติ";
+      if (!values.nationality) err.nationality = "กรุณากรอกสัญชาติ";
+      if (!values.occupation) err.occupation = "กรุณากรอกอาชีพ";
+      if (!values.address) err.address = "กรุณากรอกที่อยู่";
+      if (values.email) {
+        const hasEmailDup = allMembers.some(m => m.email === values.email && (isEdit ? m.user_id !== user.id : true));
+        if (hasEmailDup) err.email = "อีเมลนี้ถูกใช้งานแล้ว";
+      }
+      const idLineRegex = /^[a-z0-9._-]{3,}$/;
+      if (!values.lineId) err.lineId = "กรุณากรอก ID Line";
+      else if (!idLineRegex.test(values.lineId)) err.lineId = "ID Line ต้องเป็น a-z 0-9 .-_ และยาวอย่างน้อย 3 ตัว";
+      else {
+        const hasDup = allMembers.some(m => m.lineId === values.lineId && (isEdit ? m.user_id !== user.id : true));
+        if (hasDup) err.lineId = "ID Line นี้มีในระบบแล้ว";
+      }
+    }
+    if (stepToCheck === 3) {
+      if (!values.workPlace || values.workPlace.length < 3) err.workPlace = "กรุณากรอกชื่อสถานที่ทำงาน (ไม่น้อยกว่า 3 ตัวอักษร)";
+      if (!values.workPosition || values.workPosition.length < 3) err.workPosition = "กรุณากรอกตำแหน่ง (ไม่น้อยกว่า 3 ตัวอักษร)";
+      if (!values.workAddress || values.workAddress.length < 3) err.workAddress = "กรุณากรอกที่อยู่ที่ทำงาน (ไม่น้อยกว่า 3 ตัวอักษร)";
+      if (!values.workPhone || !/^\d{9,10}$/.test(values.workPhone)) err.workPhone = "กรุณากรอกเบอร์ที่ทำงาน 9-10 หลัก";
+    }
+    if (stepToCheck === 4) {
+      if (!values.docAddressType) err.docAddressType = "เลือกที่อยู่สำหรับเอกสาร";
+      if (values.docAddressType === "other" && !values.docAddressOther) err.docAddressOther = "กรุณากรอกที่อยู่ (อื่นๆ)";
+      if (!values.receiptAddressType) err.receiptAddressType = "เลือกที่อยู่บนใบเสร็จ";
+      if (values.receiptAddressType === "other" && !values.receiptAddressOther) err.receiptAddressOther = "กรุณากรอกที่อยู่ (อื่นๆ)";
+      if (!values.taxId) err.taxId = "กรุณากรอกเลขประจำตัวผู้เสียภาษีหรือบัตรประชาชน";
+      else if (!/^\d{13}$/.test(values.taxId)) err.taxId = "เลขบัตรประชาชนต้องเป็นตัวเลข 13 หลัก";
+      else {
+        const hasDup = allMembers.some(m => m.taxId === values.taxId && (isEdit ? m.user_id !== user.id : true));
+        if (hasDup) err.taxId = "เลขนี้มีในระบบแล้ว";
+      }
+    }
+    if (stepToCheck === 5) {
+      if (!values.agreeRule) err.agreeRule = "กรุณายอมรับข้อตกลง";
+      if (!values.agreeConfirm) err.agreeConfirm = "กรุณายืนยันการรับทราบ";
+      if (!values.pdpa1) err.pdpa1 = "กรุณายินยอม PDPA";
+      if (!values.pdpa2) err.pdpa2 = "กรุณายินยอม PDPA2";
+    }
+    if (stepToCheck === 6) {
+      if (!(values.idCard && values.idCard.length)) err.idCard = "กรุณาแนบไฟล์บัตรประชาชน";
+      if (!(values.houseReg && values.houseReg.length)) err.houseReg = "กรุณาแนบไฟล์สำเนาทะเบียนบ้าน";
+      if (!(values.profilePic && values.profilePic.length)) err.profilePic = "กรุณาแนบรูปหน้าตรง";
+      if (!(values.educationCert && values.educationCert.length)) err.educationCert = "กรุณาแนบไฟล์วุฒิการศึกษา";
+      if (!values.educationLevel) err.educationLevel = "กรุณาเลือกวุฒิการศึกษา";
+    }
+    if (stepToCheck === 7) {
+      if (!values.boardInterest) err.boardInterest = "กรุณาเลือกความสนใจสอบบอร์ด";
+      if (values.boardInterest === "สนใจ" && !values.boardType) err.boardType = "เลือกประเภทสอบบอร์ด";
+    }
+    return err;
+  }
+
+  useEffect(() => {
+    setErrors(validateStep(step, form));
+  }, [form, step, allMembers, isEdit, user]);
 
   function handleChange(e) {
     const { name, value, type, checked, files: fileInput } = e.target;
+    let newForm = {};
     if (type === "checkbox") {
-      setForm(f => ({ ...f, [name]: checked }));
+      newForm = { ...form, [name]: checked };
     } else if (type === "file") {
-      setForm(f => ({
-        ...f,
-        [name]: [...(f[name] || []), ...Array.from(fileInput)]
-      }));
+      newForm = { ...form, [name]: [...(form[name] || []), ...Array.from(fileInput)] };
     } else {
-      setForm(f => ({ ...f, [name]: value }));
+      newForm = { ...form, [name]: value };
     }
-    setErrors({});
+    setForm(newForm);
     setMsg('');
+    syncEditLocal(newForm);
   }
-
   function handleRemoveFile(field, idx) {
-    setForm(f => ({
-      ...f,
-      [field]: f[field].filter((_, i) => i !== idx)
-    }));
+    const newForm = { ...form, [field]: form[field].filter((_, i) => i !== idx) };
+    setForm(newForm);
+    syncEditLocal(newForm);
   }
 
-  function validateStep() {
+  function validateCardForm() {
     const errs = {};
-    if (step === 1) {
-      if (!form.prefix) errs.prefix = "กรุณากรอกคำนำหน้า (TH)";
-      else if (!thRegex.test(form.prefix)) errs.prefix = "คำนำหน้าต้องเป็นอักษรไทยเท่านั้น";
-      if (!form.prefixEn) errs.prefixEn = "กรุณากรอกคำนำหน้า (EN)";
-      else if (!enRegex.test(form.prefixEn)) errs.prefixEn = "คำนำหน้าต้องเป็นอักษรอังกฤษเท่านั้น";
-      if (!form.firstName) errs.firstName = "กรุณากรอกชื่อภาษาไทย";
-      else if (!thMin3.test(form.firstName)) errs.firstName = "ต้องเป็นอักษรไทย ไม่น้อยกว่า 3 ตัวอักษร";
-      if (!form.lastName) errs.lastName = "กรุณากรอกนามสกุลภาษาไทย";
-      else if (!thMin3.test(form.lastName)) errs.lastName = "ต้องเป็นอักษรไทย ไม่น้อยกว่า 3 ตัวอักษร";
-      if (!form.firstNameEn) errs.firstNameEn = "กรุณากรอกชื่อภาษาอังกฤษ";
-      else if (!enMin3.test(form.firstNameEn)) errs.firstNameEn = "ต้องเป็นอักษรอังกฤษ ไม่น้อยกว่า 3 ตัวอักษร";
-      if (!form.lastNameEn) errs.lastNameEn = "กรุณากรอกนามสกุลภาษาอังกฤษ";
-      else if (!enMin3.test(form.lastNameEn)) errs.lastNameEn = "ต้องเป็นอักษรอังกฤษ ไม่น้อยกว่า 3 ตัวอักษร";
-      if (!form.nickName) errs.nickName = "กรุณากรอกชื่อเล่น";
-      else if (form.nickName.length < 2) errs.nickName = "ชื่อเล่นต้องมีอย่างน้อย 2 ตัวอักษร";
-      if (!form.birthDate) errs.birthDate = "กรุณาเลือกวันเกิด";
-      if (!form.religion) errs.religion = "เลือกศาสนา";
-      else if (!RELIGIONS.includes(form.religion) || form.religion === "") errs.religion = "เลือกศาสนาให้ถูกต้อง";
-    }
-    if (step === 2) {
-      if (!form.race) errs.race = "กรุณากรอกเชื้อชาติ";
-      else if (form.race.length < 3) errs.race = "เชื้อชาติต้องไม่น้อยกว่า 3 ตัวอักษร";
-      if (!form.nationality) errs.nationality = "กรุณากรอกสัญชาติ";
-      else if (form.nationality.length < 3) errs.nationality = "สัญชาติต้องไม่น้อยกว่า 3 ตัวอักษร";
-      if (!form.occupation) errs.occupation = "กรุณากรอกอาชีพ";
-      else if (form.occupation.length < 3) errs.occupation = "อาชีพต้องไม่น้อยกว่า 3 ตัวอักษร";
-      if (!form.address) errs.address = "กรุณากรอกที่อยู่ (บ้าน)";
-      else if (form.address.length < 3) errs.address = "ที่อยู่ต้องไม่น้อยกว่า 3 ตัวอักษร";
-      if (!form.phone) errs.phone = "เบอร์โทร (ดึงอัตโนมัติ)";
-      if (!form.email) errs.email = "อีเมล (ดึงอัตโนมัติ)";
-      if (!form.lineId) errs.lineId = "กรุณากรอกไลน์ไอดี";
-      else if (!lineIdRegex.test(form.lineId))
-        errs.lineId = "ต้องมี 3 ตัวขึ้นไป(ใช้ได้เฉพาะ a-z, 0-9 และอักษรพิเศษเท่านั้น)";
-    }
-    if (step === 3) {
-      if (!form.workPlace) errs.workPlace = "กรุณากรอกชื่อสถานที่ทำงาน";
-      else if (form.workPlace.length < 3) errs.workPlace = "ชื่อสถานที่ทำงานต้องไม่ต่ำกว่า 3 ตัวอักษร";
-      if (!form.workPosition) errs.workPosition = "กรุณากรอกตำแหน่งงาน";
-      else if (form.workPosition.length < 3) errs.workPosition = "ตำแหน่งงานต้องไม่ต่ำกว่า 3 ตัวอักษร";
-      if (!form.workAddress) errs.workAddress = "กรุณากรอกที่อยู่ที่ทำงาน";
-      else if (form.workAddress.length < 3) errs.workAddress = "ที่อยู่ที่ทำงานต้องไม่ต่ำกว่า 3 ตัวอักษร";
-      if (!form.workPhone) errs.workPhone = "กรุณากรอกเบอร์โทรที่ทำงาน";
-      else if (!/^\d{9,10}$/.test(form.workPhone))
-        errs.workPhone = "กรอกเฉพาะตัวเลข 9-10 หลัก";
-    }
-    if (step === 4) {
-      if (!form.docAddressType) {
-        errs.docAddressType = "เลือกที่อยู่สำหรับรับเอกสาร";
-      }
-      if (form.docAddressType === "other") {
-        if (!form.docAddressOther) {
-          errs.docAddressOther = "กรุณากรอกที่อยู่";
-        } else if (form.docAddressOther.length < 3) {
-          errs.docAddressOther = "ที่อยู่ต้องไม่ต่ำกว่า 3 ตัวอักษร";
-        }
-      }
-      if (!form.receiptAddressType) {
-        errs.receiptAddressType = "เลือกที่อยู่สำหรับใบเสร็จ";
-      }
-      if (form.receiptAddressType === "other") {
-        if (!form.receiptAddressOther) {
-          errs.receiptAddressOther = "กรุณากรอกที่อยู่";
-        } else if (form.receiptAddressOther.length < 3) {
-          errs.receiptAddressOther = "ที่อยู่ต้องไม่ต่ำกว่า 3 ตัวอักษร";
-        }
-      }
-      if (!form.receiptType) {
-        errs.receiptType = "เลือกประเภทผู้รับใบเสร็จ";
-      } else if (form.receiptType === "branch") {
-        if (!form.branchName) {
-          errs.branchName = "กรุณากรอกชื่อสาขา";
-        } else if (form.branchName.length < 3) {
-          errs.branchName = "ชื่อสาขาต้องไม่ต่ำกว่า 3 ตัวอักษร";
-        }
-      }
-      if (!form.taxId) {
-        errs.taxId = "กรุณาระบุเลขประจำตัวผู้เสียภาษี/บัตรประชาชน";
-      } else if (!/^\d{10,13}$/.test(form.taxId)) {
-        errs.taxId = "กรอกตัวเลข 10-13 หลักเท่านั้น";
-      }
-    }
-    if (step === 5) {
-      if (!form.agreeRule) errs.agreeRule = "โปรดติ๊กรับรองกฎระเบียบ";
-      if (!form.agreeConfirm) errs.agreeConfirm = "โปรดติ๊กรับทราบเงื่อนไข";
-      if (!form.pdpa1) errs.pdpa1 = "โปรดยินยอมการใช้ข้อมูล";
-      if (!form.pdpa2) errs.pdpa2 = "โปรดยินยอมการใช้ข้อมูล";
-    }
-    if (step === 6) {
-      if (!form.idCard.length) errs.idCard = "กรุณาอัปโหลดสำเนาบัตรประชาชน";
-      if (!form.houseReg.length) errs.houseReg = "กรุณาอัปโหลดสำเนาทะเบียนบ้าน";
-      if (!form.profilePic.length) errs.profilePic = "กรุณาอัปโหลดรูปหน้าตรง";
-      if (!form.educationLevel) errs.educationLevel = "เลือกวุฒิการศึกษาสูงสุด";
-      if (!form.educationCert.length) errs.educationCert = "กรุณาอัปโหลดวุฒิการศึกษา";
-    }
-    if (step === 7) {
-      if (!form.boardInterest) errs.boardInterest = "โปรดเลือกความสนใจ";
-      if (form.boardInterest === "สนใจ" && !form.boardType) errs.boardType = "เลือกประเภทการสอบ";
-    }
+    if (!/^\d{16}$/.test(cardForm.number)) errs.number = "กรุณากรอกเลขบัตร 16 หลัก";
+    if (!cardForm.name) errs.name = "กรุณากรอกชื่อบนบัตร";
+    if (!/^([0-1][0-9])\/([0-9]{2})$/.test(cardForm.expiry)) errs.expiry = "MM/YY ไม่ถูกต้อง";
+    if (!/^\d{3,4}$/.test(cardForm.cvc)) errs.cvc = "CVC 3-4 หลัก";
     return errs;
   }
 
-  function handleNext() {
-    const errs = validateStep();
-    setErrors(errs);
-    if (Object.keys(errs).length === 0) setStep(s => s + 1);
+  const maxStep = isEdit || (isMember && memberData) ? 6 : 8;
+  const age = useMemo(() => calculateAgeFromDate(form.birthDate), [form.birthDate]);
+
+  async function handleNext() {
+    const stepErr = validateStep(step, form);
+    setErrors(stepErr);
+    if (Object.keys(stepErr).length > 0) return;
+    if (user?.id && (step === 1 || step === 2)) {
+      await updateUserInfoOnServer(user.id, form);
+    }
+    syncEditLocal(form);
+    if (isEdit && step === 5) {
+      setStep(6);
+      return;
+    }
+    setStep(s => s + 1);
   }
   function handleBack() {
+    syncEditLocal(form);
     setStep(s => s - 1);
     setErrors({});
     setMsg('');
@@ -292,73 +291,219 @@ export default function MemberModal({ open, onClose }) {
 
   async function handleSubmit(e) {
     e.preventDefault();
+    const stepErr = validateStep(step, form);
+    setErrors(stepErr);
+    if (Object.keys(stepErr).length > 0) return;
     setSaving(true);
     setMsg('');
     try {
-      const formData = new FormData();
-      formData.append("user_id", user?.id);
-      formData.append("nickName", form.nickName);
-      formData.append("birthDate", form.birthDate);
-      formData.append("religion", form.religion);
-      formData.append("race", form.race);
-      formData.append("nationality", form.nationality);
-      formData.append("occupation", form.occupation);
-      formData.append("address", form.address);
-      formData.append("lineId", form.lineId);
-      formData.append("workPlace", form.workPlace);
-      formData.append("workPosition", form.workPosition);
-      formData.append("workAddress", form.workAddress);
-      formData.append("workPhone", form.workPhone);
-      formData.append("docAddressType", form.docAddressType);
-      formData.append("docAddressOther", form.docAddressOther);
-      formData.append("receiptAddressType", form.receiptAddressType);
-      formData.append("receiptAddressOther", form.receiptAddressOther);
-      formData.append("receiptType", form.receiptType);
-      formData.append("branchName", form.branchName);
-      formData.append("taxId", form.taxId);
-      formData.append("agreeRule", form.agreeRule);
-      formData.append("agreeConfirm", form.agreeConfirm);
-      formData.append("pdpa1", form.pdpa1);
-      formData.append("pdpa2", form.pdpa2);
-      formData.append("educationLevel", form.educationLevel);
-      formData.append("boardInterest", form.boardInterest);
-      formData.append("boardType", form.boardType);
-      formData.append("gbprimepayMock", form.gbprimepayMock);
-
-      ["idCard", "houseReg", "profilePic", "educationCert", "medicalLicense"].forEach(field => {
-        if (form[field] && form[field].length) {
-          form[field].forEach(file => {
-            formData.append(`${field}[]`, file);
-          });
+      if (user?.id) {
+        await updateUserInfoOnServer(user.id, form);
+      }
+      if ((isEdit && step === 6) || (!isEdit && step === 8)) {
+        if (!isEdit && step === 8 && payMethod === "credit") {
+          const cErrs = validateCardForm();
+          setCardErr(cErrs);
+          if (Object.keys(cErrs).length > 0) {
+            setSaving(false);
+            return;
+          }
         }
-      });
+        const dataToSend = {
+          user_id: user?.id,
+          prefixTh: form.prefixTh, prefixEn: form.prefixEn || "", suffixEn: form.suffixEn || "",
+          firstName: form.firstName, lastName: form.lastName,
+          firstNameEn: form.firstNameEn, lastNameEn: form.lastNameEn,
+          nickName: form.nickName, birthDate: form.birthDate, religion: form.religion,
+          race: form.race, nationality: form.nationality, occupation: form.occupation,
+          address: form.address, phone: form.phone, email: form.email, lineId: form.lineId,
+          workPlace: form.workPlace, workPosition: form.workPosition, workAddress: form.workAddress, workPhone: form.workPhone,
+          docAddressType: form.docAddressType, docAddressOther: form.docAddressOther,
+          receiptAddressType: form.receiptAddressType, receiptAddressOther: form.receiptAddressOther,
+          receiptType: form.receiptType, branchName: form.branchName,
+          taxId: form.taxId, agreeRule: form.agreeRule, agreeConfirm: form.agreeConfirm, pdpa1: form.pdpa1, pdpa2: form.pdpa2,
+          educationLevel: form.educationLevel, boardInterest: form.boardInterest, boardType: form.boardType,
+          payMethod: payMethod, paymentRef: form.paymentRef || "",
+        };
+        if (!isEdit && step === 8 && payMethod === "credit") {
+          dataToSend.cardNumber = cardForm.number;
+          dataToSend.cardName = cardForm.name;
+          dataToSend.cardExpiry = cardForm.expiry;
+          dataToSend.cardCvc = cardForm.cvc;
+        }
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/api/members`, {
+          method: isEdit ? "PUT" : "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(dataToSend),
+        });
+        if (!res.ok) throw new Error(await res.text());
+        const data = await res.json();
+        const memberId = data.memberId || data.id;
+        // upload files
+        const fileFields = ["idCard", "houseReg", "profilePic", "educationCert", "medicalLicense"];
+        for (const field of fileFields) {
+          if (form[field] && form[field].length) {
+            for (const file of form[field]) {
+              const fd = new FormData();
+              fd.append("member_id", memberId);
+              fd.append("file_type", field);
+              fd.append("file", file);
+              const fileRes = await fetch(`${import.meta.env.VITE_API_URL}/api/member-files`, {
+                method: "POST",
+                body: fd,
+              });
+              if (!fileRes.ok) throw new Error(await fileRes.text());
+            }
+          }
+        }
 
-      const url = `${import.meta.env.VITE_API_URL}/api/members`;
-      const res = await fetch(url, {
-        method: "POST",
-        body: formData,
-      });
+        // PATCH สำคัญ: Sync localStorage.memberData_x
+        if (user && localKey) {
+          localStorage.setItem(localKey, JSON.stringify(form));
+        }
 
-      if (!res.ok) throw new Error(await res.text());
-      setMsg("บันทึกข้อมูลสำเร็จ");
+        // PATCH สำคัญ: Sync localStorage.user + context user ทุกครั้งหลังบันทึก
+        const newUser = {
+          ...user,
+          prefix: form.prefixTh || "",
+          firstName: form.firstName || "",
+          lastName: form.lastName || "",
+          firstNameEn: form.firstNameEn || "",
+          lastNameEn: form.lastNameEn || "",
+          address: form.address || "",
+          phone: form.phone || "",
+          email: form.email || ""
+        };
+        localStorage.setItem("user", JSON.stringify(newUser));
+        if (typeof updateUser === "function") updateUser(newUser);
+        if (typeof loginUser === "function") loginUser(newUser);
+
+        if (!isEdit && user && localKey) localStorage.removeItem(localKey);
+
+        setMsg("บันทึกข้อมูลสำเร็จ");
+        setTimeout(() => {
+          setSaving(false);
+          onClose();
+        }, 1000);
+        return;
+      }
     } catch (err) {
       setMsg("เกิดข้อผิดพลาด: " + err.message);
     }
     setSaving(false);
   }
 
-  if (!open) return null;
+  function handleOverlayClick(e) {
+    if (formRef.current && !formRef.current.contains(e.target)) {
+      onClose && onClose();
+    }
+  }
 
+  function MemberIDCard({ memberData, onEdit, onClose }) {
+    if (!memberData || memberData.user_id !== user?.id) return null;
+    const profilePicUrl = memberData.profilePicUrl
+      ? `${import.meta.env.VITE_API_URL}${memberData.profilePicUrl}`
+      : "";
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xl" onMouseDown={handleOverlayClick}>
+        <div
+          ref={formRef}
+          className="relative bg-gradient-to-br from-indigo-100 to-blue-50 border border-indigo-200 shadow-2xl rounded-3xl w-[360px] max-w-[95vw] flex flex-col items-center p-0"
+          onMouseDown={e => e.stopPropagation()}
+        >
+          <button type="button" className="absolute top-3 right-5 text-2xl text-gray-400 hover:text-gray-700" onClick={onClose}>×</button>
+          <div className="w-full rounded-t-3xl px-7 pt-8 pb-2 flex flex-col items-center relative bg-white">
+            <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-indigo-200 shadow mb-2 bg-gray-100 flex items-center justify-center">
+              {profilePicUrl ? (
+                <img src={profilePicUrl} alt="Profile" className="object-cover w-full h-full" />
+              ) : (
+                <span className="text-6xl text-gray-300">?</span>
+              )}
+            </div>
+            <div className="text-xs text-gray-500 mb-2">
+              Member ID: <b>{memberData.id || "N/A"}</b>
+            </div>
+            <div className="text-[18px] font-bold text-indigo-800 mb-1">
+              {(memberData.prefixEn || "") + " " + memberData.firstNameEn + " " + memberData.lastNameEn + (memberData.suffixEn ? " " + memberData.suffixEn : "")}
+            </div>
+            <div className="text-sm text-gray-700 mb-1">
+              <span className="font-semibold">Birthdate: </span>
+              {formatDateThai(memberData.birthDate)}
+            </div>
+          </div>
+          <div className="bg-indigo-50 w-full rounded-b-3xl px-7 py-4 flex flex-col gap-2 text-[15px] mt-[-4px]">
+            <div>
+              <span className="font-semibold text-gray-700">Address:</span>{" "}
+              <span className="text-gray-700">{memberData.address || "-"}</span>
+            </div>
+            <div>
+              <span className="font-semibold text-gray-700">Workplace:</span>{" "}
+              <span className="text-gray-700">{memberData.workPlace || "-"}</span>
+            </div>
+            <div>
+              <span className="font-semibold text-gray-700">Position:</span>{" "}
+              <span className="text-gray-700">{memberData.occupation || "-"}</span>
+            </div>
+            <div>
+              <span className="font-semibold text-gray-700">Phone:</span>{" "}
+              <span className="text-gray-700">{memberData.phone || "-"}</span>
+            </div>
+            <div>
+              <span className="font-semibold text-gray-700">Email:</span>{" "}
+              <span className="text-gray-700">{memberData.email || "-"}</span>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={() => {
+              if (memberData?.user_id !== user?.id) {
+                alert("ไม่สามารถแก้ไขข้อมูลของผู้อื่นได้");
+                return;
+              }
+              setIsEdit(true);
+              setStep(1);
+              setForm(f => ({ ...f, ...memberData }));
+            }}
+            className="mt-4 mb-5 flex items-center gap-2 py-2 px-7 rounded-xl bg-indigo-500 hover:bg-indigo-600 text-white font-bold shadow transition-all"
+          >
+            <FaRegEdit /> Edit Profile
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (!open || !user || !user.id) return null;
+  if (isMember && memberData && !isEdit) {
+    return (
+      <MemberIDCard
+        memberData={memberData}
+        onEdit={() => {
+          if (memberData?.user_id !== user?.id) {
+            alert("ไม่สามารถแก้ไขข้อมูลของผู้อื่นได้");
+            return;
+          }
+          setIsEdit(true);
+          setStep(1);
+          setForm(f => ({ ...f, ...memberData }));
+        }}
+        onClose={onClose}
+      />
+    );
+  }
+
+  // ---------- Main Form -------------
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xl">
       <form
-        className="relative w-full max-w-2xl rounded-2xl shadow-2xl bg-white backdrop-blur-xl border border-gray-200 py-6 px-8 transition-all duration-200 overflow-y-auto max-h-[90dvh]"
+        className="relative w-full max-w-2xl rounded-2xl shadow-2xl bg-white border py-6 px-8 overflow-y-auto max-h-[90dvh]"
         onSubmit={handleSubmit}
         autoComplete="off"
+        onClick={e => e.stopPropagation()}
       >
-        {/* ... Header & Step Progress ... (เหมือน code เดิม) */}
-        <h2 className="text-2xl font-bold mb-6 text-gray-800 tracking-tight text-center">
-          สมัครสมาชิก (ขั้นตอนที่ {step} / 8)
+        <div className="absolute right-4 top-4 text-2xl text-gray-400 cursor-pointer" onClick={onClose}>×</div>
+        <h2 className="text-2xl font-bold mb-6 text-gray-800 text-center">
+          สมัครสมาชิก (ขั้นตอนที่ {step} / {maxStep})
         </h2>
         {msg && (
           <div className={`mb-3 text-center text-${msg.includes('สำเร็จ') ? 'green' : 'red'}-500 font-semibold`}>
@@ -366,103 +511,92 @@ export default function MemberModal({ open, onClose }) {
           </div>
         )}
         <div className="flex mb-6 justify-center gap-2">
-          {[1, 2, 3, 4, 5, 6, 7, 8].map(n => (
-            <div key={n} className={`h-2 w-10 rounded-full ${step >= n ? 'bg-indigo-500' : 'bg-gray-200'}`}></div>
+          {[...Array(maxStep)].map((_, n) => (
+            <div key={n} className={`h-2 w-10 rounded-full ${step >= n + 1 ? 'bg-indigo-500' : 'bg-gray-200'}`}></div>
           ))}
         </div>
 
-        {/* Step 1 */}
+        {/* ================== STEP 1 ================== */}
         {step === 1 && (
           <div className="flex flex-col gap-4">
             <div className="flex gap-3">
               <div className="flex-1">
-                <label className="block font-medium mb-1">คำนำหน้า (TH)</label>
+                <label className="block font-medium mb-1">คำนำหน้า (TH) <span className="text-red-500">*</span></label>
                 <input
                   type="text"
-                  name="prefix"
-                  value={form.prefix}
+                  name="prefixTh"
+                  value={form.prefixTh}
                   onChange={handleChange}
-                  className={`border px-3 py-2 rounded-xl w-full ${errors.prefix && 'border-red-400'}`}
+                  className={`border px-3 py-2 rounded-xl w-full ${errors.prefixTh && 'border-red-400'}`}
                   placeholder="นาย, นางสาว, ดร., ..."
                 />
-                {errors.prefix && <div className="text-xs text-red-500">{errors.prefix}</div>}
+                {errors.prefixTh && <div className="text-xs text-red-500">{errors.prefixTh}</div>}
               </div>
               <div className="flex-1">
-                <label className="block font-medium mb-1">คำนำหน้า (EN)</label>
-                <input
-                  type="text"
-                  name="prefixEn"
-                  value={form.prefixEn}
-                  onChange={handleChange}
-                  className={`border px-3 py-2 rounded-xl w-full ${errors.prefixEn && 'border-red-400'}`}
-                  placeholder="Mr., Mrs., Dr., ..."
-                />
-                {errors.prefixEn && <div className="text-xs text-red-500">{errors.prefixEn}</div>}
+                <label className="block font-medium mb-1">
+                  คำนำหน้า (EN) <span className="text-gray-400">(optional)</span>
+                </label>
+                <div className="flex">
+                  <input
+                    type="text"
+                    name="prefixEn"
+                    value={form.prefixEn}
+                    onChange={handleChange}
+                    className={`border px-3 py-2 rounded-xl w-full ${errors.prefixEn && 'border-red-400'}`}
+                    placeholder="Mr., Mrs., Dr., ..."
+                  />
+                  <span className="mx-2 self-center"> </span>
+                  <input
+                    type="text"
+                    name="suffixEn"
+                    value={form.suffixEn}
+                    onChange={handleChange}
+                    className={`border px-3 py-2 rounded-xl w-32 ${errors.suffixEn && 'border-red-400'}`}
+                    placeholder="Jr., Sr., ... (ถ้ามี)"
+                  />
+                </div>
+                <div className="flex gap-2">
+                  {errors.prefixEn && <div className="text-xs text-red-500">{errors.prefixEn}</div>}
+                  {errors.suffixEn && <div className="text-xs text-red-500">{errors.suffixEn}</div>}
+                </div>
+                <div className="text-xs text-gray-500 mt-1">
+                  <span>ตัวอย่าง: <b>Dr.</b> John Smith <b>Jr.</b> (คำนำหน้า EN + คำต่อท้าย EN)</span>
+                </div>
               </div>
             </div>
             <div className="flex gap-3">
               <div className="flex-1">
                 <label className="block font-medium mb-1">ชื่อ (TH)</label>
-                <input
-                  type="text"
-                  name="firstName"
-                  value={form.firstName}
-                  onChange={handleChange}
-                  className={`border px-3 py-2 rounded-xl w-full ${errors.firstName && 'border-red-400'}`}
-                  placeholder="ชื่อภาษาไทย"
-                />
+                <input type="text" name="firstName" value={form.firstName} onChange={handleChange}
+                  className={`border px-3 py-2 rounded-xl w-full ${errors.firstName && 'border-red-400'}`} placeholder="ชื่อภาษาไทย" />
                 {errors.firstName && <div className="text-xs text-red-500">{errors.firstName}</div>}
               </div>
               <div className="flex-1">
                 <label className="block font-medium mb-1">ชื่อ (EN)</label>
-                <input
-                  type="text"
-                  name="firstNameEn"
-                  value={form.firstNameEn}
-                  onChange={handleChange}
-                  className={`border px-3 py-2 rounded-xl w-full ${errors.firstNameEn && 'border-red-400'}`}
-                  placeholder="First Name (EN)"
-                />
+                <input type="text" name="firstNameEn" value={form.firstNameEn} onChange={handleChange}
+                  className={`border px-3 py-2 rounded-xl w-full ${errors.firstNameEn && 'border-red-400'}`} placeholder="First Name (EN)" />
                 {errors.firstNameEn && <div className="text-xs text-red-500">{errors.firstNameEn}</div>}
               </div>
             </div>
             <div className="flex gap-3">
               <div className="flex-1">
                 <label className="block font-medium mb-1">นามสกุล (TH)</label>
-                <input
-                  type="text"
-                  name="lastName"
-                  value={form.lastName}
-                  onChange={handleChange}
-                  className={`border px-3 py-2 rounded-xl w-full ${errors.lastName && 'border-red-400'}`}
-                  placeholder="นามสกุลภาษาไทย"
-                />
+                <input type="text" name="lastName" value={form.lastName} onChange={handleChange}
+                  className={`border px-3 py-2 rounded-xl w-full ${errors.lastName && 'border-red-400'}`} placeholder="นามสกุลภาษาไทย" />
                 {errors.lastName && <div className="text-xs text-red-500">{errors.lastName}</div>}
               </div>
               <div className="flex-1">
                 <label className="block font-medium mb-1">นามสกุล (EN)</label>
-                <input
-                  type="text"
-                  name="lastNameEn"
-                  value={form.lastNameEn}
-                  onChange={handleChange}
-                  className={`border px-3 py-2 rounded-xl w-full ${errors.lastNameEn && 'border-red-400'}`}
-                  placeholder="Last Name (EN)"
-                />
+                <input type="text" name="lastNameEn" value={form.lastNameEn} onChange={handleChange}
+                  className={`border px-3 py-2 rounded-xl w-full ${errors.lastNameEn && 'border-red-400'}`} placeholder="Last Name (EN)" />
                 {errors.lastNameEn && <div className="text-xs text-red-500">{errors.lastNameEn}</div>}
               </div>
             </div>
             <div className="flex gap-3">
               <div className="flex-1">
                 <label className="block font-medium mb-1">ชื่อเล่น</label>
-                <input
-                  type="text"
-                  name="nickName"
-                  value={form.nickName}
-                  onChange={handleChange}
-                  className={`border px-3 py-2 rounded-xl w-full ${errors.nickName && 'border-red-400'}`}
-                  placeholder="กรอกชื่อเล่น"
-                />
+                <input type="text" name="nickName" value={form.nickName} onChange={handleChange}
+                  className={`border px-3 py-2 rounded-xl w-full ${errors.nickName && 'border-red-400'}`} placeholder="กรอกชื่อเล่น" />
                 {errors.nickName && <div className="text-xs text-red-500">{errors.nickName}</div>}
               </div>
               <div className="flex-1">
@@ -470,7 +604,7 @@ export default function MemberModal({ open, onClose }) {
                 <input
                   type="date"
                   name="birthDate"
-                  value={form.birthDate}
+                  value={form.birthDate ? form.birthDate.split('T')[0] : ''}
                   onChange={handleChange}
                   className={`border px-3 py-2 rounded-xl w-full ${errors.birthDate && 'border-red-400'}`}
                   max={new Date().toISOString().split("T")[0]}
@@ -481,26 +615,15 @@ export default function MemberModal({ open, onClose }) {
             <div className="flex gap-3">
               <div className="flex-1">
                 <label className="block font-medium mb-1">อายุ</label>
-                <input
-                  type="text"
-                  name="age"
-                  value={age ? `${age} ปี` : ""}
-                  disabled
-                  className="border px-3 py-2 rounded-xl w-full bg-gray-100 text-gray-500"
-                />
+                <input type="text" name="age" value={age ? `${age} ปี` : ""} disabled
+                  className="border px-3 py-2 rounded-xl w-full bg-gray-100 text-gray-500" />
               </div>
               <div className="flex-1">
                 <label className="block font-medium mb-1">ศาสนา</label>
-                <select
-                  name="religion"
-                  value={form.religion}
-                  onChange={handleChange}
-                  className={`border px-3 py-2 rounded-xl w-full ${errors.religion && 'border-red-400'}`}
-                >
+                <select name="religion" value={form.religion} onChange={handleChange}
+                  className={`border px-3 py-2 rounded-xl w-full ${errors.religion && 'border-red-400'}`}>
                   <option value="">เลือกศาสนา</option>
-                  {RELIGIONS.map(r => (
-                    <option key={r} value={r}>{r}</option>
-                  ))}
+                  {RELIGIONS.map(r => (<option key={r} value={r}>{r}</option>))}
                 </select>
                 {errors.religion && <div className="text-xs text-red-500">{errors.religion}</div>}
               </div>
@@ -508,7 +631,7 @@ export default function MemberModal({ open, onClose }) {
           </div>
         )}
 
-        {/* Step 2 */}
+        {/* ================== STEP 2 ================== */}
         {step === 2 && (
           <div className="flex flex-col gap-4">
             <div className="flex gap-3">
@@ -602,7 +725,7 @@ export default function MemberModal({ open, onClose }) {
           </div>
         )}
 
-        {/* Step 3 */}
+        {/* ================== STEP 3 ================== */}
         {step === 3 && (
           <div className="flex flex-col gap-4">
             <div>
@@ -656,7 +779,7 @@ export default function MemberModal({ open, onClose }) {
           </div>
         )}
 
-        {/* Step 4 */}
+        {/* ================== STEP 4 ================== */}
         {step === 4 && (
           <div className="flex flex-col gap-6">
             <div>
@@ -762,57 +885,6 @@ export default function MemberModal({ open, onClose }) {
               </div>
             </div>
             <div>
-              <label className="block font-semibold mb-1">*หมายเหตุ ตามข้อกำหนดของกรมสรรพากรระบุให้การออกใบเสร็จรับเงินต้องมีเลขประจำตัวผู้เสียภาษีของนิติบุคคลหรือบุคคลธรรมดาทางสมาคมจึงขอข้อมูลเพิ่มเติมดังนี้</label>
-              <div className="flex flex-col gap-2">
-                <label className="flex gap-2 items-center">
-                  <input
-                    type="radio"
-                    name="receiptType"
-                    value="person"
-                    checked={form.receiptType === "person"}
-                    onChange={handleChange}
-                  />
-                  บุคคลธรรมดา
-                </label>
-                <label className="flex gap-2 items-center">
-                  <input
-                    type="radio"
-                    name="receiptType"
-                    value="company"
-                    checked={form.receiptType === "company"}
-                    onChange={handleChange}
-                  />
-                  นิติบุคคล (สาขาใหญ่)
-                </label>
-                <label className="flex gap-2 items-center">
-                  <input
-                    type="radio"
-                    name="receiptType"
-                    value="branch"
-                    checked={form.receiptType === "branch"}
-                    onChange={handleChange}
-                  />
-                  นิติบุคคล (สาขาย่อย)
-                  {form.receiptType === "branch" && (
-                    <input
-                      type="text"
-                      name="branchName"
-                      value={form.branchName}
-                      onChange={handleChange}
-                      className={`border px-3 py-1 rounded-lg ml-2 ${errors.branchName ? "border-red-400" : ""}`}
-                      placeholder="ระบุชื่อสาขา"
-                    />
-                  )}
-                </label>
-                {errors.receiptType && (
-                  <div className="text-xs text-red-500">{errors.receiptType}</div>
-                )}
-                {errors.branchName && (
-                  <div className="text-xs text-red-500">{errors.branchName}</div>
-                )}
-              </div>
-            </div>
-            <div>
               <label className="block font-semibold mb-1">
                 เลขประจำตัวผู้เสียภาษี หรือเลขบัตรประชาชน
               </label>
@@ -831,7 +903,7 @@ export default function MemberModal({ open, onClose }) {
           </div>
         )}
 
-        {/* Step 5 */}
+        {/* ================== STEP 5 ================== */}
         {step === 5 && (
           <div className="flex flex-col">
             <label className="block font-semibold mb-2">
@@ -916,7 +988,7 @@ export default function MemberModal({ open, onClose }) {
           </div>
         )}
 
-        {/* Step 6 */}
+        {/* ================== STEP 6 ================== */}
         {step === 6 && (
           <div className="flex flex-col gap-5">
             {[
@@ -929,7 +1001,6 @@ export default function MemberModal({ open, onClose }) {
               <div key={name} className="flex items-start gap-4">
                 <label className="block font-medium flex-shrink-0 w-64">{label}</label>
                 <div className="flex flex-col flex-1 gap-2">
-                  {/* ---- รูป preview แบบแนวนอน ---- */}
                   <div className="flex flex-row flex-wrap gap-3 mb-1">
                     {(form[name] || []).map((file, idx) => (
                       <div key={idx} className="relative group border rounded-lg p-1 bg-gray-50 flex items-center shadow hover:shadow-md transition">
@@ -992,7 +1063,7 @@ export default function MemberModal({ open, onClose }) {
           </div>
         )}
 
-        {/* Step 7 */}
+        {/* ================== STEP 7 ================== */}
         {step === 7 && (
           <div className="flex flex-col gap-4">
             <label className="block font-medium mb-1">ท่านมีความสนใจในการสอบบอร์ดนานาชาติหรือไม่?</label>
@@ -1025,52 +1096,150 @@ export default function MemberModal({ open, onClose }) {
           </div>
         )}
 
-        {/* Step 8 */}
+        {/* ================== STEP 8: PAYMENT ================== */}
         {step === 8 && (
-          <div className="flex flex-col items-center gap-4">
-            <div className="text-lg text-center mb-3">
+          <div className="flex flex-col items-center gap-6">
+            <div className="text-lg text-center mb-1">
               <span className="font-bold">จำนวนเงินที่ต้องชำระ: </span>
               <span className="font-bold text-green-600">1,750 บาท</span>
             </div>
-            <div className="mb-6 text-gray-500">
-              * จำลองระบบชำระเงินจริง (GB PrimePay API) จะพัฒนาในอนาคต
+            <div className="flex gap-4 justify-center">
+              <button
+                type="button"
+                className={`px-5 py-2 rounded-xl font-semibold border transition ${payMethod === "qr" ? "bg-indigo-500 text-white" : "bg-white text-gray-700 border-indigo-400"}`}
+                onClick={() => setPayMethod("qr")}
+              >จ่ายผ่าน QR</button>
+              <button
+                type="button"
+                className={`px-5 py-2 rounded-xl font-semibold border transition ${payMethod === "credit" ? "bg-indigo-500 text-white" : "bg-white text-gray-700 border-indigo-400"}`}
+                onClick={() => setPayMethod("credit")}
+              >บัตรเครดิต/เดบิต</button>
             </div>
-            <button type="button"
-              className="rounded-xl px-6 py-2 bg-gradient-to-r from-blue-400 to-violet-600 text-white text-lg font-bold shadow-lg"
-              disabled
-            > ชำระเงินผ่าน GB PrimePay (DEMO) </button>
+            {payMethod === "qr" ? (
+              !form.qrImage ? (
+                <button
+                  type="button"
+                  className="rounded-xl px-6 py-2 bg-gradient-to-r from-blue-400 to-violet-600 text-white text-lg font-bold shadow-lg"
+                  onClick={async () => {
+                    const res = await fetch(`${import.meta.env.VITE_API_URL}/api/payment/gbprimepay-qr`, {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({
+                        amount: "1750.00",
+                        referenceNo: `MEMBER_${user?.id}_${Date.now()}`,
+                        user_id: user?.id,
+                      }),
+                    });
+                    const data = await res.json();
+                    setForm(f => ({ ...f, qrImage: data.qrImage, paymentRef: data.referenceNo }));
+                  }}
+                >ชำระเงินผ่าน QR (GB PrimePay)</button>
+              ) : (
+                <div>
+                  <img src={form.qrImage} alt="QR Pay" className="mx-auto mb-2" style={{ width: 240 }} />
+                  <div className="text-gray-700 mb-1 text-center">สแกนเพื่อชำระเงิน</div>
+                  <div className="text-xs text-gray-400 text-center">เลข ref: {form.paymentRef}</div>
+                </div>
+              )
+            ) : (
+              <div className="w-full max-w-xs mx-auto border rounded-xl p-5 bg-gray-50 shadow-lg">
+                <div className="text-md font-semibold mb-3">ชำระเงินด้วยบัตรเครดิต/เดบิต</div>
+                <div className="flex flex-col gap-3">
+                  <div>
+                    <label className="text-sm">เลขบัตร (16 หลัก)</label>
+                    <input
+                      type="text"
+                      maxLength={16}
+                      name="number"
+                      value={cardForm.number}
+                      onChange={e => setCardForm(f => ({ ...f, number: e.target.value.replace(/\D/g, '') }))}
+                      className={`mt-1 border px-3 py-2 rounded-xl w-full ${cardErr.number ? "border-red-400" : ""}`}
+                      placeholder="0000 0000 0000 0000"
+                    />
+                    {cardErr.number && <div className="text-xs text-red-500">{cardErr.number}</div>}
+                  </div>
+                  <div>
+                    <label className="text-sm">ชื่อบนบัตร</label>
+                    <input
+                      type="text"
+                      name="name"
+                      value={cardForm.name}
+                      onChange={e => setCardForm(f => ({ ...f, name: e.target.value }))}
+                      className={`mt-1 border px-3 py-2 rounded-xl w-full ${cardErr.name ? "border-red-400" : ""}`}
+                      placeholder="NAME SURNAME"
+                    />
+                    {cardErr.name && <div className="text-xs text-red-500">{cardErr.name}</div>}
+                  </div>
+                  <div className="flex gap-2">
+                    <div className="flex-1">
+                      <label className="text-sm">หมดอายุ (MM/YY)</label>
+                      <input
+                        type="text"
+                        maxLength={5}
+                        name="expiry"
+                        value={cardForm.expiry}
+                        onChange={e => {
+                          let val = e.target.value.replace(/[^\d/]/g, '').slice(0, 5);
+                          if (val.length === 2 && cardForm.expiry.length === 1) val += '/';
+                          setCardForm(f => ({ ...f, expiry: val }));
+                        }}
+                        className={`mt-1 border px-3 py-2 rounded-xl w-full ${cardErr.expiry ? "border-red-400" : ""}`}
+                        placeholder="MM/YY"
+                      />
+                      {cardErr.expiry && <div className="text-xs text-red-500">{cardErr.expiry}</div>}
+                    </div>
+                    <div className="w-24">
+                      <label className="text-sm">CVC</label>
+                      <input
+                        type="text"
+                        maxLength={4}
+                        name="cvc"
+                        value={cardForm.cvc}
+                        onChange={e => setCardForm(f => ({ ...f, cvc: e.target.value.replace(/\D/g, '') }))}
+                        className={`mt-1 border px-3 py-2 rounded-xl w-full ${cardErr.cvc ? "border-red-400" : ""}`}
+                        placeholder="123"
+                      />
+                      {cardErr.cvc && <div className="text-xs text-red-500">{cardErr.cvc}</div>}
+                    </div>
+                  </div>
+                  <div className="text-xs text-gray-500 mt-2">* Demo เท่านั้น ยังไม่ตัดเงินจริง</div>
+                </div>
+              </div>
+            )}
           </div>
         )}
 
-        {/* Navigation */}
+        {/* ปุ่ม Next/Back/Submit */}
         <div className="flex justify-between mt-8">
           {step > 1 ? (
-            <button
-              type="button"
+            <button type="button"
               className="px-6 py-2 rounded-xl bg-gray-100 text-gray-700 font-semibold hover:bg-gray-200 transition"
-              onClick={handleBack}
-              disabled={saving}
-            >
-              Back
-            </button>
+              onClick={handleBack} disabled={saving}>Back</button>
           ) : <div />}
-          {step < 8 ? (
-            <button
-              type="button"
-              className="px-6 py-2 rounded-xl bg-gradient-to-r from-blue-500 via-indigo-500 to-violet-500 text-white font-semibold shadow-md hover:from-blue-600 hover:to-indigo-600 transition-all"
-              onClick={handleNext}
-              disabled={saving}
-            >
-              Next
-            </button>
+          {isEdit ? (
+            step < 6 ? (
+              <button type="button"
+                className="px-6 py-2 rounded-xl bg-gradient-to-r from-blue-500 via-indigo-500 to-violet-500 text-white font-semibold shadow-md hover:from-blue-600 hover:to-indigo-600 transition-all"
+                onClick={handleNext} disabled={saving}>Next</button>
+            ) : (
+              <button type="submit"
+                className="px-8 py-2 rounded-xl bg-gradient-to-r from-blue-500 via-indigo-500 to-violet-500 text-white font-semibold shadow-md hover:from-blue-600 hover:to-indigo-600 transition-all"
+                disabled={saving}>
+                {saving ? "Saving..." : "บันทึก"}
+              </button>
+            )
           ) : (
-            <button
-              type="submit"
-              className="px-8 py-2 rounded-xl bg-gradient-to-r from-blue-500 via-indigo-500 to-violet-500 text-white font-semibold shadow-md hover:from-blue-600 hover:to-indigo-600 transition-all"
-              disabled={saving}
-            >
-              {saving ? "Saving..." : "บันทึก"}
-            </button>
+            step < maxStep ? (
+              <button type="button"
+                className="px-6 py-2 rounded-xl bg-gradient-to-r from-blue-500 via-indigo-500 to-violet-500 text-white font-semibold shadow-md hover:from-blue-600 hover:to-indigo-600 transition-all"
+                onClick={handleNext} disabled={saving}>Next</button>
+            ) : (
+              <button type="submit"
+                className="px-8 py-2 rounded-xl bg-gradient-to-r from-blue-500 via-indigo-500 to-violet-500 text-white font-semibold shadow-md hover:from-blue-600 hover:to-indigo-600 transition-all"
+                disabled={saving}>
+                {saving ? "Saving..." : "บันทึก"}
+              </button>
+            )
           )}
         </div>
       </form>

@@ -9,7 +9,7 @@ function News() {
 
     return (
 
-        <section className="relative bg-white text-gray-900 py-24 px-4 overflow-hidden">
+        <section id="news" section className="relative bg-white text-gray-900 py-24 px-4 overflow-hidden">
             <div className="absolute top-0 left-0 w-32 h-32 bg-pink-300 opacity-30 rounded-full z-0 translate-x-[-40%] translate-y-[-40%]"></div>
             <img className='absolute right-0' src={line1} alt="" />
             {/* วงกลมชมพู */}

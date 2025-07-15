@@ -1,0 +1,9 @@
+#hero,
+#benefits,
+#news,
+#media,
+#partners,
+#rules,
+#contact {
+  scroll-margin-top: 96px; /* ปรับตามความสูงของ Navbar จริง */
+}

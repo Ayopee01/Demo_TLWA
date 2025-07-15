@@ -1,30 +1,33 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useState, useEffect } from "react";
 
 const UserContext = createContext();
 
 export function UserProvider({ children }) {
+  // --- โหลด user จาก localStorage ครั้งแรก ---
   const [user, setUser] = useState(() => {
-    // โหลด user จาก localStorage ครั้งแรก
     const stored = localStorage.getItem("user");
     return stored ? JSON.parse(stored) : null;
   });
 
-  const loginUser = (userData) => {
-    setUser(userData);
-    localStorage.setItem("user", JSON.stringify(userData));
-  };
+  // --- Sync ทุกครั้ง user เปลี่ยน จะ update localStorage อัตโนมัติ ---
+  useEffect(() => {
+    if (user) localStorage.setItem("user", JSON.stringify(user));
+    else localStorage.removeItem("user");
+  }, [user]);
 
-  const updateUser = (newData) => {
-    setUser((prev) => {
-      const updated = { ...prev, ...newData };
-      localStorage.setItem("user", JSON.stringify(updated));
-      return updated;
-    });
-  };
+  // --- Login ด้วย userObj เต็ม ๆ สด ๆ ---
+  const loginUser = (userObj) => setUser(userObj);
 
+  // --- Update User: รับ userObj เต็ม ๆ สด ๆ จาก backend เท่านั้น! ---
+  const updateUser = (userObj) => setUser(userObj);
+
+  // --- Logout: เคลียร์หมดจด ทั้ง user และ memberData (if any) ---
   const logoutUser = () => {
     setUser(null);
     localStorage.removeItem("user");
+    Object.keys(localStorage).forEach((k) => {
+      if (k.startsWith("memberData_")) localStorage.removeItem(k);
+    });
   };
 
   return (
@@ -34,6 +37,8 @@ export function UserProvider({ children }) {
   );
 }
 
+// --- Hook ใช้งาน context นี้ในทุกหน้า ---
 export function useUser() {
   return useContext(UserContext);
 }
+
