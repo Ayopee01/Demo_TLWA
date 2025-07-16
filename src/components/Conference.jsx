@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-// import images
 import img1 from "../assets/conference/งานสมาคม TMWTA + TLWA.jpg";
 import img2 from "../assets/conference/The Health Professional Council of Lao PDR and Affiliated Institutions.jpg";
 import img3 from "../assets/conference/หลักสูตร การประกอบอาหารเพื่อฟื้นฟูโรคเบาหวาน.jpg";
@@ -59,10 +58,8 @@ function ConferenceCatalog() {
 
     return (
         <section id="conference" className="relative bg-white text-gray-900 py-10 px-2 sm:py-16 sm:px-4 md:py-24 overflow-hidden">
-            {/* BG decor */}
             <img className="hidden sm:block absolute right-0 top-20" src={line1} alt="" />
             <div className="max-w-6xl mx-auto relative pt-3 sm:pt-6 md:pt-12">
-                {/* Header */}
                 <div className="flex flex-col text-start mb-7 sm:mb-12 md:mb-16">
                     <div className="text-pink-400 font-semibold text-base sm:text-lg md:text-xl mb-1 sm:mb-2">Conference</div>
                     <h2 className="font-bold mb-4 sm:mb-7 md:mb-12 max-w-[90vw] text-3xl sm:text-5xl md:text-6xl leading-tight">
@@ -72,7 +69,6 @@ function ConferenceCatalog() {
                         With expert speakers, hands-on workshops, and the latest in Thai Lifestyle Medicine, our conferences bring together professionals dedicated to advancing health and wellness in Thailand and beyond.
                     </p>
                 </div>
-                {/* Centered carousel */}
                 <div className="flex flex-col items-center">
                     <div className="relative flex items-center justify-center select-none w-full">
                         {/* Prev Button */}
@@ -83,14 +79,21 @@ function ConferenceCatalog() {
                         >
                             <span className="text-2xl sm:text-3xl text-blue-500 font-bold">{'‹'}</span>
                         </button>
-                        {/* Preview Left */}
-                        <div className="
-                            w-[78px] h-[140px]
-                            sm:w-32 sm:h-60
-                            md:w-56 md:h-[380px]
-                            mx-1 sm:mx-2
-                            rounded-2xl overflow-hidden bg-white/70 border border-gray-100 opacity-50 blur-[1px] flex items-center justify-center scale-95 pointer-events-none shadow
-                        ">
+                        {/* Preview Left (3D) */}
+                        <div
+                            className="
+                                w-[60px] h-[95px]
+                                sm:w-20 sm:h-32
+                                md:w-32 md:h-56
+                                mx-[2px] sm:mx-4 md:mx-8
+                                rounded-2xl overflow-hidden bg-white/70 border border-gray-100
+                                opacity-60 blur-[0.5px] flex items-center justify-center scale-95 pointer-events-none shadow
+                            "
+                            style={{
+                                transform: 'perspective(400px) rotateY(23deg) scale(.93)',
+                                boxShadow: "0 6px 18px #0002",
+                            }}
+                        >
                             <img
                                 src={items[prevIdx].image}
                                 alt={items[prevIdx].title}
@@ -103,10 +106,10 @@ function ConferenceCatalog() {
                             <motion.div
                                 key={page}
                                 className="
-                                    mx-2 sm:mx-4
-                                    w-[110px] h-[175px]
-                                    sm:w-[220px] sm:h-[330px]
-                                    md:w-[330px] md:h-[480px]
+                                    mx-1 sm:mx-4
+                                    w-[180px] h-[260px]
+                                    sm:w-[300px] sm:h-[420px]
+                                    md:w-[440px] md:h-[620px]
                                     rounded-3xl overflow-hidden shadow-2xl
                                     bg-white flex flex-col items-center z-30 relative cursor-pointer
                                     transition duration-300 group
@@ -131,6 +134,7 @@ function ConferenceCatalog() {
                                 style={{
                                     border: "none",
                                     boxShadow: "0 8px 38px 0 #99b6ff55",
+                                    zIndex: 10,
                                 }}
                                 tabIndex={0}
                             >
@@ -148,14 +152,21 @@ function ConferenceCatalog() {
                                 />
                             </motion.div>
                         </AnimatePresence>
-                        {/* Preview Right */}
-                        <div className="
-                            w-[78px] h-[140px]
-                            sm:w-32 sm:h-60
-                            md:w-56 md:h-[380px]
-                            mx-1 sm:mx-2
-                            rounded-2xl overflow-hidden bg-white/70 border border-gray-100 opacity-50 blur-[1px] flex items-center justify-center scale-95 pointer-events-none shadow
-                        ">
+                        {/* Preview Right (3D) */}
+                        <div
+                            className="
+                                w-[60px] h-[95px]
+                                sm:w-20 sm:h-32
+                                md:w-32 md:h-56
+                                mx-[2px] sm:mx-4 md:mx-8
+                                rounded-2xl overflow-hidden bg-white/70 border border-gray-100
+                                opacity-60 blur-[0.5px] flex items-center justify-center scale-95 pointer-events-none shadow
+                            "
+                            style={{
+                                transform: 'perspective(400px) rotateY(-23deg) scale(.93)',
+                                boxShadow: "0 6px 18px #0002",
+                            }}
+                        >
                             <img
                                 src={items[nextIdx].image}
                                 alt={items[nextIdx].title}
