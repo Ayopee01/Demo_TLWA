@@ -40,7 +40,6 @@ function ConferenceCatalog() {
     const prevIdx = ((imageIndex - 1 + items.length) % items.length);
     const nextIdx = ((imageIndex + 1) % items.length);
 
-    // Preload images for smooth slide
     useEffect(() => {
         items.forEach(item => {
             const img = new window.Image();
@@ -48,7 +47,6 @@ function ConferenceCatalog() {
         });
     }, []);
 
-    // Swipe
     const swipeThreshold = 8000;
     function swipePower(offset, velocity) {
         return Math.abs(offset) * velocity;
@@ -58,7 +56,6 @@ function ConferenceCatalog() {
 
     return (
         <section id="conference" className="relative bg-white text-gray-900 py-6 px-1 sm:py-10 sm:px-2 md:py-16 md:px-4 overflow-hidden">
-            {/* BG decor */}
             <img className="hidden sm:block absolute right-0 top-20" src={line1} alt="" />
             <div className="max-w-6xl mx-auto relative pt-2 sm:pt-5 md:pt-10">
                 {/* Header */}
@@ -90,17 +87,20 @@ function ConferenceCatalog() {
                                 md:w-36 md:h-56
                                 mx-1 sm:mx-2 md:mx-8
                                 rounded-2xl overflow-hidden bg-white/70 border border-gray-100
-                                opacity-60 blur-[0.5px] flex items-center justify-center scale-95 pointer-events-none shadow
+                                opacity-60 blur-[0.5px] flex items-center justify-center scale-95 pointer-events-none
                             "
                             style={{
                                 transform: 'perspective(400px) rotateY(21deg) scale(.92)',
-                                boxShadow: "0 6px 18px #0002",
+                                boxShadow: "none",
                             }}
                         >
                             <img
                                 src={items[prevIdx].image}
                                 alt={items[prevIdx].title}
-                                className="object-contain w-full h-full"
+                                className="object-contain w-full h-full shadow"
+                                style={{
+                                    boxShadow: "0 6px 16px 0 #a0aec0",
+                                }}
                                 draggable={false}
                             />
                         </div>
@@ -113,10 +113,10 @@ function ConferenceCatalog() {
                                     w-[340px] h-[500px]
                                     sm:w-[350px] sm:h-[520px]
                                     md:w-[480px] md:h-[680px]
-                                    rounded-3xl overflow-hidden shadow-2xl
+                                    overflow-hidden
                                     bg-white flex flex-col items-center z-30 relative cursor-pointer
                                     transition duration-300 group
-                                    hover:scale-105 hover:shadow-2xl
+                                    hover:scale-105
                                 "
                                 custom={direction}
                                 variants={variants}
@@ -136,7 +136,7 @@ function ConferenceCatalog() {
                                 title="คลิกเพื่อดูรายละเอียด"
                                 style={{
                                     border: "none",
-                                    boxShadow: "0 8px 38px 0 #99b6ff55",
+                                    boxShadow: "none", // ไม่มีเงาที่กล่อง
                                     zIndex: 10,
                                     touchAction: "pan-y"
                                 }}
@@ -164,17 +164,20 @@ function ConferenceCatalog() {
                                 md:w-36 md:h-56
                                 mx-1 sm:mx-2 md:mx-8
                                 rounded-2xl overflow-hidden bg-white/70 border border-gray-100
-                                opacity-60 blur-[0.5px] flex items-center justify-center scale-95 pointer-events-none shadow
+                                opacity-60 blur-[0.5px] flex items-center justify-center scale-95 pointer-events-none
                             "
                             style={{
                                 transform: 'perspective(400px) rotateY(-21deg) scale(.92)',
-                                boxShadow: "0 6px 18px #0002",
+                                boxShadow: "none",
                             }}
                         >
                             <img
                                 src={items[nextIdx].image}
                                 alt={items[nextIdx].title}
-                                className="object-contain w-full h-full"
+                                className="object-contain w-full h-full shadow"
+                                style={{
+                                    boxShadow: "0 6px 16px 0 #a0aec0",
+                                }}
                                 draggable={false}
                             />
                         </div>
