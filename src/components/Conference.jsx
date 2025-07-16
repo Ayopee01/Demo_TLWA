@@ -60,11 +60,11 @@ function ConferenceCatalog() {
             <div className="max-w-6xl mx-auto relative pt-2 sm:pt-5 md:pt-10">
                 {/* Header */}
                 <div className="flex flex-col text-start mb-4 sm:mb-8 md:mb-12">
-                    <div className="text-pink-400 font-semibold text-base sm:text-lg md:text-xl mb-1 sm:mb-2">Conference</div>
-                    <h2 className="font-bold mb-3 sm:mb-5 md:mb-10 max-w-[90vw] text-2xl sm:text-4xl md:text-6xl leading-tight">
+                    <div className="text-pink-400 font-semibold text-xl mb-2">Conference</div>
+                    <h2 className="text-6xl font-bold mb-12 max-w-sm">
                         Thai Lifestyle Medicine
                     </h2>
-                    <p className="text-gray-800 font-semibold text-sm sm:text-lg md:text-xl max-w-[95vw] sm:max-w-3xl">
+                    <p className="text-gray-800 font-semibold text-lg max-w-8xl">
                         With expert speakers, hands-on workshops, and the latest in Thai Lifestyle Medicine, our conferences bring together professionals dedicated to advancing health and wellness in Thailand and beyond.
                     </p>
                 </div>
