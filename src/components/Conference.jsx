@@ -57,40 +57,43 @@ function ConferenceCatalog() {
     const handleLink = () => window.location.href = items[imageIndex].link;
 
     return (
-        <section id="conference" className="relative bg-white text-gray-900 py-10 px-2 sm:py-16 sm:px-4 md:py-24 overflow-hidden">
+        <section id="conference" className="relative bg-white text-gray-900 py-6 px-1 sm:py-10 sm:px-2 md:py-16 md:px-4 overflow-hidden">
+            {/* BG decor */}
             <img className="hidden sm:block absolute right-0 top-20" src={line1} alt="" />
-            <div className="max-w-6xl mx-auto relative pt-3 sm:pt-6 md:pt-12">
-                <div className="flex flex-col text-start mb-7 sm:mb-12 md:mb-16">
+            <div className="max-w-6xl mx-auto relative pt-2 sm:pt-5 md:pt-10">
+                {/* Header */}
+                <div className="flex flex-col text-start mb-4 sm:mb-8 md:mb-12">
                     <div className="text-pink-400 font-semibold text-base sm:text-lg md:text-xl mb-1 sm:mb-2">Conference</div>
-                    <h2 className="font-bold mb-4 sm:mb-7 md:mb-12 max-w-[90vw] text-3xl sm:text-5xl md:text-6xl leading-tight">
+                    <h2 className="font-bold mb-3 sm:mb-5 md:mb-10 max-w-[90vw] text-2xl sm:text-4xl md:text-6xl leading-tight">
                         Thai Lifestyle Medicine
                     </h2>
-                    <p className="text-gray-800 font-semibold text-base sm:text-lg md:text-xl max-w-[90vw] sm:max-w-3xl">
+                    <p className="text-gray-800 font-semibold text-sm sm:text-lg md:text-xl max-w-[95vw] sm:max-w-3xl">
                         With expert speakers, hands-on workshops, and the latest in Thai Lifestyle Medicine, our conferences bring together professionals dedicated to advancing health and wellness in Thailand and beyond.
                     </p>
                 </div>
+                {/* Centered carousel */}
                 <div className="flex flex-col items-center">
                     <div className="relative flex items-center justify-center select-none w-full">
-                        {/* Prev Button */}
+                        {/* Prev Button (md+) */}
                         <button
-                            className="z-20 absolute left-[-12px] sm:left-[-28px] md:left-[-48px] top-1/2 -translate-y-1/2 bg-white/95 hover:bg-blue-100 rounded-full shadow-xl p-2 sm:p-3 md:p-4 transition"
+                            className="hidden md:flex z-20 absolute left-3 md:left-5 top-1/2 -translate-y-1/2 bg-white/95 hover:bg-blue-100 rounded-full shadow-xl p-3 md:p-4 transition"
                             onClick={() => paginate(-1)}
                             aria-label="Previous"
                         >
-                            <span className="text-2xl sm:text-3xl text-blue-500 font-bold">{'‹'}</span>
+                            <span className="text-2xl md:text-3xl text-blue-500 font-bold">{'‹'}</span>
                         </button>
                         {/* Preview Left (3D) */}
                         <div
                             className="
-                                w-[60px] h-[95px]
-                                sm:w-20 sm:h-32
-                                md:w-32 md:h-56
-                                mx-[2px] sm:mx-4 md:mx-8
+                                w-[80px] h-[120px]
+                                sm:w-[110px] sm:h-[170px]
+                                md:w-36 md:h-56
+                                mx-1 sm:mx-2 md:mx-8
                                 rounded-2xl overflow-hidden bg-white/70 border border-gray-100
                                 opacity-60 blur-[0.5px] flex items-center justify-center scale-95 pointer-events-none shadow
                             "
                             style={{
-                                transform: 'perspective(400px) rotateY(23deg) scale(.93)',
+                                transform: 'perspective(400px) rotateY(21deg) scale(.92)',
                                 boxShadow: "0 6px 18px #0002",
                             }}
                         >
@@ -106,10 +109,10 @@ function ConferenceCatalog() {
                             <motion.div
                                 key={page}
                                 className="
-                                    mx-1 sm:mx-4
-                                    w-[180px] h-[260px]
-                                    sm:w-[300px] sm:h-[420px]
-                                    md:w-[440px] md:h-[620px]
+                                    mx-1 sm:mx-3
+                                    w-[340px] h-[500px]
+                                    sm:w-[350px] sm:h-[520px]
+                                    md:w-[480px] md:h-[680px]
                                     rounded-3xl overflow-hidden shadow-2xl
                                     bg-white flex flex-col items-center z-30 relative cursor-pointer
                                     transition duration-300 group
@@ -135,6 +138,7 @@ function ConferenceCatalog() {
                                     border: "none",
                                     boxShadow: "0 8px 38px 0 #99b6ff55",
                                     zIndex: 10,
+                                    touchAction: "pan-y"
                                 }}
                                 tabIndex={0}
                             >
@@ -155,15 +159,15 @@ function ConferenceCatalog() {
                         {/* Preview Right (3D) */}
                         <div
                             className="
-                                w-[60px] h-[95px]
-                                sm:w-20 sm:h-32
-                                md:w-32 md:h-56
-                                mx-[2px] sm:mx-4 md:mx-8
+                                w-[80px] h-[120px]
+                                sm:w-[110px] sm:h-[170px]
+                                md:w-36 md:h-56
+                                mx-1 sm:mx-2 md:mx-8
                                 rounded-2xl overflow-hidden bg-white/70 border border-gray-100
                                 opacity-60 blur-[0.5px] flex items-center justify-center scale-95 pointer-events-none shadow
                             "
                             style={{
-                                transform: 'perspective(400px) rotateY(-23deg) scale(.93)',
+                                transform: 'perspective(400px) rotateY(-21deg) scale(.92)',
                                 boxShadow: "0 6px 18px #0002",
                             }}
                         >
@@ -174,13 +178,13 @@ function ConferenceCatalog() {
                                 draggable={false}
                             />
                         </div>
-                        {/* Next Button */}
+                        {/* Next Button (md+) */}
                         <button
-                            className="z-20 absolute right-[-12px] sm:right-[-28px] md:right-[-48px] top-1/2 -translate-y-1/2 bg-white/95 hover:bg-blue-100 rounded-full shadow-xl p-2 sm:p-3 md:p-4 transition"
+                            className="hidden md:flex z-20 absolute right-3 md:right-5 top-1/2 -translate-y-1/2 bg-white/95 hover:bg-blue-100 rounded-full shadow-xl p-3 md:p-4 transition"
                             onClick={() => paginate(1)}
                             aria-label="Next"
                         >
-                            <span className="text-2xl sm:text-3xl text-blue-500 font-bold">{'›'}</span>
+                            <span className="text-2xl md:text-3xl text-blue-500 font-bold">{'›'}</span>
                         </button>
                     </div>
                     {/* Title: clickable */}
