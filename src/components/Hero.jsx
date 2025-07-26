@@ -78,7 +78,7 @@ function Hero() {
     }
 
     return (
-        <section id="hero" section className="relative overflow-hidden flex items-center bg-gradient-to-br from-blue-50 via-white to-purple-50 w-full mx-auto pt-40 
+        <section id="hero" className="relative overflow-hidden flex items-center bg-gradient-to-br from-blue-50 via-white to-purple-50 w-full mx-auto pt-40 
         sm:pt-55 
         md:pt-75
         lg:pt-60

@@ -1,224 +1,294 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { Link } from "react-router-dom";
-import logo from '../assets/logo/tlwa_logo.webp';
-import { FaUserCircle, FaChevronDown } from 'react-icons/fa';
-import MemberModal from './MemberModal';
-import AccountModal from './AccountModal';
+// src/components/Navbar.jsx
+import React, { useState, useRef, useEffect } from "react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import logo from "../assets/logo/tlwa_logo.webp";
+import { FaUserCircle, FaChevronDown } from "react-icons/fa";
+import MemberSection from "./MemberSection";
+import AccountModal from "./AccountModal";
 import { useUser } from "../contexts/UserContext";
 
-function Navbar({ onLoginClick }) {
-  const { user, logoutUser } = useUser();
+const NAVBAR_HEIGHT = 100;
+const navLinks = [
+  { label: "Home", href: "#hero" },
+  { label: "Conference", href: "#conference" },
+  { label: "Benefits", href: "#benefits" },
+  { label: "News", href: "#news" },
+  { label: "Media", href: "#media" },
+  { label: "Partners", href: "#partners" },
+  { label: "Rules and Regulations", href: "#rules" },
+  { label: "Contact", href: "#contact" },
+];
 
-  const [open, setOpen] = useState(false); // Mobile drawer
-  const [dropdown, setDropdown] = useState(false); // Desktop user dropdown
-  const [mobileUserDropdown, setMobileUserDropdown] = useState(false); // Mobile user dropdown
+function useActiveSection(navLinks) {
+  const [active, setActive] = useState(navLinks[0].href);
+  useEffect(() => {
+    const handleScroll = () => {
+      let current = navLinks[0].href;
+      for (let i = 0; i < navLinks.length; i++) {
+        const sec = document.querySelector(navLinks[i].href);
+        if (sec) {
+          const top = sec.getBoundingClientRect().top;
+          if (top <= NAVBAR_HEIGHT + 2) current = navLinks[i].href;
+        }
+      }
+      setActive(current);
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    handleScroll();
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [navLinks]);
+  return active;
+}
+
+function Navbar({ onLoginClick, onAccountClick }) {
+  const { user, logoutUser } = useUser();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  // --- Drawer & user state
+  const [open, setOpen] = useState(false);
+  const [dropdown, setDropdown] = useState(false);
+  const [mobileUserDropdown, setMobileUserDropdown] = useState(false);
   const [showMemberModal, setShowMemberModal] = useState(false);
   const [showAccountModal, setShowAccountModal] = useState(false);
 
   const dropdownRef = useRef(null);
+  const [hideNav, setHideNav] = useState(false);
+  const prevScrollY = useRef(window.scrollY);
 
-  // scrollIntoView
-  const handleNavClick = (href) => (e) => {
-    e.preventDefault();
-    setOpen(false); // ถ้าใช้ Drawer
-    const section = document.querySelector(href);
-    if (section) {
-      section.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
-  };
+  useEffect(() => { if (open) setHideNav(false); }, [open]);
+  useEffect(() => {
+    if (open) return;
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      if (currentScrollY > prevScrollY.current && currentScrollY > 100) setHideNav(true);
+      else setHideNav(false);
+      prevScrollY.current = currentScrollY;
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [open]);
+  useEffect(() => {
+    if (open) document.body.style.overflow = "hidden";
+    else document.body.style.overflow = "";
+    return () => { document.body.style.overflow = ""; };
+  }, [open]);
 
-  // ปิด dropdown (desktop) เมื่อคลิกข้างนอก
+  // Dropdown, mobile user
   useEffect(() => {
     if (!dropdown) return;
     const handleClick = (e) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) setDropdown(false);
     };
-    document.addEventListener('mousedown', handleClick);
-    return () => document.removeEventListener('mousedown', handleClick);
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
   }, [dropdown]);
-
-  // ปิด user dropdown (mobile) เมื่อคลิกข้างนอก
   useEffect(() => {
     if (!mobileUserDropdown) return;
     const handleClick = (e) => {
-      if (!e.target.closest('.mobile-user-dropdown-btn') && !e.target.closest('.mobile-user-dropdown-popup')) {
-        setMobileUserDropdown(false);
-      }
+      if (
+        !e.target.closest(".mobile-user-dropdown-btn") &&
+        !e.target.closest(".mobile-user-dropdown-popup")
+      ) setMobileUserDropdown(false);
     };
-    document.addEventListener('mousedown', handleClick);
-    return () => document.removeEventListener('mousedown', handleClick);
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
   }, [mobileUserDropdown]);
 
-  // เมนูหลัก
-  const navLinks = [
-    { label: "Home", href: "#hero" },
-    { label: "Conference", href: "#conference" },
-    { label: "Benefits", href: "#benefits" },
-    { label: "News", href: "#news" },
-    { label: "Media", href: "#media" },
-    { label: "Partners", href: "#partners" },
-    { label: "Rules and Regulations", href: "#rules" },
-    { label: "Contact", href: "#contact" },
-  ];
+  const activeSection = useActiveSection(navLinks);
+
+  // --- MAIN LOGIC for scroll/cross-route navigation
+  const handleNavClick = (href) => (e) => {
+    e.preventDefault();
+    setOpen(false);
+    // ถ้าไม่อยู่หน้า "/" ให้ navigate ไป "/" + hash เพื่อ scroll หลังเปลี่ยนหน้า
+    if (location.pathname !== "/") {
+      navigate(`/${href}`);
+    } else {
+      setTimeout(() => {
+        const section = document.querySelector(href);
+        if (section) {
+          section.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+      }, 20);
+    }
+  };
+
+  // Drawer
+  const drawerTop = NAVBAR_HEIGHT;
+  const drawerHeight = `calc(100vh - ${NAVBAR_HEIGHT}px)`;
 
   return (
-    <nav className="bg-white sticky top-0 z-50 shadow px-8 lg:px-16 xl:px-24">
-
-      <div className="container mx-auto flex items-center justify-between h-30">
-        {/* LOGO */}
-        <Link to="/">
-          <img className="h-full w-12 xl:w-15" src={logo} alt="Logo" />
-        </Link>
-
-        {/* Desktop Nav */}
-        <ul className="hidden xl:flex space-x-8 items-center p-8">
-          {navLinks.map(link => (
-            <li key={link.label}>
-              <a
-                href={link.href}
-                onClick={handleNavClick(link.href)}
-                className="relative font-medium text-gray-700 transition hover:text-indigo-500"
-              >
-                {link.label}
-              </a>
-            </li>
-          ))}
-        </ul>
-
-
-        {/* Desktop: Login/User */}
-        <div className="hidden xl:flex items-center">
-          {!user ? (
-            <button
-              className="relative overflow-hidden cursor-pointer font-medium bg-indigo-500 text-white h-15 w-25 rounded-xl transition-colors duration-600 hover:bg-indigo-600 group"
-              onClick={onLoginClick}
-            >
-              <span className="relative w-full z-10">Log in</span>
-            </button>
-          ) : (
-            <div ref={dropdownRef} className="relative flex items-center">
-              <button
-                className="flex items-center cursor-pointer gap-1 px-3 py-1 rounded-xl bg-indigo-50 border border-indigo-100 hover:bg-indigo-100 transition"
-                onClick={() => setDropdown((d) => !d)}
-                tabIndex={0}
-              >
-                <FaUserCircle className="text-2xl text-indigo-500" />
-                <span className="font-medium text-indigo-900">{user.firstName} {user.lastName}</span>
-                <FaChevronDown className="ml-1 text-indigo-500" />
-              </button>
-              {/* Dropdown */}
-              {dropdown && (
-                <div className="absolute right-0 top-12 mt-2 w-44 bg-white border rounded-xl shadow z-50">
-                  <ul className="py-2 text-sm text-indigo-900">
-                    <li>
-                      <button
-                        className="w-full text-left px-5 py-2 hover:bg-indigo-50"
-                        onClick={() => { setDropdown(false); setShowMemberModal(true); }}
-                      >
-                        Member
-                      </button>
-                    </li>
-                    <li>
-                      <button
-                        className="w-full text-left px-5 py-2 hover:bg-indigo-50"
-                        onClick={() => { setDropdown(false); setShowAccountModal(true); }}
-                      >
-                        Account
-                      </button>
-                    </li>
-                    <li>
-                      <button
-                        className="w-full text-left px-5 py-2 hover:bg-red-50 text-red-500"
-                        onClick={() => { setDropdown(false); logoutUser(); }}
-                      >
-                        Logout
-                      </button>
-                    </li>
-                  </ul>
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-
-        {/* Mobile Hamburger */}
-        <button
-          className="cursor-pointer xl:hidden flex items-center justify-center w-12 h-12 rounded-full bg-gray-600 focus:outline-none hover:bg-gray-700"
-          aria-label="Toggle menu"
-          onClick={() => setOpen(o => !o)}
-        >
-          <svg className="w-10 h-10 text-white" fill="none" viewBox="0 0 24 24">
-            {open
-              ? <path stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-              : (<>
-                <line x1="6" y1="8" x2="18" y2="8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-                <line x1="6" y1="12" x2="18" y2="12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-                <line x1="6" y1="16" x2="18" y2="16" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-              </>)
-            }
-          </svg>
-        </button>
-      </div>
-
-      {/* Overlay */}
-      {open && <div className="fixed inset-0 z-40 bg-black opacity-70 transition-opacity duration-300" onClick={() => setOpen(false)} />}
-
-      {/* Mobile Drawer */}
-      <div className={`
-        fixed top-0 left-0 z-50 h-full w-4/5 max-w-xs bg-white shadow-2xl
-        transition-transform duration-300 border-r border-gray-200
-        flex flex-col
-        ${open ? 'translate-x-0' : '-translate-x-full'}
-      `}>
-        <div className="flex items-center justify-between p-4">
-          <Link to="/">
+    <>
+      {/* Navbar */}
+      <nav
+        className={`fixed top-0 left-0 w-full z-50 bg-white shadow transition-transform duration-300 ${hideNav ? "-translate-y-full" : "translate-y-0"}`}
+        style={{ height: NAVBAR_HEIGHT }}
+      >
+        <div className="container mx-auto flex items-center justify-between h-25 px-4 xl:px-0">
+          {/* LOGO */}
+          <Link to="/" className="flex items-center">
             <img className="h-12 w-auto" src={logo} alt="Logo" />
           </Link>
+          {/* Desktop Nav */}
+          <ul className="hidden xl:flex space-x-8 items-center">
+            {navLinks.map(link => (
+              <li key={link.label} className="relative">
+                <a
+                  href={link.href}
+                  onClick={handleNavClick(link.href)}
+                  className={`
+                    font-medium px-1 py-2 transition-colors duration-200
+                    ${activeSection === link.href
+                      ? "text-indigo-700"
+                      : "text-gray-700 hover:text-indigo-500"}
+                    group
+                  `}
+                >
+                  <span className="relative z-10">{link.label}</span>
+                  <span
+                    className={`
+                      absolute left-0 -bottom-1 h-0.5 rounded bg-indigo-500 transition-all duration-300
+                      ${activeSection === link.href
+                        ? "w-full opacity-100"
+                        : "w-0 opacity-0 group-hover:opacity-100 group-hover:w-full"}
+                    `}
+                    style={{
+                      transitionProperty: "width, opacity"
+                    }}
+                  ></span>
+                </a>
+              </li>
+            ))}
+          </ul>
+          {/* Desktop: Login/User */}
+          <div className="hidden xl:flex items-center">
+            {!user ? (
+              <button
+                className="font-medium bg-indigo-500 text-white px-8 py-2 rounded-xl hover:bg-indigo-600 transition"
+                onClick={onLoginClick}
+              >
+                Log in
+              </button>
+            ) : (
+              <div ref={dropdownRef} className="relative flex items-center">
+                <button
+                  className="flex items-center gap-2 px-3 py-1 rounded-xl bg-indigo-50 border border-indigo-100 hover:bg-indigo-100 transition cursor-pointer"
+                  onClick={() => setDropdown((d) => !d)}
+                  tabIndex={0}
+                >
+                  <FaUserCircle className="text-2xl text-indigo-500" />
+                  <span className="font-medium text-indigo-900">{user.firstName} {user.lastName}</span>
+                  <FaChevronDown className="ml-1 text-indigo-500" />
+                </button>
+                {dropdown && (
+                  <div className="absolute right-0 top-12 mt-2 w-44 bg-white border rounded-xl shadow z-50">
+                    <ul className="py-2 text-sm text-indigo-900">
+                      <li>
+                        <button
+                          className="w-full text-left px-5 py-2 hover:bg-indigo-50 cursor-pointer"
+                          onClick={() => { setDropdown(false); setShowMemberModal(true); }}
+                        >
+                          Member
+                        </button>
+                      </li>
+                      <li>
+                        <button
+                          className="w-full text-left px-5 py-2 hover:bg-indigo-50 cursor-pointer"
+                          onClick={() => { setDropdown(false); setShowAccountModal(true); }}
+                        >
+                          Account
+                        </button>
+                      </li>
+                      <li>
+                        <button
+                          className="w-full text-left px-5 py-2 hover:bg-red-50 text-red-500 cursor-pointer"
+                          onClick={() => { setDropdown(false); logoutUser(); }}
+                        >
+                          Logout
+                        </button>
+                      </li>
+                    </ul>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+          {/* Mobile Hamburger */}
           <button
-            className="cursor-pointer border border-gray-400 rounded-lg p-1.5 text-gray-800 hover:bg-gray-100 transition"
-            onClick={() => setOpen(false)}
-            aria-label="Close"
+            className="xl:hidden flex items-center justify-center w-12 h-12 rounded-full bg-gray-100 border border-gray-300 cursor-pointer focus:outline-none hover:bg-gray-300"
+            aria-label="Toggle menu"
+            onClick={() => setOpen(o => !o)}
           >
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24">
-              <path stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
-                d="M6 18L18 6M6 6l12 12" />
+            <svg className="w-8 h-8 text-black" fill="none" viewBox="0 0 24 24">
+              <line x1="6" y1="8" x2="18" y2="8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+              <line x1="6" y1="12" x2="18" y2="12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+              <line x1="6" y1="16" x2="18" y2="16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
             </svg>
           </button>
         </div>
-        <nav className="flex flex-col justify-between h-full p-4">
-          <ul className="flex flex-col mt-1 flex-1">
+      </nav>
+
+      {/* Overlay */}
+      {open && (
+        <div
+          className="fixed inset-0 z-40 bg-black opacity-60 transition-opacity duration-300"
+          onClick={() => setOpen(false)}
+        />
+      )}
+
+      {/* Drawer */}
+      <div
+        className={`
+          fixed left-0 z-[100] w-[83vw] max-w-xs bg-white shadow-2xl
+          transition-transform duration-300 border-r border-gray-200
+          flex flex-col overflow-y-auto
+          ${open ? "translate-x-0" : "-translate-x-full"}
+        `}
+        style={{ top: drawerTop, height: drawerHeight }}
+      >
+        <nav className="flex flex-col justify-between h-full px-0">
+          <ul className="flex flex-col flex-1">
             {navLinks.map(link => (
               <li key={link.label}>
                 <a
                   href={link.href}
                   onClick={handleNavClick(link.href)}
-                  className="relative font-medium text-gray-700 hover:text-indigo-500 px-5 py-3 block border-b border-indigo-100"
+                  className={`
+                    flex items-center px-6 py-3 font-medium transition
+                    ${activeSection === link.href
+                      ? "text-indigo-700 bg-indigo-50 border-l-4 border-indigo-500"
+                      : "text-gray-800 hover:bg-gray-100"}
+                  `}
+                  style={{
+                    borderLeftWidth: activeSection === link.href ? "4px" : "4px",
+                    borderLeftColor: activeSection === link.href ? "#6366F1" : "transparent",
+                  }}
                 >
                   {link.label}
                 </a>
               </li>
             ))}
           </ul>
-          {/* Mobile User Dropdown */}
-          <div className='flex flex-col justify-center mt-4 relative'>
+          <div className="flex flex-col justify-center m-4 relative">
             {!user ? (
               <button
-                className="relative overflow-hidden cursor-pointer font-medium bg-indigo-500 text-white px-8 py-2 rounded-xl transition-colors duration-600 hover:text-white group"
+                className="font-medium bg-indigo-500 text-white px-8 py-2 rounded-xl hover:bg-indigo-600 transition"
                 onClick={() => { setOpen(false); onLoginClick(); }}
               >
-                <span className="relative z-10">Log in</span>
+                Log in
               </button>
             ) : (
               <div className="relative w-full flex justify-center">
                 <button
-                  className="flex items-center cursor-pointer gap-2 w-full max-w-[240px] px-4 py-2 rounded-xl bg-indigo-50 border border-indigo-100 mobile-user-dropdown-btn"
+                  className="flex items-center gap-2 w-full max-w-[220px] px-4 py-2 rounded-xl bg-indigo-50 border border-indigo-100 mobile-user-dropdown-btn cursor-pointer"
                   onClick={() => setMobileUserDropdown((d) => !d)}
                 >
                   <FaUserCircle className="text-2xl text-indigo-500" />
                   <span className="font-medium text-indigo-900 truncate">{user.firstName} {user.lastName}</span>
                   <FaChevronDown className="ml-1 text-indigo-500" />
                 </button>
-                {/* Dropdown Popup เล็ก + อยู่ด้านบน + ขนาดพอดีเมนู */}
+                {/* Dropdown Popup */}
                 {mobileUserDropdown && (
                   <div
                     className="
@@ -234,11 +304,9 @@ function Navbar({ onLoginClick }) {
                     <ul className="py-1 text-sm text-indigo-900">
                       <li>
                         <button
-                          className="w-full text-left px-5 py-2 hover:bg-indigo-50 rounded-t-xl"
+                          className="w-full text-left px-5 py-2 hover:bg-indigo-50 rounded-t-xl cursor-pointer"
                           onClick={() => {
-                            setOpen(false);
-                            setShowMemberModal(true);
-                            setMobileUserDropdown(false);
+                            setOpen(false); setShowMemberModal(true); setMobileUserDropdown(false);
                           }}
                         >
                           Member
@@ -246,11 +314,9 @@ function Navbar({ onLoginClick }) {
                       </li>
                       <li>
                         <button
-                          className="w-full text-left px-5 py-2 hover:bg-indigo-50"
+                          className="w-full text-left px-5 py-2 hover:bg-indigo-50 cursor-pointer"
                           onClick={() => {
-                            setOpen(false);
-                            setShowAccountModal(true);
-                            setMobileUserDropdown(false);
+                            setOpen(false); setShowAccountModal(true); setMobileUserDropdown(false);
                           }}
                         >
                           Account
@@ -258,11 +324,9 @@ function Navbar({ onLoginClick }) {
                       </li>
                       <li>
                         <button
-                          className="w-full text-left px-5 py-2 hover:bg-red-50 text-red-500 rounded-b-xl"
+                          className="w-full text-left px-5 py-2 hover:bg-red-50 text-red-500 rounded-b-xl cursor-pointer"
                           onClick={() => {
-                            setOpen(false);
-                            logoutUser();
-                            setMobileUserDropdown(false);
+                            setOpen(false); logoutUser(); setMobileUserDropdown(false);
                           }}
                         >
                           Logout
@@ -276,11 +340,10 @@ function Navbar({ onLoginClick }) {
           </div>
         </nav>
       </div>
-
       {/* Popup Modals */}
-      <MemberModal open={showMemberModal} onClose={() => setShowMemberModal(false)} />
+      <MemberSection open={showMemberModal} onClose={() => setShowMemberModal(false)} />
       <AccountModal open={showAccountModal} onClose={() => setShowAccountModal(false)} />
-    </nav>
+    </>
   );
 }
 

@@ -243,7 +243,7 @@ function Partners() {
   const remaining = logos.slice(10)
 
   return (
-    <section id="partners" section className="bg-gradient-to-b from-blue-600 to-indigo-700 text-white py-20 px-4">
+    <section id="partners" className="bg-gradient-to-b from-blue-600 to-indigo-700 text-white py-20 px-4">
       {/* Header */}
       <div className="text-center mb-12">
         <h3 className="text-pink-300 font-semibold text-xl mb-2">Partners</h3>

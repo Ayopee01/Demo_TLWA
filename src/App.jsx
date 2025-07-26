@@ -1,3 +1,4 @@
+// src/App.jsx
 import { useState } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Login from "./components/Login";
@@ -6,7 +7,7 @@ import ForgotPassword from "./components/ForgotPassword";
 import ResetPassword from "./components/ResetPassword";
 import Navbar from "./components/Navbar";
 import Hero from "./components/Hero";
-import Conference from "./components/Conference";
+import ConferenceCatalog from "./components/ConferenceCatalog";
 import Benefits from "./components/Benefits";
 import News from "./components/News";
 import Media from "./components/Media";
@@ -16,13 +17,20 @@ import Contact from "./components/Contact";
 import Footer from "./components/Footer";
 import AccountModal from "./components/AccountModal";
 import { useUser } from "./contexts/UserContext";
+import CourseDetail from "./components/CourseDetail";
+import useScrollToSection from "./hooks/useScrollToSection"; // สำคัญ
 
 function MainContent({ setModal }) {
+  useScrollToSection(); // ให้ landing page scroll section ได้
+
   return (
     <>
-      <Navbar onLoginClick={() => setModal("login")} onAccountClick={() => setModal("account")} />
+      <Navbar
+        onLoginClick={() => setModal("login")}
+        onAccountClick={() => setModal("account")}
+      />
       <Hero />
-      <Conference />
+      <ConferenceCatalog />
       <Benefits />
       <News />
       <Media />
@@ -36,21 +44,30 @@ function MainContent({ setModal }) {
 
 function App() {
   const [modal, setModal] = useState(""); // "login" | "register" | "forgot" | "account"
-  const { user, loginUser, logoutUser, updateUser } = useUser();
+  const { user, loginUser } = useUser();
 
   return (
     <BrowserRouter>
       <Routes>
-        <Route
-          path="/"
-          element={
-            <MainContent setModal={setModal} />
-          }
-        />
+        {/* Landing page */}
+        <Route path="/" element={<MainContent setModal={setModal} />} />
+
+        {/* Reset Password page */}
         <Route path="/reset-password" element={<ResetPassword />} />
+
+        {/* Course detail page */}
+        <Route path="/courses/:typeId" element={
+          <>
+            <Navbar
+              onLoginClick={() => setModal("login")}
+              onAccountClick={() => setModal("account")}
+            />
+            <CourseDetail setModal={setModal} />
+          </>
+        } />
       </Routes>
 
-      {/* Login Modal */}
+      {/* ===== Modal Overlays ===== */}
       {modal === "login" && (
         <div className="fixed inset-0 z-50 flex justify-center items-center bg-black/40 backdrop-blur-md">
           <Login
@@ -61,7 +78,6 @@ function App() {
           />
         </div>
       )}
-      {/* Register Modal */}
       {modal === "register" && (
         <div className="fixed inset-0 z-50 flex justify-center items-center bg-black/40 backdrop-blur-md">
           <Register
@@ -70,7 +86,6 @@ function App() {
           />
         </div>
       )}
-      {/* Forgot Password Modal */}
       {modal === "forgot" && (
         <div className="fixed inset-0 z-50 flex justify-center items-center bg-black/40 backdrop-blur-md">
           <ForgotPassword
@@ -79,7 +94,6 @@ function App() {
           />
         </div>
       )}
-      {/* Account Modal */}
       {modal === "account" && user && (
         <AccountModal
           open={modal === "account"}

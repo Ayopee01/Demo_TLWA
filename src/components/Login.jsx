@@ -1,5 +1,6 @@
 import { useState, useRef } from "react";
 import axios from "axios";
+import api from "../api";
 
 export default function Login({ onClose, onSwitchToRegister, onSwitchToForgot, onLoginSuccess }) {
   const [form, setForm] = useState({ email: '', password: '' });
@@ -18,7 +19,7 @@ export default function Login({ onClose, onSwitchToRegister, onSwitchToForgot, o
     if (!form.email || !form.password) return setError('กรุณากรอกข้อมูลให้ครบ');
     if (!validateEmail(form.email)) return setError('อีเมลไม่ถูกต้อง');
     try {
-      const res = await axios.post('http://localhost:4000/api/login', form);
+      const res = await api.post('/api/login', form);
       setPopup('เข้าสู่ระบบสำเร็จ');
       setTimeout(() => {
         setPopup('');
