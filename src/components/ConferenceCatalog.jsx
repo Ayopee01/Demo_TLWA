@@ -56,7 +56,7 @@ function ConferenceCatalog() {
   const paginate = (newDirection) =>
     setPage(([oldPage]) => [oldPage + newDirection, newDirection]);
 
-  // กำหนด index ใน Carousel
+  // คำนวณ index ใน Carousel
   const imageIndex = ((page % courses.length) + courses.length) % courses.length;
   const prevIdx = ((imageIndex - 1 + courses.length) % courses.length);
   const nextIdx = ((imageIndex + 1) % courses.length);
@@ -69,12 +69,28 @@ function ConferenceCatalog() {
   // ใช้ cover_image จากฐานข้อมูล ถ้าไม่มีให้ fallback เป็น placeholder
   const getImage = (item) => {
     if (!item) return placeholderImg;
-    if (item.cover_image && typeof item.cover_image === "string" && item.cover_image.length > 3) {
+    if (
+      item.cover_image &&
+      typeof item.cover_image === "string" &&
+      item.cover_image.length > 3
+    ) {
       // ถ้า path ขึ้นต้นด้วย /uploads ให้แปลง URL ให้ถูกต้อง (รองรับทั้ง prod/dev)
-      if (item.cover_image.startsWith("/uploads")) {
-        return (import.meta.env.VITE_API_URL || "") + item.cover_image;
+      if (
+        item.cover_image.startsWith("/uploads") ||
+        item.cover_image.startsWith("uploads")
+      ) {
+        let url = item.cover_image.startsWith("/")
+          ? item.cover_image
+          : "/" + item.cover_image;
+        return (import.meta.env.VITE_API_URL || "") + url;
       }
-      return item.cover_image;
+      // ถ้าเป็น path แบบ URL เต็มอยู่แล้ว
+      if (
+        item.cover_image.startsWith("http://") ||
+        item.cover_image.startsWith("https://")
+      ) {
+        return item.cover_image;
+      }
     }
     return placeholderImg;
   };
