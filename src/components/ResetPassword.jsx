@@ -10,11 +10,9 @@ export default function ResetPassword() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
 
-  // ดึง token และ email จาก URL
   const token = searchParams.get("token");
   const email = searchParams.get("email");
 
-  // ตรวจสอบว่า token/email มีค่าครบไหม
   if (!token || !email) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen">
@@ -37,30 +35,26 @@ export default function ResetPassword() {
     setError("");
     setSuccess("");
 
-    // Validate ฟอร์ม
     if (!form.password || !form.confirm) {
-      setError("กรุณากรอกข้อมูลให้ครบถ้วน");
-      return;
+      return setError("กรุณากรอกข้อมูลให้ครบถ้วน");
     }
     if (form.password.length < 6) {
-      setError("รหัสผ่านต้องอย่างน้อย 6 ตัว");
-      return;
+      return setError("รหัสผ่านต้องอย่างน้อย 6 ตัว");
     }
     if (form.password !== form.confirm) {
-      setError("รหัสผ่านไม่ตรงกัน");
-      return;
+      return setError("รหัสผ่านไม่ตรงกัน");
     }
 
     setLoading(true);
     try {
-      await axios.post("http://localhost:4000/api/reset-password", {
+      await axios.post(`${import.meta.env.VITE_API_URL}/api/reset-password`, {
         password: form.password,
         token,
         email,
       });
       setSuccess("เปลี่ยนรหัสผ่านสำเร็จ! กำลังกลับไปหน้าเข้าสู่ระบบ...");
       setTimeout(() => {
-        navigate("/"); // กลับไปหน้า login หรือหน้าแรก
+        navigate("/");
       }, 2000);
     } catch (err) {
       setError(err.response?.data?.message || "เกิดข้อผิดพลาด");

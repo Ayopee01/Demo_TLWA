@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { FiPlusCircle } from "react-icons/fi";
 import line1 from "../assets/conference/line-1.png";
-import api from "../api";
+import axios from "axios";
 
 const transitionConfig = {
   duration: 0.16,
@@ -38,7 +38,8 @@ function ConferenceCatalog() {
   useEffect(() => {
     async function fetchCourses() {
       try {
-        const res = await api.get("/api/courses");
+        const API_URL = import.meta.env.VITE_API_URL;
+        const res = await axios.get(`${API_URL}/api/courses`);
         setCourses(Array.isArray(res.data) ? res.data : (res.data.courses || []));
       } catch (e) {
         setCourses([]);

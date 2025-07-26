@@ -15,7 +15,7 @@ export default function ForgotPassword({ onClose, onSwitchToLogin }) {
     setPopup('');
     if (!validateEmail(email)) return setError('อีเมลไม่ถูกต้อง');
     try {
-      await axios.post('http://localhost:4000/api/forgot-password', { email });
+      await axios.post(`${import.meta.env.VITE_API_URL}/api/forgot-password`, { email });
       setPopup('ส่งลิงค์รีเซ็ตรหัสผ่านไปที่อีเมลแล้ว');
       setTimeout(() => {
         setPopup('');

@@ -62,7 +62,7 @@ export default function Register({ onClose, onSwitchToLogin }) {
     }
     try {
       const { confirmPassword, ...registerData } = form;
-      await axios.post('http://localhost:4000/api/register', registerData);
+      await axios.post(`${import.meta.env.VITE_API_URL}/api/register`, registerData);
       setPopup('สมัครสมาชิกสำเร็จ');
       setTimeout(() => {
         setPopup('');

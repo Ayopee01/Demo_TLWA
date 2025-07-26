@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import api from "../api";
+import axios from "axios";
 import { useUser } from "../contexts/UserContext";
 
 const THAI_REGEX = /^[\u0E00-\u0E7F\s]+$/;
@@ -8,6 +8,7 @@ const ENGLISH_REGEX = /^[A-Za-z\s]+$/;
 export default function AccountModal({ open, onClose }) {
   const { user, updateUser } = useUser();
   const formRef = useRef(null);
+  const API_URL = import.meta.env.VITE_API_URL;
 
   const [form, setForm] = useState({
     prefix: "",
@@ -23,7 +24,6 @@ export default function AccountModal({ open, onClose }) {
   const [popup, setPopup] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
-  // ======== Prefill from user (context) ==========
   useEffect(() => {
     if (user && open) {
       setForm({
@@ -42,7 +42,6 @@ export default function AccountModal({ open, onClose }) {
     }
   }, [user, open]);
 
-  // ============= Validation =======================
   const validate = () => {
     const newErrors = {};
     if (!form.prefix) newErrors.prefix = "กรุณาเลือกคำนำหน้า";
@@ -60,7 +59,6 @@ export default function AccountModal({ open, onClose }) {
     return newErrors;
   };
 
-  // ============ Handler ================
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
@@ -68,29 +66,29 @@ export default function AccountModal({ open, onClose }) {
     setPopup("");
   };
 
-  // ============ SUBMIT ===============
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!user || !user.id) {
       setPopup("ไม่พบ user id");
       return;
     }
+
     const validationErrors = validate();
-    if (Object.keys(validationErrors).length) {
+    if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
       setPopup("กรุณากรอกข้อมูลให้ครบถ้วน");
       return;
     }
+
     setSubmitting(true);
     try {
-      await api.put(`/api/users/${user.id}`, form);
+      await axios.put(`${API_URL}/api/users/${user.id}`, form, { withCredentials: true });
 
-      // ===== Fetch user profile สดหลังบันทึก =====
-      const resUser = await api.get(`/api/users/${user.id}`);
+      const resUser = await axios.get(`${API_URL}/api/users/${user.id}`, { withCredentials: true });
       const userFresh = resUser.data?.user;
       if (userFresh) {
         updateUser(userFresh);
-        localStorage.setItem('user', JSON.stringify(userFresh));
+        localStorage.setItem("user", JSON.stringify(userFresh));
       }
 
       setPopup("แก้ไขข้อมูลเรียบร้อย");
@@ -105,7 +103,6 @@ export default function AccountModal({ open, onClose }) {
     setSubmitting(false);
   };
 
-  // ============ Overlay click for close ===============
   const handleOverlayClick = (e) => {
     if (formRef.current && !formRef.current.contains(e.target)) {
       onClose && onClose();
@@ -121,20 +118,9 @@ export default function AccountModal({ open, onClose }) {
     >
       <form
         ref={formRef}
-        className={`
-          relative w-full flex flex-col items-center
-          rounded-2xl shadow-2xl
-          bg-white border border-gray-200
-          py-5 px-8 transition-all duration-200
-          overflow-y-auto
-          max-h-[67dvh]
-          max-w-sm sm:max-w-lg
-        `}
-        style={{
-          WebkitOverflowScrolling: 'touch',
-        }}
+        className="relative w-full flex flex-col items-center rounded-2xl shadow-2xl bg-white border border-gray-200 py-5 px-8 transition-all duration-200 overflow-y-auto max-h-[67dvh] max-w-sm sm:max-w-lg"
         onSubmit={handleSubmit}
-        onMouseDown={e => e.stopPropagation()}
+        onMouseDown={(e) => e.stopPropagation()}
         autoComplete="off"
       >
         {/* ปุ่มปิด */}
@@ -149,6 +135,7 @@ export default function AccountModal({ open, onClose }) {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
           </svg>
         </button>
+
         <h2 className="text-2xl font-bold mb-6 text-gray-800 tracking-tight">Edit Account</h2>
         {errors.api && <div className="mb-4 text-red-500 text-sm">{errors.api}</div>}
         {popup && <div className="mb-4 text-green-600 text-sm">{popup}</div>}
@@ -189,7 +176,6 @@ export default function AccountModal({ open, onClose }) {
                 onChange={handleChange}
                 placeholder="กรอกชื่อจริง"
                 disabled={submitting}
-                autoComplete="off"
               />
             </div>
             {/* นามสกุล */}
@@ -206,15 +192,12 @@ export default function AccountModal({ open, onClose }) {
                 onChange={handleChange}
                 placeholder="กรอกนามสกุล"
                 disabled={submitting}
-                autoComplete="off"
               />
             </div>
-            {/* First Name (English) */}
+            {/* First Name EN */}
             <div>
-              <div className="flex flex-col">
-                <label className="block mb-1 text-gray-700 font-medium text-sm">First Name (English)</label>
-                {errors.firstNameEn && <span className="text-red-500 font-medium text-sm">{errors.firstNameEn}</span>}
-              </div>
+              <label className="block mb-1 text-gray-700 font-medium text-sm">First Name (English)</label>
+              {errors.firstNameEn && <span className="text-red-500 text-sm">{errors.firstNameEn}</span>}
               <input
                 name="firstNameEn"
                 type="text"
@@ -223,15 +206,12 @@ export default function AccountModal({ open, onClose }) {
                 onChange={handleChange}
                 placeholder="First Name"
                 disabled={submitting}
-                autoComplete="off"
               />
             </div>
-            {/* Last Name (English) */}
+            {/* Last Name EN */}
             <div>
-              <div className="flex flex-col">
-                <label className="block mb-1 text-gray-700 font-medium text-sm">Last Name (English)</label>
-                {errors.lastNameEn && <span className="text-red-500 font-medium text-sm">{errors.lastNameEn}</span>}
-              </div>
+              <label className="block mb-1 text-gray-700 font-medium text-sm">Last Name (English)</label>
+              {errors.lastNameEn && <span className="text-red-500 text-sm">{errors.lastNameEn}</span>}
               <input
                 name="lastNameEn"
                 type="text"
@@ -240,7 +220,6 @@ export default function AccountModal({ open, onClose }) {
                 onChange={handleChange}
                 placeholder="Last Name"
                 disabled={submitting}
-                autoComplete="off"
               />
             </div>
           </div>
@@ -258,12 +237,10 @@ export default function AccountModal({ open, onClose }) {
                 disabled
               />
             </div>
-            {/* เบอร์โทรศัพท์ */}
+            {/* Phone */}
             <div>
-              <div className="flex flex-col">
-                <label className="block mb-1 text-gray-700 font-medium text-sm">เบอร์โทรศัพท์</label>
-                {errors.phone && <span className="text-red-500 font-medium text-sm">{errors.phone}</span>}
-              </div>
+              <label className="block mb-1 text-gray-700 font-medium text-sm">เบอร์โทรศัพท์</label>
+              {errors.phone && <span className="text-red-500 text-sm">{errors.phone}</span>}
               <input
                 name="phone"
                 type="tel"
@@ -272,15 +249,12 @@ export default function AccountModal({ open, onClose }) {
                 onChange={handleChange}
                 placeholder="0812345678"
                 disabled={submitting}
-                autoComplete="off"
               />
             </div>
-            {/* ที่อยู่ */}
+            {/* Address */}
             <div>
-              <div className="flex gap-3">
-                <label className="block mb-1 text-gray-700 font-medium text-sm">ที่อยู่</label>
-                {errors.address && <span className="text-red-500 font-medium text-sm">{errors.address}</span>}
-              </div>
+              <label className="block mb-1 text-gray-700 font-medium text-sm">ที่อยู่</label>
+              {errors.address && <span className="text-red-500 text-sm">{errors.address}</span>}
               <textarea
                 name="address"
                 rows={2}
@@ -289,11 +263,11 @@ export default function AccountModal({ open, onClose }) {
                 onChange={handleChange}
                 placeholder="กรอกที่อยู่"
                 disabled={submitting}
-                autoComplete="off"
               />
             </div>
           </div>
         </div>
+
         <button
           type="submit"
           className="cursor-pointer w-full mt-5 mb-3 py-2 rounded-xl bg-gradient-to-r from-blue-500 via-indigo-500 to-violet-500 text-white font-semibold shadow-md hover:from-blue-600 hover:to-indigo-600 transition-all text-lg"
@@ -301,6 +275,7 @@ export default function AccountModal({ open, onClose }) {
         >
           {submitting ? "Saving..." : "Save"}
         </button>
+
         <div className="mt-2 flex w-full justify-end">
           <button
             type="button"

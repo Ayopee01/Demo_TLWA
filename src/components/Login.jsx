@@ -1,6 +1,5 @@
 import { useState, useRef } from "react";
 import axios from "axios";
-import api from "../api";
 
 export default function Login({ onClose, onSwitchToRegister, onSwitchToForgot, onLoginSuccess }) {
   const [form, setForm] = useState({ email: '', password: '' });
@@ -8,9 +7,13 @@ export default function Login({ onClose, onSwitchToRegister, onSwitchToForgot, o
   const [popup, setPopup] = useState('');
   const formRef = useRef(null);
 
+  const API_URL = import.meta.env.VITE_API_URL;
+
   const validateEmail = (email) => /\S+@\S+\.\S+/.test(email);
 
-  const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -19,7 +22,7 @@ export default function Login({ onClose, onSwitchToRegister, onSwitchToForgot, o
     if (!form.email || !form.password) return setError('กรุณากรอกข้อมูลให้ครบ');
     if (!validateEmail(form.email)) return setError('อีเมลไม่ถูกต้อง');
     try {
-      const res = await api.post('/api/login', form);
+      const res = await axios.post(`${API_URL}/api/login`, form, { withCredentials: true });
       setPopup('เข้าสู่ระบบสำเร็จ');
       setTimeout(() => {
         setPopup('');
@@ -31,7 +34,6 @@ export default function Login({ onClose, onSwitchToRegister, onSwitchToForgot, o
     }
   };
 
-  // กดตรง overlay แล้วปิด popup (แต่กดในฟอร์มไม่ปิด)
   const handleOverlayClick = (e) => {
     if (formRef.current && !formRef.current.contains(e.target)) {
       onClose && onClose();
@@ -101,14 +103,14 @@ export default function Login({ onClose, onSwitchToRegister, onSwitchToForgot, o
         <div className="mt-5 flex justify-between items-center gap-2">
           <button
             type="button"
-            className="cursor-pointer text-blue-500 transition duration-300 hover:text-indigo-600 hover:underline text-sm transition"
+            className="cursor-pointer text-blue-500 transition duration-300 hover:text-indigo-600 hover:underline text-sm"
             onClick={onSwitchToForgot}
           >
             Forgot password?
           </button>
           <button
             type="button"
-            className="cursor-pointer text-gray-500 transition duration-300 hover:text-blue-600 text-sm hover:underline transition"
+            className="cursor-pointer text-gray-500 transition duration-300 hover:text-blue-600 text-sm hover:underline"
             onClick={onSwitchToRegister}
           >
             Register
