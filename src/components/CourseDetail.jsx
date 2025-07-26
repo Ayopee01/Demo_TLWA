@@ -1,3 +1,4 @@
+// src/components/CourseDetail.jsx
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
@@ -14,48 +15,44 @@ import Navbar from "./Navbar";
 import OrganizationDropdown from "./OrganizationDropdown";
 import { ORG_OPTIONS } from "../constants/orgs";
 
-const API_URL = import.meta.env.VITE_API_URL || "";
-
-const MEMBER_OPTIONS = [
-  {
-    key: "tlwa",
-    label: "สมาชิกสมาคมเวชศาสตร์วิถีชีวิตและสุขภาวะไทย (TLWA)",
-    input: {
-      placeholder: "ระบุเลขสมาชิก 4 หลัก (ตัวอย่าง: 0001)",
-      type: "number",
-      maxLength: 4,
-    },
-  },
-  {
-    key: "dietitian",
-    label: "สมาชิกสมาคมนักกำหนดอาหารแห่งประเทศไทย",
-    input: { placeholder: "ระบุชื่อสมาคม/หน่วยงานของคุณ", type: "text" },
-  },
-  {
-    key: "tlwa_partner",
-    label: "องค์กรพันธมิตรสมาคมเวชศาสตร์วิถีชีวิตและสุขภาวะไทย (TLWA)",
-    input: { placeholder: "ค้นหาองค์กร...", type: "dropdown" },
-  },
-  {
-    key: "dietitian_partner",
-    label: "องค์กรพันธมิตรสมาคมนักกำหนดอาหารแห่งประเทศไทย",
-    input: { placeholder: "กรอกชื่อองค์กร", type: "text" },
-  },
-  { key: "none", label: "ไม่ได้เป็นสมาชิกหรือองค์กรพันธมิตรใดเลย" },
-];
-
-const MEMBER_KEYS = MEMBER_OPTIONS.slice(0, 4).map((o) => o.key);
-
-function formatDate(dateStr) {
-  if (!dateStr) return "-";
-  return new Date(dateStr).toLocaleDateString("th-TH", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
+// ========== SuccessPopup ========== //
+function SuccessPopup({ open, onClose, message = "คำสั่งซื้อสำเร็จแล้ว!" }) {
+  useEffect(() => {
+    if (open) {
+      const t = setTimeout(onClose, 2500);
+      return () => clearTimeout(t);
+    }
+  }, [open, onClose]);
+  if (!open) return null;
+  return (
+    <div className="fixed inset-0 z-[9999] bg-black/60 flex items-center justify-center animate-fadeIn" onClick={onClose}>
+      <div className="bg-white rounded-2xl px-8 py-10 shadow-2xl flex flex-col items-center relative min-w-[320px] max-w-xs"
+        onClick={e => e.stopPropagation()}>
+        <div className="bg-green-500 text-white rounded-full p-4 mb-3 shadow-lg animate-bounce">
+          <FiCheck size={38} />
+        </div>
+        <div className="text-xl font-bold text-green-700 mb-2 text-center">{message}</div>
+        <div className="text-gray-500 mb-6 text-center">
+          ขอบคุณสำหรับการสั่งซื้อ<br />รอเจ้าหน้าที่ตรวจสอบข้อมูล
+        </div>
+        <button
+          className="bg-blue-600 text-white rounded-xl px-5 py-2 font-semibold shadow hover:bg-blue-700 transition"
+          onClick={onClose}
+        >ปิดหน้าต่าง</button>
+        <button
+          className="absolute top-2 right-2 text-gray-400 hover:text-red-400 text-xl"
+          onClick={onClose}
+        >×</button>
+      </div>
+      <style>{`
+        .animate-fadeIn { animation: fadeIn 0.3s; }
+        @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+      `}</style>
+    </div>
+  );
 }
 
-// ----------------- PaymentPopup Component ----------------------
+// ========== PaymentPopup ========== //
 function PaymentPopup({ open, amount, discount, onClose, onSubmit, paymentMethod, setPaymentMethod }) {
   const [file, setFile] = useState(null);
   const [fileUrl, setFileUrl] = useState("");
@@ -66,15 +63,6 @@ function PaymentPopup({ open, amount, discount, onClose, onSubmit, paymentMethod
     setFileUrl("");
     setError("");
   }, [open]);
-
-  const handleFile = (e) => {
-    const f = e.target.files[0];
-    if (!f) return;
-    if (!f.type.startsWith("image/")) return setError("เฉพาะไฟล์รูปภาพเท่านั้น");
-    setFile(f);
-    setFileUrl(URL.createObjectURL(f));
-    setError("");
-  };
 
   const banks = [
     {
@@ -100,6 +88,15 @@ function PaymentPopup({ open, amount, discount, onClose, onSubmit, paymentMethod
       )
     }
   ];
+
+  const handleFile = (e) => {
+    const f = e.target.files[0];
+    if (!f) return;
+    if (!f.type.startsWith("image/")) return setError("เฉพาะไฟล์รูปภาพเท่านั้น");
+    setFile(f);
+    setFileUrl(URL.createObjectURL(f));
+    setError("");
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -153,7 +150,38 @@ function PaymentPopup({ open, amount, discount, onClose, onSubmit, paymentMethod
   );
 }
 
-// ----------------- Main CourseDetail Component ----------------------
+// ========== MAIN COMPONENT ========== //
+const API_URL = import.meta.env.VITE_API_URL || "";
+
+const MEMBER_OPTIONS = [
+  {
+    key: "tlwa",
+    label: "สมาชิกสมาคมเวชศาสตร์วิถีชีวิตและสุขภาวะไทย (TLWA)",
+    input: { placeholder: "ระบุเลขสมาชิก 4 หลัก (ตัวอย่าง: 0001)", type: "number", maxLength: 4 }
+  },
+  {
+    key: "dietitian",
+    label: "สมาชิกสมาคมนักกำหนดอาหารแห่งประเทศไทย",
+    input: { placeholder: "ระบุชื่อสมาคม/หน่วยงานของคุณ", type: "text" }
+  },
+  {
+    key: "tlwa_partner",
+    label: "องค์กรพันธมิตรสมาคมเวชศาสตร์วิถีชีวิตและสุขภาวะไทย (TLWA)",
+    input: { placeholder: "ค้นหาองค์กร...", type: "dropdown" }
+  },
+  {
+    key: "dietitian_partner",
+    label: "องค์กรพันธมิตรสมาคมนักกำหนดอาหารแห่งประเทศไทย",
+    input: { placeholder: "กรอกชื่อองค์กร", type: "text" }
+  },
+  { key: "none", label: "ไม่ได้เป็นสมาชิกหรือองค์กรพันธมิตรใดเลย" },
+];
+const MEMBER_KEYS = MEMBER_OPTIONS.slice(0, 4).map(o => o.key);
+
+function formatDate(dateStr) {
+  if (!dateStr) return "-";
+  return new Date(dateStr).toLocaleDateString("th-TH", { year: "numeric", month: "long", day: "numeric" });
+}
 
 export default function CourseDetail({ setModal }) {
   const navigate = useNavigate();
@@ -162,6 +190,7 @@ export default function CourseDetail({ setModal }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [showSuccessPopup, setShowSuccessPopup] = useState(false);
   const user = JSON.parse(localStorage.getItem("user") || "{}");
   const [selectedCourses, setSelectedCourses] = useState([]);
   const [memberTypes, setMemberTypes] = useState([]);
@@ -169,26 +198,18 @@ export default function CourseDetail({ setModal }) {
   const [inputError, setInputError] = useState({});
   const [popupImg, setPopupImg] = useState(null);
 
-  // Payment states
   const [showPayment, setShowPayment] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState("");
 
-  useEffect(() => {
-    window.scrollTo({ top: 0 });
-  }, []);
-
+  useEffect(() => { window.scrollTo({ top: 0 }); }, []);
   useEffect(() => {
     setError("");
     if (!typeId) {
-      setCourseList([]);
-      setLoading(false);
-      setError("ไม่พบประเภทคอร์ส (typeId)");
-      return;
+      setCourseList([]); setLoading(false); setError("ไม่พบประเภทคอร์ส (typeId)"); return;
     }
     setLoading(true);
-    axios
-      .get(`${API_URL}/api/courses_card/by_type/${typeId}`)
-      .then((res) => setCourseList(Array.isArray(res.data) ? res.data : []))
+    axios.get(`${API_URL}/api/courses_card/by_type/${typeId}`)
+      .then(res => setCourseList(Array.isArray(res.data) ? res.data : []))
       .catch(() => setError("ไม่สามารถโหลดข้อมูลคอร์สได้"))
       .finally(() => setLoading(false));
   }, [typeId]);
@@ -196,93 +217,54 @@ export default function CourseDetail({ setModal }) {
   useEffect(() => {
     let newError = {};
     if (memberTypes.includes("tlwa")) {
-      newError.tlwa = /^[0-9]{4}$/.test(inputByMemberType.tlwa || "")
-        ? ""
-        : "กรุณาระบุเลขสมาชิก 4 หลัก (ตัวอย่าง: 0001)";
+      newError.tlwa = /^[0-9]{4}$/.test(inputByMemberType.tlwa || "") ? "" : "กรุณาระบุเลขสมาชิก 4 หลัก (ตัวอย่าง: 0001)";
     }
     setInputError(newError);
   }, [memberTypes, inputByMemberType]);
 
   const handleMemberTypeChange = (key) => {
     if (key === "none") {
-      setMemberTypes(["none"]);
-      setInputError({});
+      setMemberTypes(["none"]); setInputError({});
     } else {
-      setMemberTypes((prev) => {
-        const filtered = prev.filter((k) => k !== "none");
-        return prev.includes(key)
-          ? filtered.filter((k) => k !== key)
-          : [...filtered, key];
+      setMemberTypes(prev => {
+        const filtered = prev.filter(k => k !== "none");
+        return prev.includes(key) ? filtered.filter(k => k !== key) : [...filtered, key];
       });
     }
   };
-
   const handleCourseSelect = (id, e) => {
     if (e.target.closest(".img-popup")) return;
-    setSelectedCourses((prev) =>
-      prev.includes(id) ? prev.filter((cid) => cid !== id) : [...prev, id]
-    );
+    setSelectedCourses(prev => prev.includes(id) ? prev.filter(cid => cid !== id) : [...prev, id]);
   };
-
   const handleMemberTypeInput = (key, value) => {
-    setInputByMemberType((prev) => ({
-      ...prev,
-      [key]: value,
-    }));
+    setInputByMemberType(prev => ({ ...prev, [key]: value }));
   };
-
   const courseCount = selectedCourses.length;
   const isNoneMember = memberTypes.includes("none");
-  const isAnyMember = memberTypes.some((t) => MEMBER_KEYS.includes(t));
+  const isAnyMember = memberTypes.some(t => MEMBER_KEYS.includes(t));
   const selectedCourseObjs = selectedCourses
-    .map((cid) => courseList.find((c) => c.id === cid))
+    .map(cid => courseList.find(c => c.id === cid))
     .filter(Boolean)
     .sort((a, b) => (a.id > b.id ? 1 : -1));
-
-  const totalCoursePrice = selectedCourseObjs.reduce(
-    (sum, c) => sum + (Number(c.price) || 0),
-    0
-  );
+  const totalCoursePrice = selectedCourseObjs.reduce((sum, c) => sum + (Number(c.price) || 0), 0);
 
   let totalDiscount = 0;
-  if (isAnyMember && courseCount === 3) {
-    totalDiscount = totalCoursePrice * 0.3;
-  } else if (isAnyMember && (courseCount === 1 || courseCount === 2)) {
-    totalDiscount = totalCoursePrice * 0.25;
-  } else if (isNoneMember && courseCount === 3) {
-    totalDiscount = totalCoursePrice * 0.2;
-  }
+  if (isAnyMember && courseCount === 3)      totalDiscount = totalCoursePrice * 0.3;
+  else if (isAnyMember && (courseCount === 1 || courseCount === 2)) totalDiscount = totalCoursePrice * 0.25;
+  else if (isNoneMember && courseCount === 3) totalDiscount = totalCoursePrice * 0.2;
 
-  // -- สมัครเรียน -> เปิด popup ชำระเงิน --
+  // --- สมัครเรียน -> popup ชำระเงิน --- //
   const handleRegister = async () => {
-    if (!user?.id) {
-      setModal && setModal("login");
-      return;
+    if (!user?.id) { setModal && setModal("login"); return; }
+    if (selectedCourses.length === 0) { setError("กรุณาเลือกคอร์สอย่างน้อย 1 คอร์ส"); return; }
+    if (memberTypes.length === 0) { setError("กรุณาเลือกสถานะสมาชิก/องค์กรอย่างน้อย 1 รายการ"); return; }
+    if (memberTypes.includes("tlwa") && !/^[0-9]{4}$/.test(inputByMemberType.tlwa || "")) {
+      setInputError({ ...inputError, tlwa: "กรุณาระบุเลขสมาชิก 4 หลัก (ตัวอย่าง: 0001)" }); return;
     }
-    if (selectedCourses.length === 0) {
-      setError("กรุณาเลือกคอร์สอย่างน้อย 1 คอร์ส");
-      return;
-    }
-    if (memberTypes.length === 0) {
-      setError("กรุณาเลือกสถานะสมาชิก/องค์กรอย่างน้อย 1 รายการ");
-      return;
-    }
-    if (
-      memberTypes.includes("tlwa") &&
-      !/^[0-9]{4}$/.test(inputByMemberType.tlwa || "")
-    ) {
-      setInputError({
-        ...inputError,
-        tlwa: "กรุณาระบุเลขสมาชิก 4 หลัก (ตัวอย่าง: 0001)",
-      });
-      return;
-    }
-    setError("");
-    setSuccess("");
-    setShowPayment(true); // --- เปิด popup
+    setError(""); setSuccess(""); setShowPayment(true);
   };
 
-  // -- ส่งข้อมูลชำระเงิน (พร้อมสลิป) ไป backend --
+  // --- ส่งข้อมูลชำระเงิน --- //
   const handleSubmitPayment = async ({ file, paymentMethod }) => {
     try {
       const formData = new FormData();
@@ -298,8 +280,9 @@ export default function CourseDetail({ setModal }) {
 
       await axios.post(`${API_URL}/api/course_orders`, formData, { headers: { "Content-Type": "multipart/form-data" } });
 
-      setSuccess("ส่งข้อมูลการสมัครสำเร็จ! กรุณารอเจ้าหน้าที่ตรวจสอบ");
+      setSuccess("");
       setShowPayment(false);
+      setShowSuccessPopup(true);
       setSelectedCourses([]);
       setMemberTypes([]);
       setInputByMemberType({});
@@ -308,7 +291,7 @@ export default function CourseDetail({ setModal }) {
     }
   };
 
-  const handleShowImg = (imgUrl) => setPopupImg(imgUrl);
+  const handleShowImg = imgUrl => setPopupImg(imgUrl);
   const handleCloseImg = () => setPopupImg(null);
 
   const mainTitle =
@@ -316,13 +299,10 @@ export default function CourseDetail({ setModal }) {
       ? courseList[0].type_name || courseList[0].title || "สมัครคอร์สอบรม"
       : "สมัครคอร์สอบรม";
 
+  // ====== UI ====== //
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#f8fbff] via-white to-[#e5eafe] pt-24 sm:pt-28 relative overflow-x-hidden">
-      <Navbar
-        onLoginClick={() => setModal && setModal("login")}
-        onAccountClick={() => setModal && setModal("account")}
-      />
-      {/* Gradient Blobs background */}
+      <Navbar onLoginClick={() => setModal && setModal("login")} onAccountClick={() => setModal && setModal("account")} />
       <div className="fixed inset-0 -z-10 pointer-events-none">
         <div className="absolute w-60 h-60 sm:w-80 sm:h-80 bg-blue-200 rounded-full blur-3xl top-0 left-0 opacity-30 animate-pulse"></div>
         <div className="absolute w-60 h-60 sm:w-80 sm:h-80 bg-fuchsia-300 rounded-full blur-3xl bottom-0 right-0 opacity-20 animate-pulse delay-300"></div>
@@ -388,7 +368,7 @@ export default function CourseDetail({ setModal }) {
                           ? "border-blue-500 ring-2 ring-blue-100/40 shadow-blue-200"
                           : "border-gray-200/80 hover:border-blue-300/60"
                         }`}
-                      onClick={(e) => handleCourseSelect(card.id, e)}
+                      onClick={e => handleCourseSelect(card.id, e)}
                       tabIndex={0}
                     >
                       {/* Checkbox */}
@@ -412,7 +392,7 @@ export default function CourseDetail({ setModal }) {
                       {/* Card Image */}
                       <div
                         className="relative img-popup h-50 sm:h-48 lg:h-48 bg-gradient-to-br from-gray-100 to-gray-200 overflow-hidden cursor-zoom-in group"
-                        onClick={(e) => {
+                        onClick={e => {
                           e.stopPropagation();
                           handleShowImg(
                             card.card_image?.startsWith("/uploads")
@@ -497,7 +477,7 @@ export default function CourseDetail({ setModal }) {
                 </span>
               </div>
               <div className="space-y-2 sm:space-y-3">
-                {MEMBER_OPTIONS.map((opt) => (
+                {MEMBER_OPTIONS.map(opt => (
                   <div
                     key={opt.key}
                     className={`border rounded-xl sm:border-2 sm:rounded-2xl px-3 sm:px-5 py-2 sm:py-4 transition-all duration-200 cursor-pointer hover:shadow-md
@@ -512,22 +492,16 @@ export default function CourseDetail({ setModal }) {
                         checked={memberTypes.includes(opt.key)}
                         onChange={() => handleMemberTypeChange(opt.key)}
                         className="w-4 h-4 sm:w-6 sm:h-6 accent-green-600 mt-0.5 sm:mt-1 rounded-xl shadow"
-                        disabled={
-                          opt.key === "none" &&
-                          memberTypes.length > 0 &&
-                          !memberTypes.includes("none")
-                        }
+                        disabled={opt.key === "none" && memberTypes.length > 0 && !memberTypes.includes("none")}
                       />
                       <div className="flex-1">
-                        <span className="font-semibold text-xs sm:text-sm text-gray-800 leading-relaxed block">
-                          {opt.label}
-                        </span>
+                        <span className="font-semibold text-xs sm:text-sm text-gray-800 leading-relaxed block">{opt.label}</span>
                         {memberTypes.includes(opt.key) && opt.input && opt.input.type === "dropdown" && (
                           <div className="mt-1.5 sm:mt-3">
                             <OrganizationDropdown
                               options={ORG_OPTIONS}
                               value={inputByMemberType[opt.key] || ""}
-                              onChange={(val) => handleMemberTypeInput(opt.key, val)}
+                              onChange={val => handleMemberTypeInput(opt.key, val)}
                               placeholder={opt.input.placeholder}
                             />
                           </div>
@@ -539,10 +513,9 @@ export default function CourseDetail({ setModal }) {
                               placeholder={opt.input.placeholder}
                               value={inputByMemberType[opt.key] || ""}
                               maxLength={opt.input.maxLength || undefined}
-                              onChange={(e) => {
+                              onChange={e => {
                                 let v = e.target.value;
-                                if (opt.input.type === "number" || opt.input.maxLength)
-                                  v = v.replace(/[^0-9]/g, "");
+                                if (opt.input.type === "number" || opt.input.maxLength) v = v.replace(/[^0-9]/g, "");
                                 handleMemberTypeInput(opt.key, v);
                               }}
                               className={`w-full px-2.5 py-1.5 sm:px-4 sm:py-3 border rounded-lg sm:border-2 sm:rounded-xl focus:ring-2 focus:ring-blue-100 focus:border-blue-400 transition-all duration-200 bg-white/80 backdrop-blur-sm font-medium shadow-sm
@@ -762,34 +735,18 @@ export default function CourseDetail({ setModal }) {
           onClose={() => setShowPayment(false)}
           onSubmit={handleSubmitPayment}
         />
-
+        <SuccessPopup open={showSuccessPopup} onClose={() => setShowSuccessPopup(false)} />
       </div>
       <style jsx>{`
-        @keyframes fadeIn {
-          from { opacity: 0; }
-          to { opacity: 1; }
-        }
-        .animate-fadeIn {
-          animation: fadeIn 0.35s cubic-bezier(.65,.05,.36,1);
-        }
-        @keyframes scaleIn {
-          from { opacity: 0; transform: scale(0.96);}
-          to { opacity: 1; transform: scale(1);}
-        }
-        .animate-scaleIn {
-          animation: scaleIn 0.25s cubic-bezier(.65,.05,.36,1);
-        }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .animate-fadeIn { animation: fadeIn 0.35s cubic-bezier(.65,.05,.36,1); }
+        @keyframes scaleIn { from { opacity: 0; transform: scale(0.96);} to { opacity: 1; transform: scale(1);} }
+        .animate-scaleIn { animation: scaleIn 0.25s cubic-bezier(.65,.05,.36,1); }
         .line-clamp-1 {
-          display: -webkit-box;
-          -webkit-line-clamp: 1;
-          -webkit-box-orient: vertical;
-          overflow: hidden;
+          display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden;
         }
         .line-clamp-2 {
-          display: -webkit-box;
-          -webkit-line-clamp: 2;
-          -webkit-box-orient: vertical;
-          overflow: hidden;
+          display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
         }
       `}</style>
     </div>
