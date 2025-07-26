@@ -1,4 +1,3 @@
-// src/components/CourseDetail.jsx
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
@@ -46,15 +45,6 @@ const MEMBER_OPTIONS = [
 ];
 
 const MEMBER_KEYS = MEMBER_OPTIONS.slice(0, 4).map((o) => o.key);
-
-// ฟังก์ชันแปลง path รูปภาพ รองรับ dev/prod
-const getImage = (img) => {
-  if (!img) return "/placeholder.webp";
-  if (img.startsWith("/uploads") || img.startsWith("uploads"))
-    return `${API_URL}${img.startsWith("/") ? img : "/" + img}`;
-  if (img.startsWith("http://") || img.startsWith("https://")) return img;
-  return "/placeholder.webp";
-};
 
 function formatDate(dateStr) {
   if (!dateStr) return "-";
@@ -199,7 +189,7 @@ export default function CourseDetail({ setModal }) {
     }
   };
 
-  const handleShowImg = (imgUrl) => setPopupImg(getImage(imgUrl));
+  const handleShowImg = (imgUrl) => setPopupImg(imgUrl);
   const handleCloseImg = () => setPopupImg(null);
 
   const mainTitle =
@@ -305,11 +295,19 @@ export default function CourseDetail({ setModal }) {
                         className="relative img-popup h-50 sm:h-48 lg:h-48 bg-gradient-to-br from-gray-100 to-gray-200 overflow-hidden cursor-zoom-in group"
                         onClick={(e) => {
                           e.stopPropagation();
-                          handleShowImg(getImage(card.card_image));
+                          handleShowImg(
+                            card.card_image?.startsWith("/uploads")
+                              ? `${API_URL}${card.card_image}`
+                              : card.card_image || "/placeholder.webp"
+                          );
                         }}
                       >
                         <img
-                          src={getImage(card.card_image)}
+                          src={
+                            card.card_image?.startsWith("/uploads")
+                              ? `${API_URL}${card.card_image}`
+                              : card.card_image || "/placeholder.webp"
+                          }
                           alt={card.title}
                           className="w-full h-full object-cover group-hover:scale-105 sm:group-hover:scale-110 transition-transform duration-700"
                           draggable={false}
@@ -367,7 +365,248 @@ export default function CourseDetail({ setModal }) {
             </div>
           </div>
           {/* Right: Member Types + Summary */}
-          {/* ... (ขอข้ามส่วนนี้ เพราะ logic ไม่เปลี่ยน) ... */}
+          <div className="w-full lg:w-[440px] flex-shrink-0 space-y-5 sm:space-y-9">
+            {/* Member Types */}
+            <div className="bg-white/90 backdrop-blur-lg rounded-2xl sm:rounded-3xl shadow-xl border border-green-100/60 p-3 sm:p-7">
+              <div className="flex items-center gap-2 sm:gap-4 mb-3 sm:mb-6">
+                <div className="w-1.5 h-6 sm:w-2 sm:h-8 bg-gradient-to-b from-green-500 to-emerald-600 rounded-full shadow-lg"></div>
+                <h2 className="text-sm sm:text-xl font-bold bg-gradient-to-r from-green-700 to-fuchsia-700 bg-clip-text text-transparent">
+                  ระบุสถานะสมาชิก/องค์กร
+                </h2>
+                <span className="text-[10px] sm:text-xs text-gray-500 bg-gradient-to-r from-green-50 to-emerald-50 px-1.5 sm:px-2 py-0.5 rounded-xl shadow border border-green-200/40 ml-1 sm:ml-2 font-medium">
+                  เลือกอย่างน้อย 1 รายการ
+                </span>
+              </div>
+              <div className="space-y-2 sm:space-y-3">
+                {MEMBER_OPTIONS.map((opt) => (
+                  <div
+                    key={opt.key}
+                    className={`border rounded-xl sm:border-2 sm:rounded-2xl px-3 sm:px-5 py-2 sm:py-4 transition-all duration-200 cursor-pointer hover:shadow-md
+                      ${memberTypes.includes(opt.key)
+                        ? "border-green-300 bg-gradient-to-r from-green-50/80 to-fuchsia-50/80 shadow-md"
+                        : "border-gray-200/80 hover:border-green-200 bg-white/50"
+                      }`}
+                  >
+                    <label className="flex items-start gap-2 sm:gap-4 cursor-pointer w-full">
+                      <input
+                        type="checkbox"
+                        checked={memberTypes.includes(opt.key)}
+                        onChange={() => handleMemberTypeChange(opt.key)}
+                        className="w-4 h-4 sm:w-6 sm:h-6 accent-green-600 mt-0.5 sm:mt-1 rounded-xl shadow"
+                        disabled={
+                          opt.key === "none" &&
+                          memberTypes.length > 0 &&
+                          !memberTypes.includes("none")
+                        }
+                      />
+                      <div className="flex-1">
+                        <span className="font-semibold text-xs sm:text-sm text-gray-800 leading-relaxed block">
+                          {opt.label}
+                        </span>
+                        {memberTypes.includes(opt.key) && opt.input && opt.input.type === "dropdown" && (
+                          <div className="mt-1.5 sm:mt-3">
+                            <OrganizationDropdown
+                              options={ORG_OPTIONS}
+                              value={inputByMemberType[opt.key] || ""}
+                              onChange={(val) => handleMemberTypeInput(opt.key, val)}
+                              placeholder={opt.input.placeholder}
+                            />
+                          </div>
+                        )}
+                        {memberTypes.includes(opt.key) && opt.input && opt.input.type !== "dropdown" && (
+                          <div className="mt-1.5 sm:mt-3">
+                            <input
+                              type={opt.input.type}
+                              placeholder={opt.input.placeholder}
+                              value={inputByMemberType[opt.key] || ""}
+                              maxLength={opt.input.maxLength || undefined}
+                              onChange={(e) => {
+                                let v = e.target.value;
+                                if (opt.input.type === "number" || opt.input.maxLength)
+                                  v = v.replace(/[^0-9]/g, "");
+                                handleMemberTypeInput(opt.key, v);
+                              }}
+                              className={`w-full px-2.5 py-1.5 sm:px-4 sm:py-3 border rounded-lg sm:border-2 sm:rounded-xl focus:ring-2 focus:ring-blue-100 focus:border-blue-400 transition-all duration-200 bg-white/80 backdrop-blur-sm font-medium shadow-sm
+                                ${inputError[opt.key]
+                                  ? "border-red-400 bg-red-50/80 focus:ring-red-100 focus:border-red-400"
+                                  : "border-gray-300 hover:border-blue-300"
+                                } text-xs sm:text-base`}
+                            />
+                            {inputError[opt.key] && (
+                              <p className="text-red-500 text-xs sm:text-sm mt-1.5 sm:mt-2 font-medium px-2 animate-bounce">
+                                ⚠️ {inputError[opt.key]}
+                              </p>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    </label>
+                  </div>
+                ))}
+              </div>
+            </div>
+            {/* Price Summary */}
+            <div className="bg-white/95 backdrop-blur-lg rounded-2xl sm:rounded-3xl shadow-2xl border border-blue-100/40 overflow-hidden">
+              <div className="bg-gradient-to-r from-blue-600 via-blue-700 to-fuchsia-700 px-3 sm:px-8 py-4 sm:py-7">
+                <h2 className="text-base sm:text-xl font-bold text-white flex items-center gap-2 sm:gap-3">
+                  <div className="w-1.5 h-6 sm:w-2 sm:h-8 bg-white/80 rounded-full shadow-lg"></div>
+                  สรุปรายการสมัครเรียน
+                </h2>
+                <p className="text-blue-100 text-xs sm:text-sm mt-1">ตรวจสอบคอร์สและราคาก่อนชำระเงิน</p>
+              </div>
+              <div className="p-3 sm:p-7">
+                {/* Selected Courses */}
+                <div className="mb-4 sm:mb-6">
+                  <h3 className="text-xs sm:text-base font-semibold text-gray-800 mb-2 sm:mb-4 flex items-center gap-2">
+                    <FiCheck className="text-green-600" size={13} />
+                    รายการคอร์สที่เลือก ({selectedCourseObjs.length})
+                  </h3>
+                  {selectedCourseObjs.length === 0 ? (
+                    <div className="text-center py-6 sm:py-8 bg-gradient-to-br from-gray-50 to-blue-50/30 rounded-xl sm:rounded-2xl border border-dashed border-blue-200/50">
+                      <div className="text-gray-500 text-xs sm:text-base mb-2">ยังไม่ได้เลือกคอร์ส</div>
+                      <div className="text-xs sm:text-sm text-gray-400">เลือกคอร์สด้านซ้ายเพื่อเริ่มต้น</div>
+                    </div>
+                  ) : (
+                    <div className="space-y-2 sm:space-y-3">
+                      {selectedCourseObjs.map((course, index) => (
+                        <div
+                          key={course.id}
+                          className="flex items-center justify-between p-2 sm:p-4 bg-gradient-to-r from-blue-50/80 to-fuchsia-50/80 rounded-lg sm:rounded-xl border border-blue-100/50 hover:shadow-md transition-shadow duration-200"
+                        >
+                          <div className="flex items-center gap-2 sm:gap-4">
+                            <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-r from-blue-500 to-fuchsia-500 text-white rounded-full flex items-center justify-center text-xs sm:text-sm font-bold shadow-md">
+                              {index + 1}
+                            </div>
+                            <div>
+                              <h4 className="font-semibold text-xs sm:text-sm text-gray-800 mb-0.5">{course.title}</h4>
+                              <p className="text-[10px] sm:text-xs text-gray-600">{course.type_name}</p>
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <div className="text-xs sm:text-base font-bold bg-gradient-to-r from-green-600 to-fuchsia-600 bg-clip-text text-transparent">
+                              {Number(course.price || 0).toLocaleString()}
+                            </div>
+                            <div className="text-[10px] sm:text-xs text-gray-500">บาท</div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                {/* Price Calculation */}
+                <div className="border-t border-blue-100 pt-3 sm:pt-6">
+                  <div className="bg-gradient-to-br from-blue-50/80 to-fuchsia-50/80 rounded-xl sm:rounded-2xl p-3 sm:p-5 border border-blue-100/50">
+                    <div className="space-y-2 sm:space-y-3">
+                      <div className="flex justify-between items-center text-xs sm:text-base">
+                        <span className="font-medium text-gray-700">
+                          ราคารวม ({courseCount} คอร์ส)
+                        </span>
+                        <span className="font-bold text-gray-800">
+                          {totalCoursePrice.toLocaleString()} บาท
+                        </span>
+                      </div>
+                      {totalDiscount > 0 && (
+                        <div className="flex justify-between items-center text-xs sm:text-base animate-in slide-in-from-right duration-300">
+                          <span className="font-medium text-gray-700 flex items-center gap-2">
+                            ส่วนลดพิเศษ
+                            <span className="text-[10px] sm:text-xs bg-gradient-to-r from-green-500 to-fuchsia-500 text-white px-1.5 sm:px-2 py-0.5 rounded-full font-bold shadow-sm">
+                              {isAnyMember && courseCount === 3
+                                ? "30%"
+                                : isAnyMember && (courseCount === 1 || courseCount === 2)
+                                  ? "25%"
+                                  : isNoneMember && courseCount === 3
+                                    ? "20%"
+                                    : "0%"}
+                            </span>
+                          </span>
+                          <span className="font-bold bg-gradient-to-r from-green-600 to-fuchsia-500 bg-clip-text text-transparent">
+                            -{totalDiscount.toLocaleString()} บาท
+                          </span>
+                        </div>
+                      )}
+                      <div className="border-t border-blue-200/50 pt-2 sm:pt-4">
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm sm:text-lg font-bold text-gray-800">
+                            ยอดชำระสุทธิ
+                          </span>
+                          <div className="text-right">
+                            <div className="text-base sm:text-2xl font-bold bg-gradient-to-r from-orange-500 to-fuchsia-500 bg-clip-text text-transparent">
+                              {(totalCoursePrice - totalDiscount).toLocaleString()}
+                            </div>
+                            <div className="text-xs sm:text-sm text-gray-500">บาท</div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                {/* Register Button */}
+                <div className="pt-4 sm:pt-6 text-center">
+                  <button
+                    className={`w-full font-bold text-xs sm:text-base px-4 py-2 sm:px-8 sm:py-4 rounded-xl sm:rounded-2xl shadow-xl transition-all duration-300 transform
+                      ${loading || selectedCourses.length === 0 || memberTypes.length === 0
+                        ? "bg-gradient-to-r from-gray-400 to-gray-500 text-white cursor-not-allowed"
+                        : "bg-gradient-to-r from-blue-600 via-blue-700 to-fuchsia-700 hover:from-fuchsia-700 hover:to-blue-800 text-white hover:scale-105 hover:shadow-2xl active:scale-95"
+                      }`}
+                    disabled={loading || selectedCourses.length === 0 || memberTypes.length === 0}
+                    onClick={handleRegister}
+                  >
+                    {loading ? (
+                      <div className="flex items-center justify-center gap-2 sm:gap-3">
+                        <div className="animate-spin rounded-full h-4 w-4 sm:h-5 sm:w-5 border-2 border-white border-t-transparent"></div>
+                        กำลังประมวลผล...
+                      </div>
+                    ) : (
+                      <div className="flex items-center justify-center gap-1 sm:gap-2">
+                        <FiCheck size={15} className="sm:text-[18px]" />
+                        สมัครเรียนตอนนี้
+                      </div>
+                    )}
+                  </button>
+                  {/* Discount Info */}
+                  {selectedCourses.length > 0 && (
+                    <div className="mt-3 sm:mt-4 p-2 sm:p-3 bg-gradient-to-r from-yellow-50 to-fuchsia-50 rounded-lg sm:rounded-xl border border-yellow-200/50">
+                      <div className="text-[11px] sm:text-xs text-yellow-800 font-medium text-center">
+                        💡 {isAnyMember
+                          ? courseCount === 3
+                            ? "ยินดีด้วย! คุณได้รับส่วนลด 30% สำหรับสมาชิก"
+                            : "เลือกครบ 3 คอร์สเพื่อรับส่วนลด 30% สำหรับสมาชิก"
+                          : courseCount === 3
+                            ? "ยินดีด้วย! คุณได้รับส่วนลด 20% สำหรับการสมัคร 3 คอร์ส"
+                            : "เลือกครบ 3 คอร์สเพื่อรับส่วนลด 20%"
+                        }
+                      </div>
+                    </div>
+                  )}
+                </div>
+                {/* Success/Error Messages */}
+                {success && (
+                  <div className="bg-gradient-to-r from-green-50 to-fuchsia-50 border-2 border-green-200/50 rounded-xl sm:rounded-2xl p-3 sm:p-4 mt-3 sm:mt-6 animate-in slide-in-from-bottom duration-300">
+                    <div className="flex items-center gap-2 sm:gap-3">
+                      <div className="w-5 h-5 sm:w-6 sm:h-6 bg-gradient-to-r from-green-500 to-fuchsia-500 rounded-full flex items-center justify-center">
+                        <FiCheck size={12} className="sm:text-[14px] text-white" />
+                      </div>
+                      <div className="text-green-800 font-medium text-xs sm:text-sm">
+                        {success}
+                      </div>
+                    </div>
+                  </div>
+                )}
+                {error && (
+                  <div className="bg-gradient-to-r from-red-50 to-fuchsia-50 border-2 border-red-200/50 rounded-xl sm:rounded-2xl p-3 sm:p-4 mt-3 sm:mt-6 animate-in slide-in-from-bottom duration-300">
+                    <div className="flex items-center gap-2 sm:gap-3">
+                      <div className="w-5 h-5 sm:w-6 sm:h-6 bg-gradient-to-r from-red-500 to-fuchsia-500 rounded-full flex items-center justify-center">
+                        <FiX size={12} className="sm:text-[14px] text-white" />
+                      </div>
+                      <div className="text-red-800 font-medium text-xs sm:text-sm">
+                        {error}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
         </div>
         {/* Image Popup */}
         {popupImg && (
@@ -395,6 +634,7 @@ export default function CourseDetail({ setModal }) {
           </div>
         )}
       </div>
+      {/* Simple animation utility (for fade/slide/scale, if not available in Tailwind) */}
       <style jsx>{`
         @keyframes fadeIn {
           from { opacity: 0; }
@@ -428,6 +668,8 @@ export default function CourseDetail({ setModal }) {
 }
 
 
+
+// // src/components/CourseDetail.jsx
 // import React, { useEffect, useState } from "react";
 // import { useNavigate, useParams } from "react-router-dom";
 // import axios from "axios";
@@ -475,6 +717,15 @@ export default function CourseDetail({ setModal }) {
 // ];
 
 // const MEMBER_KEYS = MEMBER_OPTIONS.slice(0, 4).map((o) => o.key);
+
+// // ฟังก์ชันแปลง path รูปภาพ รองรับ dev/prod
+// const getImage = (img) => {
+//   if (!img) return "/placeholder.webp";
+//   if (img.startsWith("/uploads") || img.startsWith("uploads"))
+//     return `${API_URL}${img.startsWith("/") ? img : "/" + img}`;
+//   if (img.startsWith("http://") || img.startsWith("https://")) return img;
+//   return "/placeholder.webp";
+// };
 
 // function formatDate(dateStr) {
 //   if (!dateStr) return "-";
@@ -619,7 +870,7 @@ export default function CourseDetail({ setModal }) {
 //     }
 //   };
 
-//   const handleShowImg = (imgUrl) => setPopupImg(imgUrl);
+//   const handleShowImg = (imgUrl) => setPopupImg(getImage(imgUrl));
 //   const handleCloseImg = () => setPopupImg(null);
 
 //   const mainTitle =
@@ -725,19 +976,11 @@ export default function CourseDetail({ setModal }) {
 //                         className="relative img-popup h-50 sm:h-48 lg:h-48 bg-gradient-to-br from-gray-100 to-gray-200 overflow-hidden cursor-zoom-in group"
 //                         onClick={(e) => {
 //                           e.stopPropagation();
-//                           handleShowImg(
-//                             card.card_image?.startsWith("/uploads")
-//                               ? `${API_URL}${card.card_image}`
-//                               : card.card_image || "/placeholder.webp"
-//                           );
+//                           handleShowImg(getImage(card.card_image));
 //                         }}
 //                       >
 //                         <img
-//                           src={
-//                             card.card_image?.startsWith("/uploads")
-//                               ? `${API_URL}${card.card_image}`
-//                               : card.card_image || "/placeholder.webp"
-//                           }
+//                           src={getImage(card.card_image)}
 //                           alt={card.title}
 //                           className="w-full h-full object-cover group-hover:scale-105 sm:group-hover:scale-110 transition-transform duration-700"
 //                           draggable={false}
@@ -795,248 +1038,7 @@ export default function CourseDetail({ setModal }) {
 //             </div>
 //           </div>
 //           {/* Right: Member Types + Summary */}
-//           <div className="w-full lg:w-[440px] flex-shrink-0 space-y-5 sm:space-y-9">
-//             {/* Member Types */}
-//             <div className="bg-white/90 backdrop-blur-lg rounded-2xl sm:rounded-3xl shadow-xl border border-green-100/60 p-3 sm:p-7">
-//               <div className="flex items-center gap-2 sm:gap-4 mb-3 sm:mb-6">
-//                 <div className="w-1.5 h-6 sm:w-2 sm:h-8 bg-gradient-to-b from-green-500 to-emerald-600 rounded-full shadow-lg"></div>
-//                 <h2 className="text-sm sm:text-xl font-bold bg-gradient-to-r from-green-700 to-fuchsia-700 bg-clip-text text-transparent">
-//                   ระบุสถานะสมาชิก/องค์กร
-//                 </h2>
-//                 <span className="text-[10px] sm:text-xs text-gray-500 bg-gradient-to-r from-green-50 to-emerald-50 px-1.5 sm:px-2 py-0.5 rounded-xl shadow border border-green-200/40 ml-1 sm:ml-2 font-medium">
-//                   เลือกอย่างน้อย 1 รายการ
-//                 </span>
-//               </div>
-//               <div className="space-y-2 sm:space-y-3">
-//                 {MEMBER_OPTIONS.map((opt) => (
-//                   <div
-//                     key={opt.key}
-//                     className={`border rounded-xl sm:border-2 sm:rounded-2xl px-3 sm:px-5 py-2 sm:py-4 transition-all duration-200 cursor-pointer hover:shadow-md
-//                       ${memberTypes.includes(opt.key)
-//                         ? "border-green-300 bg-gradient-to-r from-green-50/80 to-fuchsia-50/80 shadow-md"
-//                         : "border-gray-200/80 hover:border-green-200 bg-white/50"
-//                       }`}
-//                   >
-//                     <label className="flex items-start gap-2 sm:gap-4 cursor-pointer w-full">
-//                       <input
-//                         type="checkbox"
-//                         checked={memberTypes.includes(opt.key)}
-//                         onChange={() => handleMemberTypeChange(opt.key)}
-//                         className="w-4 h-4 sm:w-6 sm:h-6 accent-green-600 mt-0.5 sm:mt-1 rounded-xl shadow"
-//                         disabled={
-//                           opt.key === "none" &&
-//                           memberTypes.length > 0 &&
-//                           !memberTypes.includes("none")
-//                         }
-//                       />
-//                       <div className="flex-1">
-//                         <span className="font-semibold text-xs sm:text-sm text-gray-800 leading-relaxed block">
-//                           {opt.label}
-//                         </span>
-//                         {memberTypes.includes(opt.key) && opt.input && opt.input.type === "dropdown" && (
-//                           <div className="mt-1.5 sm:mt-3">
-//                             <OrganizationDropdown
-//                               options={ORG_OPTIONS}
-//                               value={inputByMemberType[opt.key] || ""}
-//                               onChange={(val) => handleMemberTypeInput(opt.key, val)}
-//                               placeholder={opt.input.placeholder}
-//                             />
-//                           </div>
-//                         )}
-//                         {memberTypes.includes(opt.key) && opt.input && opt.input.type !== "dropdown" && (
-//                           <div className="mt-1.5 sm:mt-3">
-//                             <input
-//                               type={opt.input.type}
-//                               placeholder={opt.input.placeholder}
-//                               value={inputByMemberType[opt.key] || ""}
-//                               maxLength={opt.input.maxLength || undefined}
-//                               onChange={(e) => {
-//                                 let v = e.target.value;
-//                                 if (opt.input.type === "number" || opt.input.maxLength)
-//                                   v = v.replace(/[^0-9]/g, "");
-//                                 handleMemberTypeInput(opt.key, v);
-//                               }}
-//                               className={`w-full px-2.5 py-1.5 sm:px-4 sm:py-3 border rounded-lg sm:border-2 sm:rounded-xl focus:ring-2 focus:ring-blue-100 focus:border-blue-400 transition-all duration-200 bg-white/80 backdrop-blur-sm font-medium shadow-sm
-//                                 ${inputError[opt.key]
-//                                   ? "border-red-400 bg-red-50/80 focus:ring-red-100 focus:border-red-400"
-//                                   : "border-gray-300 hover:border-blue-300"
-//                                 } text-xs sm:text-base`}
-//                             />
-//                             {inputError[opt.key] && (
-//                               <p className="text-red-500 text-xs sm:text-sm mt-1.5 sm:mt-2 font-medium px-2 animate-bounce">
-//                                 ⚠️ {inputError[opt.key]}
-//                               </p>
-//                             )}
-//                           </div>
-//                         )}
-//                       </div>
-//                     </label>
-//                   </div>
-//                 ))}
-//               </div>
-//             </div>
-//             {/* Price Summary */}
-//             <div className="bg-white/95 backdrop-blur-lg rounded-2xl sm:rounded-3xl shadow-2xl border border-blue-100/40 overflow-hidden">
-//               <div className="bg-gradient-to-r from-blue-600 via-blue-700 to-fuchsia-700 px-3 sm:px-8 py-4 sm:py-7">
-//                 <h2 className="text-base sm:text-xl font-bold text-white flex items-center gap-2 sm:gap-3">
-//                   <div className="w-1.5 h-6 sm:w-2 sm:h-8 bg-white/80 rounded-full shadow-lg"></div>
-//                   สรุปรายการสมัครเรียน
-//                 </h2>
-//                 <p className="text-blue-100 text-xs sm:text-sm mt-1">ตรวจสอบคอร์สและราคาก่อนชำระเงิน</p>
-//               </div>
-//               <div className="p-3 sm:p-7">
-//                 {/* Selected Courses */}
-//                 <div className="mb-4 sm:mb-6">
-//                   <h3 className="text-xs sm:text-base font-semibold text-gray-800 mb-2 sm:mb-4 flex items-center gap-2">
-//                     <FiCheck className="text-green-600" size={13} />
-//                     รายการคอร์สที่เลือก ({selectedCourseObjs.length})
-//                   </h3>
-//                   {selectedCourseObjs.length === 0 ? (
-//                     <div className="text-center py-6 sm:py-8 bg-gradient-to-br from-gray-50 to-blue-50/30 rounded-xl sm:rounded-2xl border border-dashed border-blue-200/50">
-//                       <div className="text-gray-500 text-xs sm:text-base mb-2">ยังไม่ได้เลือกคอร์ส</div>
-//                       <div className="text-xs sm:text-sm text-gray-400">เลือกคอร์สด้านซ้ายเพื่อเริ่มต้น</div>
-//                     </div>
-//                   ) : (
-//                     <div className="space-y-2 sm:space-y-3">
-//                       {selectedCourseObjs.map((course, index) => (
-//                         <div
-//                           key={course.id}
-//                           className="flex items-center justify-between p-2 sm:p-4 bg-gradient-to-r from-blue-50/80 to-fuchsia-50/80 rounded-lg sm:rounded-xl border border-blue-100/50 hover:shadow-md transition-shadow duration-200"
-//                         >
-//                           <div className="flex items-center gap-2 sm:gap-4">
-//                             <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-r from-blue-500 to-fuchsia-500 text-white rounded-full flex items-center justify-center text-xs sm:text-sm font-bold shadow-md">
-//                               {index + 1}
-//                             </div>
-//                             <div>
-//                               <h4 className="font-semibold text-xs sm:text-sm text-gray-800 mb-0.5">{course.title}</h4>
-//                               <p className="text-[10px] sm:text-xs text-gray-600">{course.type_name}</p>
-//                             </div>
-//                           </div>
-//                           <div className="text-right">
-//                             <div className="text-xs sm:text-base font-bold bg-gradient-to-r from-green-600 to-fuchsia-600 bg-clip-text text-transparent">
-//                               {Number(course.price || 0).toLocaleString()}
-//                             </div>
-//                             <div className="text-[10px] sm:text-xs text-gray-500">บาท</div>
-//                           </div>
-//                         </div>
-//                       ))}
-//                     </div>
-//                   )}
-//                 </div>
-//                 {/* Price Calculation */}
-//                 <div className="border-t border-blue-100 pt-3 sm:pt-6">
-//                   <div className="bg-gradient-to-br from-blue-50/80 to-fuchsia-50/80 rounded-xl sm:rounded-2xl p-3 sm:p-5 border border-blue-100/50">
-//                     <div className="space-y-2 sm:space-y-3">
-//                       <div className="flex justify-between items-center text-xs sm:text-base">
-//                         <span className="font-medium text-gray-700">
-//                           ราคารวม ({courseCount} คอร์ส)
-//                         </span>
-//                         <span className="font-bold text-gray-800">
-//                           {totalCoursePrice.toLocaleString()} บาท
-//                         </span>
-//                       </div>
-//                       {totalDiscount > 0 && (
-//                         <div className="flex justify-between items-center text-xs sm:text-base animate-in slide-in-from-right duration-300">
-//                           <span className="font-medium text-gray-700 flex items-center gap-2">
-//                             ส่วนลดพิเศษ
-//                             <span className="text-[10px] sm:text-xs bg-gradient-to-r from-green-500 to-fuchsia-500 text-white px-1.5 sm:px-2 py-0.5 rounded-full font-bold shadow-sm">
-//                               {isAnyMember && courseCount === 3
-//                                 ? "30%"
-//                                 : isAnyMember && (courseCount === 1 || courseCount === 2)
-//                                   ? "25%"
-//                                   : isNoneMember && courseCount === 3
-//                                     ? "20%"
-//                                     : "0%"}
-//                             </span>
-//                           </span>
-//                           <span className="font-bold bg-gradient-to-r from-green-600 to-fuchsia-500 bg-clip-text text-transparent">
-//                             -{totalDiscount.toLocaleString()} บาท
-//                           </span>
-//                         </div>
-//                       )}
-//                       <div className="border-t border-blue-200/50 pt-2 sm:pt-4">
-//                         <div className="flex justify-between items-center">
-//                           <span className="text-sm sm:text-lg font-bold text-gray-800">
-//                             ยอดชำระสุทธิ
-//                           </span>
-//                           <div className="text-right">
-//                             <div className="text-base sm:text-2xl font-bold bg-gradient-to-r from-orange-500 to-fuchsia-500 bg-clip-text text-transparent">
-//                               {(totalCoursePrice - totalDiscount).toLocaleString()}
-//                             </div>
-//                             <div className="text-xs sm:text-sm text-gray-500">บาท</div>
-//                           </div>
-//                         </div>
-//                       </div>
-//                     </div>
-//                   </div>
-//                 </div>
-//                 {/* Register Button */}
-//                 <div className="pt-4 sm:pt-6 text-center">
-//                   <button
-//                     className={`w-full font-bold text-xs sm:text-base px-4 py-2 sm:px-8 sm:py-4 rounded-xl sm:rounded-2xl shadow-xl transition-all duration-300 transform
-//                       ${loading || selectedCourses.length === 0 || memberTypes.length === 0
-//                         ? "bg-gradient-to-r from-gray-400 to-gray-500 text-white cursor-not-allowed"
-//                         : "bg-gradient-to-r from-blue-600 via-blue-700 to-fuchsia-700 hover:from-fuchsia-700 hover:to-blue-800 text-white hover:scale-105 hover:shadow-2xl active:scale-95"
-//                       }`}
-//                     disabled={loading || selectedCourses.length === 0 || memberTypes.length === 0}
-//                     onClick={handleRegister}
-//                   >
-//                     {loading ? (
-//                       <div className="flex items-center justify-center gap-2 sm:gap-3">
-//                         <div className="animate-spin rounded-full h-4 w-4 sm:h-5 sm:w-5 border-2 border-white border-t-transparent"></div>
-//                         กำลังประมวลผล...
-//                       </div>
-//                     ) : (
-//                       <div className="flex items-center justify-center gap-1 sm:gap-2">
-//                         <FiCheck size={15} className="sm:text-[18px]" />
-//                         สมัครเรียนตอนนี้
-//                       </div>
-//                     )}
-//                   </button>
-//                   {/* Discount Info */}
-//                   {selectedCourses.length > 0 && (
-//                     <div className="mt-3 sm:mt-4 p-2 sm:p-3 bg-gradient-to-r from-yellow-50 to-fuchsia-50 rounded-lg sm:rounded-xl border border-yellow-200/50">
-//                       <div className="text-[11px] sm:text-xs text-yellow-800 font-medium text-center">
-//                         💡 {isAnyMember
-//                           ? courseCount === 3
-//                             ? "ยินดีด้วย! คุณได้รับส่วนลด 30% สำหรับสมาชิก"
-//                             : "เลือกครบ 3 คอร์สเพื่อรับส่วนลด 30% สำหรับสมาชิก"
-//                           : courseCount === 3
-//                             ? "ยินดีด้วย! คุณได้รับส่วนลด 20% สำหรับการสมัคร 3 คอร์ส"
-//                             : "เลือกครบ 3 คอร์สเพื่อรับส่วนลด 20%"
-//                         }
-//                       </div>
-//                     </div>
-//                   )}
-//                 </div>
-//                 {/* Success/Error Messages */}
-//                 {success && (
-//                   <div className="bg-gradient-to-r from-green-50 to-fuchsia-50 border-2 border-green-200/50 rounded-xl sm:rounded-2xl p-3 sm:p-4 mt-3 sm:mt-6 animate-in slide-in-from-bottom duration-300">
-//                     <div className="flex items-center gap-2 sm:gap-3">
-//                       <div className="w-5 h-5 sm:w-6 sm:h-6 bg-gradient-to-r from-green-500 to-fuchsia-500 rounded-full flex items-center justify-center">
-//                         <FiCheck size={12} className="sm:text-[14px] text-white" />
-//                       </div>
-//                       <div className="text-green-800 font-medium text-xs sm:text-sm">
-//                         {success}
-//                       </div>
-//                     </div>
-//                   </div>
-//                 )}
-//                 {error && (
-//                   <div className="bg-gradient-to-r from-red-50 to-fuchsia-50 border-2 border-red-200/50 rounded-xl sm:rounded-2xl p-3 sm:p-4 mt-3 sm:mt-6 animate-in slide-in-from-bottom duration-300">
-//                     <div className="flex items-center gap-2 sm:gap-3">
-//                       <div className="w-5 h-5 sm:w-6 sm:h-6 bg-gradient-to-r from-red-500 to-fuchsia-500 rounded-full flex items-center justify-center">
-//                         <FiX size={12} className="sm:text-[14px] text-white" />
-//                       </div>
-//                       <div className="text-red-800 font-medium text-xs sm:text-sm">
-//                         {error}
-//                       </div>
-//                     </div>
-//                   </div>
-//                 )}
-//               </div>
-//             </div>
-//           </div>
+//           {/* ... (ขอข้ามส่วนนี้ เพราะ logic ไม่เปลี่ยน) ... */}
 //         </div>
 //         {/* Image Popup */}
 //         {popupImg && (
@@ -1064,7 +1066,6 @@ export default function CourseDetail({ setModal }) {
 //           </div>
 //         )}
 //       </div>
-//       {/* Simple animation utility (for fade/slide/scale, if not available in Tailwind) */}
 //       <style jsx>{`
 //         @keyframes fadeIn {
 //           from { opacity: 0; }
