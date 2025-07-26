@@ -608,27 +608,27 @@ export default function CourseDetail({ setModal }) {
             </div>
           </div>
         </div>
-        {/* Image Popup */}
         {popupImg && (
           <div
-            className="fixed inset-0 z-50 bg-black/80 backdrop-blur-lg flex items-center justify-center p-3 sm:p-4 animate-fadeIn"
+            className="fixed inset-0 z-50 bg-black/80 backdrop-blur-lg flex items-center justify-center p-1 sm:p-3 animate-fadeIn"
             onClick={handleCloseImg}
           >
             <div
-              className="relative max-w-md sm:max-w-4xl w-full max-h-[90vh] bg-white/95 backdrop-blur-sm rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xl border border-white/30 animate-scaleIn"
-              onClick={(e) => e.stopPropagation()}
+              className="relative w-full max-w-3xl max-h-[98vh] flex items-center justify-center bg-transparent rounded-xl overflow-hidden shadow-2xl border-none animate-scaleIn"
+              onClick={e => e.stopPropagation()}
             >
               <button
-                className="absolute top-3 right-3 sm:top-6 sm:right-6 z-10 bg-white/90 hover:bg-red-500 hover:text-white rounded-xl sm:rounded-2xl p-2 sm:p-3 shadow-2xl transition-all duration-300 transform hover:scale-110 active:scale-95 backdrop-blur-sm border border-white/50"
+                className="absolute top-3 right-3 z-10 bg-white/90 hover:bg-red-500 hover:text-white rounded-xl p-2 shadow-2xl border border-white/50 transition-all duration-300 hover:scale-110 active:scale-95"
                 onClick={handleCloseImg}
               >
-                <FiX size={22} className="sm:text-[28px]" />
+                <FiX size={26} />
               </button>
               <img
                 src={popupImg}
                 alt="Course preview"
-                className="w-full h-full object-contain rounded-2xl sm:rounded-3xl"
+                className="max-w-full max-h-[96vh] w-auto h-auto block object-contain rounded-xl m-auto"
                 draggable={false}
+                style={{ background: "#fff" }}
               />
             </div>
           </div>
