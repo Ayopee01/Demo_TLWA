@@ -1,4 +1,3 @@
-//Pass เหลือแก้บันทึก Step8 สลีปเงินและเพิ่มบัญชีธนาคาร
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { FaFileAlt, FaTrash, FaCloudUploadAlt, FaRegEdit } from "react-icons/fa";
 import { useUser } from "../contexts/UserContext";
@@ -16,7 +15,6 @@ function calculateAgeFromDate(dateStr) {
   if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) age--;
   return age;
 }
-
 function formatDateThai(dateStr) {
   if (!dateStr) return "-";
   const d = new Date(dateStr);
@@ -30,7 +28,7 @@ function getPreviewUrl(file) {
   return null;
 }
 
-export default function MemberModal({ open, onClose }) {
+export default function RegisterMemberModal({ open, onClose }) {
   const { user, updateUser, loginUser } = useUser();
   const formRef = useRef(null);
   const localKey = user ? `memberData_${user.id}` : null;
@@ -51,9 +49,8 @@ export default function MemberModal({ open, onClose }) {
     educationLevel: "",
     boardInterest: "",
     boardType: "",
-    qrImage: "",
-    paymentRef: "",
-    paymentSlip: [],    // สำหรับอัปโหลดสลิป Step8
+    age: "",
+    paymentSlip: [],
   };
 
   const [form, setForm] = useState(defaultForm);
@@ -64,29 +61,21 @@ export default function MemberModal({ open, onClose }) {
   const [errors, setErrors] = useState({});
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState("");
-  const [payMethod, setPayMethod] = useState("qr");
-  const [cardForm, setCardForm] = useState({ number: "", name: "", expiry: "", cvc: "" });
-  const [cardErr, setCardErr] = useState({});
   const [previewUrls, setPreviewUrls] = useState({});
   const [allMembers, setAllMembers] = useState([]);
+  const [serverFiles, setServerFiles] = useState({
+    idCard: [], houseReg: [], profilePic: [], educationCert: [], medicalLicense: [], payment_slip: []
+  });
   const [paymentSlipPreview, setPaymentSlipPreview] = useState("");
-
-  // UI Touch control
   const [touched, setTouched] = useState({});
   const [triedNext, setTriedNext] = useState(false);
 
-  // State สำหรับเก็บไฟล์จาก server (เก่า)
-  const [serverFiles, setServerFiles] = useState({
-    idCard: [], houseReg: [], profilePic: [], educationCert: [], medicalLicense: []
-  });
-
-  // Sync localStorage memberData_x (ตอน edit)
+  // ----------- LocalStorage sync -----------
   function syncEditLocal(formObj) {
     if (isEdit && step >= 1 && step <= 6 && user && localKey) {
       localStorage.setItem(localKey, JSON.stringify(formObj));
     }
   }
-
   function toDateInputValue(date) {
     if (!date) return "";
     const d = new Date(date);
@@ -110,6 +99,8 @@ export default function MemberModal({ open, onClose }) {
       body: JSON.stringify(userData)
     });
   }
+
+  // ----------- Init/Load -----------
 
   useEffect(() => {
     if (!open || !user) return;
@@ -144,6 +135,16 @@ export default function MemberModal({ open, onClose }) {
             setMemberData(data);
             setIsEdit(false);
             setForm(f => ({ ...f, ...data }));
+            // preload serverFiles
+            const fileRes = await fetch(`${import.meta.env.VITE_API_URL}/api/member-files/${data.id}`);
+            if (fileRes.ok) {
+              const files = await fileRes.json();
+              const group = { idCard: [], houseReg: [], profilePic: [], educationCert: [], medicalLicense: [], payment_slip: [] };
+              files.forEach(file => {
+                if (group[file.file_type]) group[file.file_type].push(file);
+              });
+              setServerFiles(group);
+            }
           } else {
             setIsMember(false);
             setMemberData(null);
@@ -175,26 +176,8 @@ export default function MemberModal({ open, onClose }) {
     if (open) fetchAllMembers();
   }, [open]);
 
-  // โหลดไฟล์จาก server ทุกครั้งเข้า edit หรือ step 6
   useEffect(() => {
-    async function fetchServerFiles() {
-      if (isEdit && memberData?.id && step === 6) {
-        const res = await fetch(`${import.meta.env.VITE_API_URL}/api/member-files/${memberData.id}`);
-        if (res.ok) {
-          const files = await res.json();
-          const group = { idCard: [], houseReg: [], profilePic: [], educationCert: [], medicalLicense: [] };
-          files.forEach(file => {
-            if (group[file.file_type]) group[file.file_type].push(file);
-          });
-          setServerFiles(group);
-        }
-      }
-    }
-    fetchServerFiles();
-  }, [isEdit, step, memberData]);
-
-  // preview รูปใหม่ที่ user upload ใน session นี้
-  useEffect(() => {
+    // preload preview URLs
     const newPreviews = {};
     ["idCard", "houseReg", "profilePic", "educationCert", "medicalLicense"].forEach((field) => {
       newPreviews[field] = (form[field] || []).map((file) => getPreviewUrl(file));
@@ -204,7 +187,6 @@ export default function MemberModal({ open, onClose }) {
     return () => Object.values(newPreviews).flat().forEach(url => url && URL.revokeObjectURL(url));
   }, [form.idCard, form.houseReg, form.profilePic, form.educationCert, form.medicalLicense]);
 
-  // Preview สลิปเงิน
   useEffect(() => {
     if (form.paymentSlip?.length) {
       const file = form.paymentSlip[0];
@@ -214,9 +196,10 @@ export default function MemberModal({ open, onClose }) {
     setPaymentSlipPreview("");
   }, [form.paymentSlip]);
 
-  // ======================== VALIDATION ==========================
+  // --------- VALIDATION ---------
   function validateStep(stepToCheck = step, values = form) {
     const err = {};
+    // STEP 1
     if (stepToCheck === 1) {
       if (!values.prefixTh) err.prefixTh = "กรุณากรอกคำนำหน้า (TH)";
       const hasEn = !!(values.prefixEn || values.suffixEn);
@@ -232,6 +215,7 @@ export default function MemberModal({ open, onClose }) {
       if (!values.birthDate) err.birthDate = "กรุณากรอกวันเกิด";
       if (!values.religion) err.religion = "กรุณาเลือกศาสนา";
     }
+    // STEP 2
     if (stepToCheck === 2) {
       if (!values.race) err.race = "กรุณากรอกเชื้อชาติ";
       if (!values.nationality) err.nationality = "กรุณากรอกสัญชาติ";
@@ -249,18 +233,19 @@ export default function MemberModal({ open, onClose }) {
         if (hasDup) err.lineId = "ID Line นี้มีในระบบแล้ว";
       }
     }
+    // STEP 3
     if (stepToCheck === 3) {
       if (!values.workPlace || values.workPlace.length < 3) err.workPlace = "กรุณากรอกชื่อสถานที่ทำงาน (ไม่น้อยกว่า 3 ตัวอักษร)";
       if (!values.workPosition || values.workPosition.length < 3) err.workPosition = "กรุณากรอกตำแหน่ง (ไม่น้อยกว่า 3 ตัวอักษร)";
       if (!values.workAddress || values.workAddress.length < 3) err.workAddress = "กรุณากรอกที่อยู่ที่ทำงาน (ไม่น้อยกว่า 3 ตัวอักษร)";
       if (!values.workPhone || !/^\d{9,10}$/.test(values.workPhone)) err.workPhone = "กรุณากรอกเบอร์ที่ทำงาน 9-10 หลัก";
     }
+    // STEP 4
     if (stepToCheck === 4) {
       if (!values.docAddressType) err.docAddressType = "เลือกที่อยู่สำหรับเอกสาร";
       if (values.docAddressType === "other" && !values.docAddressOther) err.docAddressOther = "กรุณากรอกที่อยู่ (อื่นๆ)";
       if (!values.receiptAddressType) err.receiptAddressType = "เลือกที่อยู่บนใบเสร็จ";
       if (values.receiptAddressType === "other" && !values.receiptAddressOther) err.receiptAddressOther = "กรุณากรอกที่อยู่ (อื่นๆ)";
-      // Validation สำหรับ receiptType และ branchName
       if (!values.receiptType) err.receiptType = "กรุณาเลือกประเภทใบเสร็จ";
       if (values.receiptType === "company_branch" && !values.branchName) {
         err.branchName = "กรุณาระบุชื่อสาขา";
@@ -272,13 +257,14 @@ export default function MemberModal({ open, onClose }) {
         if (hasDup) err.taxId = "เลขนี้มีในระบบแล้ว";
       }
     }
-
+    // STEP 5
     if (stepToCheck === 5) {
       if (!values.agreeRule) err.agreeRule = "กรุณายอมรับข้อตกลง";
       if (!values.agreeConfirm) err.agreeConfirm = "กรุณายืนยันการรับทราบ";
       if (!values.pdpa1) err.pdpa1 = "กรุณายินยอม PDPA";
       if (!values.pdpa2) err.pdpa2 = "กรุณายินยอม PDPA2";
     }
+    // STEP 6
     if (stepToCheck === 6) {
       if (
         (!values.idCard || values.idCard.length === 0) &&
@@ -298,16 +284,18 @@ export default function MemberModal({ open, onClose }) {
       ) err.educationCert = "กรุณาแนบไฟล์วุฒิการศึกษา";
       if (!values.educationLevel) err.educationLevel = "กรุณาเลือกวุฒิการศึกษา";
     }
+    // STEP 7
     if (stepToCheck === 7) {
       if (!values.boardInterest) err.boardInterest = "กรุณาเลือกความสนใจสอบบอร์ด";
       if (values.boardInterest === "สนใจ" && !values.boardType) err.boardType = "เลือกประเภทสอบบอร์ด";
     }
+    // STEP 8
     if (stepToCheck === 8) {
-      if (!values.paymentSlip || values.paymentSlip.length === 0) err.paymentSlip = "กรุณาอัปโหลดสลิปโอนเงินค่าสมัครสมาชิก";
+      if ((!form.paymentSlip || form.paymentSlip.length === 0) && (!serverFiles.payment_slip || serverFiles.payment_slip.length === 0))
+        err.paymentSlip = "กรุณาอัปโหลดสลิปโอนเงินค่าสมัครสมาชิก";
     }
     return err;
   }
-
   useEffect(() => {
     setErrors(validateStep(step, form));
   }, [form, step, allMembers, isEdit, user, serverFiles]);
@@ -318,8 +306,11 @@ export default function MemberModal({ open, onClose }) {
     if (type === "checkbox") {
       newForm = { ...form, [name]: checked };
     } else if (type === "file") {
-      // เพิ่มไฟล์ใหม่แบบ push ต่อ array เดิม
-      newForm = { ...form, [name]: [...(form[name] || []), ...Array.from(fileInput)] };
+      if (name === "paymentSlip") {
+        newForm = { ...form, [name]: fileInput && fileInput.length ? [fileInput[0]] : [] };
+      } else {
+        newForm = { ...form, [name]: [...(form[name] || []), ...Array.from(fileInput)] };
+      }
       setTouched((prev) => ({ ...prev, [name]: true }));
     } else {
       newForm = { ...form, [name]: value };
@@ -336,8 +327,6 @@ export default function MemberModal({ open, onClose }) {
     setForm(newForm);
     syncEditLocal(newForm);
   }
-
-  // ลบไฟล์ server (ไฟล์เดิม)
   async function handleDeleteServerFile(field, fileId) {
     if (!window.confirm("ยืนยันลบไฟล์นี้?")) return;
     await fetch(`${import.meta.env.VITE_API_URL}/api/member-files/${fileId}`, { method: "DELETE" });
@@ -345,15 +334,6 @@ export default function MemberModal({ open, onClose }) {
       ...sfs,
       [field]: sfs[field].filter(f => f.id !== fileId)
     }));
-  }
-
-  function validateCardForm() {
-    const errs = {};
-    if (!/^\d{16}$/.test(cardForm.number)) errs.number = "กรุณากรอกเลขบัตร 16 หลัก";
-    if (!cardForm.name) errs.name = "กรุณากรอกชื่อบนบัตร";
-    if (!/^([0-1][0-9])\/([0-9]{2})$/.test(cardForm.expiry)) errs.expiry = "MM/YY ไม่ถูกต้อง";
-    if (!/^\d{3,4}$/.test(cardForm.cvc)) errs.cvc = "CVC 3-4 หลัก";
-    return errs;
   }
 
   const maxStep = isEdit || (isMember && memberData) ? 6 : 8;
@@ -382,6 +362,7 @@ export default function MemberModal({ open, onClose }) {
     setTriedNext(false);
   }
 
+  // --------------- handleSubmit (ส่งข้อมูล-บันทึก) ---------------
   async function handleSubmit(e) {
     e.preventDefault();
     const stepErr = validateStep(step, form);
@@ -398,14 +379,6 @@ export default function MemberModal({ open, onClose }) {
         await updateUserInfoOnServer(user.id, form);
       }
       if ((isEdit && step === 6) || (!isEdit && step === 8)) {
-        if (!isEdit && step === 8 && payMethod === "credit") {
-          const cErrs = validateCardForm();
-          setCardErr(cErrs);
-          if (Object.keys(cErrs).length > 0) {
-            setSaving(false);
-            return;
-          }
-        }
         const dataToSend = {
           user_id: user?.id,
           prefixTh: form.prefixTh, prefixEn: form.prefixEn || "", suffixEn: form.suffixEn || "",
@@ -420,26 +393,9 @@ export default function MemberModal({ open, onClose }) {
           receiptType: form.receiptType, branchName: form.branchName,
           taxId: form.taxId, agreeRule: form.agreeRule, agreeConfirm: form.agreeConfirm, pdpa1: form.pdpa1, pdpa2: form.pdpa2,
           educationLevel: form.educationLevel, boardInterest: form.boardInterest, boardType: form.boardType,
-          payMethod: payMethod, paymentRef: form.paymentRef || "",
+          age: age,
         };
-        if (!isEdit && step === 8 && payMethod === "credit") {
-          dataToSend.cardNumber = cardForm.number;
-          dataToSend.cardName = cardForm.name;
-          dataToSend.cardExpiry = cardForm.expiry;
-          dataToSend.cardCvc = cardForm.cvc;
-        }
-        if (!isEdit && step === 8) {
-          if (form.paymentSlip?.length) {
-            const fd = new FormData();
-            fd.append("member_id", user?.id);
-            fd.append("file_type", "paymentSlip");
-            fd.append("file", form.paymentSlip[0]);
-            await fetch(`${import.meta.env.VITE_API_URL}/api/member-files`, {
-              method: "POST",
-              body: fd,
-            });
-          }
-        }
+        // 1. POST/PUT /api/members
         const res = await fetch(`${import.meta.env.VITE_API_URL}/api/members`, {
           method: isEdit ? "PUT" : "POST",
           headers: { "Content-Type": "application/json" },
@@ -448,7 +404,7 @@ export default function MemberModal({ open, onClose }) {
         if (!res.ok) throw new Error(await res.text());
         const data = await res.json();
         const memberId = data.memberId || data.id;
-        // upload files
+        // 2. Upload ไฟล์เอกสาร
         const fileFields = ["idCard", "houseReg", "profilePic", "educationCert", "medicalLicense"];
         for (const field of fileFields) {
           if (form[field] && form[field].length) {
@@ -465,9 +421,20 @@ export default function MemberModal({ open, onClose }) {
             }
           }
         }
-        if (user && localKey) {
-          localStorage.setItem(localKey, JSON.stringify(form));
+        // 3. Upload สลิป
+        if (!isEdit && step === 8 && form.paymentSlip && form.paymentSlip.length) {
+          const fd = new FormData();
+          fd.append("member_id", memberId);
+          fd.append("file_type", "payment_slip");
+          fd.append("file", form.paymentSlip[0]);
+          const fileRes = await fetch(`${import.meta.env.VITE_API_URL}/api/member-files`, {
+            method: "POST",
+            body: fd,
+          });
+          if (!fileRes.ok) throw new Error(await fileRes.text());
         }
+        // Update UserContext
+        if (user && localKey) localStorage.setItem(localKey, JSON.stringify(form));
         const newUser = {
           ...user,
           prefix: form.prefixTh || "",
@@ -482,9 +449,7 @@ export default function MemberModal({ open, onClose }) {
         localStorage.setItem("user", JSON.stringify(newUser));
         if (typeof updateUser === "function") updateUser(newUser);
         if (typeof loginUser === "function") loginUser(newUser);
-
         if (!isEdit && user && localKey) localStorage.removeItem(localKey);
-
         setMsg("บันทึกข้อมูลสำเร็จ");
         setTimeout(() => {
           setSaving(false);
@@ -504,11 +469,14 @@ export default function MemberModal({ open, onClose }) {
     }
   }
 
+  // Card view ถ้าเป็น member แล้ว
   function MemberIDCard({ memberData, onEdit, onClose }) {
     if (!memberData || memberData.user_id !== user?.id) return null;
     const profilePicUrl = memberData.profilePicUrl
       ? `${import.meta.env.VITE_API_URL}${memberData.profilePicUrl}`
       : "";
+    // หาไฟล์สลิปจาก serverFiles.payment_slip (ถ้ามี)
+    const slipObj = (serverFiles.payment_slip && serverFiles.payment_slip.length) ? serverFiles.payment_slip[0] : null;
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xl" onMouseDown={handleOverlayClick}>
         <div
@@ -517,7 +485,6 @@ export default function MemberModal({ open, onClose }) {
           onMouseDown={e => e.stopPropagation()}
         >
           <button type="button" className="absolute top-3 right-3 bg-gray-200 cursor-pointer hover:bg-red-400 text-gray-500 hover:text-white rounded-full w-9 h-9 flex items-center justify-center transition" onClick={onClose}>×</button>
-
           <div className="w-full rounded-t-3xl px-7 pt-8 pb-2 flex flex-col items-center relative bg-white">
             <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-indigo-200 shadow mb-2 bg-gray-100 flex items-center justify-center">
               {profilePicUrl ? (
@@ -558,6 +525,17 @@ export default function MemberModal({ open, onClose }) {
               <span className="font-semibold text-gray-700">Email:</span>{" "}
               <span className="text-gray-700">{memberData.email || "-"}</span>
             </div>
+            {/* แสดงปุ่มดูสลิปถ้ามี */}
+            {slipObj &&
+              <a
+                href={`${import.meta.env.VITE_API_URL}/api/member-files/download/${slipObj.id}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-2 inline-flex gap-2 items-center text-blue-700 font-semibold underline hover:text-blue-900"
+              >
+                ดูสลิปที่อัปโหลดไว้
+              </a>
+            }
           </div>
           <button
             type="button"
@@ -579,7 +557,9 @@ export default function MemberModal({ open, onClose }) {
     );
   }
 
+  // --- ถ้าไม่ login หรือไม่เปิด modal ไม่ต้อง render อะไรเลย ---
   if (!open || !user || !user.id) return null;
+  // --- ถ้าเป็นสมาชิกแล้ว (ไม่ใช่โหมด edit) ให้โชว์ Card ---
   if (isMember && memberData && !isEdit) {
     return (
       <MemberIDCard
@@ -1331,18 +1311,35 @@ export default function MemberModal({ open, onClose }) {
               <span className="font-bold">จำนวนเงินที่ต้องชำระ: </span>
               <span className="font-bold text-green-600">1,750 บาท</span>
             </div>
+            <div className="bg-white rounded-2xl shadow-md px-4 py-4 flex items-center gap-4 border border-gray-200 mb-2 w-full max-w-md">
+              <img
+                src="/assets/banks/kbank-logo.png"
+                alt="ธนาคารกสิกรไทย"
+                className="w-12 h-12 object-contain rounded-full border"
+              />
+              <div>
+                <div className="font-bold text-lg text-[#1a7f49]">ธนาคารกสิกรไทย</div>
+                <div className="text-base font-bold text-gray-800">170-8-06667-9</div>
+                <div className="text-sm text-gray-700">ชื่อบัญชี: สมาคมเวชศาสตร์วิถีชีวิตและสุขภาวะไทย</div>
+              </div>
+            </div>
             <div className="mb-3 font-semibold text-indigo-600 text-base">
               กรุณาโอนเงินค่าสมัครสมาชิก แล้วอัปโหลด "สลิปโอนเงิน" (ไฟล์ภาพ jpg, jpeg, png, webp)
             </div>
-            <label className="flex items-center cursor-pointer gap-2 px-6 py-3 bg-gradient-to-r from-blue-500 to-violet-500 text-white rounded-xl shadow hover:from-blue-600 hover:to-violet-600 font-semibold text-base w-fit mb-2">
+
+            {/* อัปโหลด slip ได้ 1 รูปเท่านั้น */}
+            <label className={`flex items-center cursor-pointer gap-2 px-6 py-3 bg-gradient-to-r from-blue-500 to-violet-500 text-white rounded-xl shadow hover:from-blue-600 hover:to-violet-600 font-semibold text-base w-fit mb-2
+      ${form.paymentSlip.length >= 1 ? "opacity-60 pointer-events-none" : ""}
+    `}>
               <FaCloudUploadAlt className="mr-1" />
-              เลือกไฟล์สลิป
+              {form.paymentSlip.length ? "เปลี่ยนรูปสลิป" : "เลือกไฟล์สลิป"}
               <input
                 type="file"
                 name="paymentSlip"
                 accept=".jpg,.jpeg,.png,.webp"
                 onChange={handleChange}
                 className="hidden"
+                disabled={form.paymentSlip.length >= 1}
               />
             </label>
             {paymentSlipPreview &&
@@ -1357,7 +1354,11 @@ export default function MemberModal({ open, onClose }) {
               <div className="text-xs text-red-500">{errors.paymentSlip}</div>
             }
             <div className="text-xs text-gray-500 mt-1 mb-2">
-              * อัปโหลดเฉพาะไฟล์ภาพ (jpg, jpeg, png, webp)
+              * อัปโหลดเฉพาะไฟล์ภาพ (jpg, jpeg, png, webp) ได้เพียง 1 ไฟล์
+            </div>
+            <div className="text-sm text-yellow-700 mt-3">
+              เมื่อส่งใบสมัครแล้ว สถานะจะเป็น <span className="font-bold text-yellow-600">"รอตรวจสอบการชำระเงิน"</span>
+              <br />กรุณารอเจ้าหน้าที่ตรวจสอบและยืนยันสถานะ
             </div>
           </div>
         )}

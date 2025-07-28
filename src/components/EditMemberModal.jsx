@@ -7,8 +7,6 @@ const RELIGIONS = [
   "พุทธ", "คริสต์", "อิสลาม", "ฮินดู", "ซิกข์", "ยูดาย", "เชน", "เต๋า", "ชินโต", "Baháʼí", "ลัทธิขงจื๊อ", "ไม่มีศาสนา"
 ];
 
-
-
 function toDateInputValue(date) {
   if (!date) return "";
   if (/^\d{4}-\d{2}-\d{2}$/.test(date)) return date;
@@ -43,6 +41,12 @@ function getPreviewUrl(file) {
 export default function EditMemberModal({ open, onClose, memberData, afterSave }) {
   const { user } = useUser();
   const localKey = user ? `memberData_${user.id}` : null;
+  
+  const [touched, setTouched] = useState({});
+  const handleBlur = (e) => {
+    setTouched((prev) => ({ ...prev, [e.target.name]: true }));
+  };
+  const isEdit = !!memberData?.id;
 
   const defaultForm = {
     prefixTh: "", prefixEn: "", suffixEn: "",
@@ -176,10 +180,15 @@ export default function EditMemberModal({ open, onClose, memberData, afterSave }
       if (values.docAddressType === "other" && !values.docAddressOther) err.docAddressOther = "กรุณากรอกที่อยู่ (อื่นๆ)";
       if (!values.receiptAddressType) err.receiptAddressType = "เลือกที่อยู่บนใบเสร็จ";
       if (values.receiptAddressType === "other" && !values.receiptAddressOther) err.receiptAddressOther = "กรุณากรอกที่อยู่ (อื่นๆ)";
+      // Validation สำหรับ receiptType และ branchName
+      if (!values.receiptType) err.receiptType = "กรุณาเลือกประเภทใบเสร็จ";
+      if (values.receiptType === "company_branch" && !values.branchName) {
+        err.branchName = "กรุณาระบุชื่อสาขา";
+      }
       if (!values.taxId) err.taxId = "กรุณากรอกเลขประจำตัวผู้เสียภาษีหรือบัตรประชาชน";
       else if (!/^\d{13}$/.test(values.taxId)) err.taxId = "เลขบัตรประชาชนต้องเป็นตัวเลข 13 หลัก";
       else {
-        const hasDup = allMembers.some(m => m.taxId === values.taxId && m.user_id !== user.id);
+        const hasDup = allMembers.some(m => m.taxId === values.taxId && (isEdit ? m.user_id !== user.id : true));
         if (hasDup) err.taxId = "เลขนี้มีในระบบแล้ว";
       }
     }
@@ -680,15 +689,16 @@ export default function EditMemberModal({ open, onClose, memberData, afterSave }
                       name="docAddressOther"
                       value={form.docAddressOther}
                       onChange={handleChange}
-                      className={`border px-3 py-1 rounded-lg ml-2 ${showErrors && errors.docAddressOther ? "border-red-400" : ""}`}
+                      onBlur={handleBlur}
+                      className={`border px-3 py-1 rounded-lg ml-2 ${touched.docAddressOther && errors.docAddressOther ? "border-red-400" : ""}`}
                       placeholder="กรอกที่อยู่"
                     />
                   )}
                 </label>
-                {showErrors && errors.docAddressType && (
+                {touched.docAddressType && errors.docAddressType && (
                   <div className="text-xs text-red-500">{errors.docAddressType}</div>
                 )}
-                {showErrors && errors.docAddressOther && (
+                {touched.docAddressOther && errors.docAddressOther && (
                   <div className="text-xs text-red-500">{errors.docAddressOther}</div>
                 )}
               </div>
@@ -731,37 +741,96 @@ export default function EditMemberModal({ open, onClose, memberData, afterSave }
                       name="receiptAddressOther"
                       value={form.receiptAddressOther}
                       onChange={handleChange}
-                      className={`border px-3 py-1 rounded-lg ml-2 ${showErrors && errors.receiptAddressOther ? "border-red-400" : ""}`}
+                      onBlur={handleBlur}
+                      className={`border px-3 py-1 rounded-lg ml-2 ${touched.receiptAddressOther && errors.receiptAddressOther ? "border-red-400" : ""}`}
                       placeholder="กรอกที่อยู่"
                     />
                   )}
                 </label>
-                {showErrors && errors.receiptAddressType && (
+                {touched.receiptAddressType && errors.receiptAddressType && (
                   <div className="text-xs text-red-500">{errors.receiptAddressType}</div>
                 )}
-                {showErrors && errors.receiptAddressOther && (
+                {touched.receiptAddressOther && errors.receiptAddressOther && (
                   <div className="text-xs text-red-500">{errors.receiptAddressOther}</div>
                 )}
               </div>
             </div>
             <div>
-              <label className="block font-semibold mb-1">
-                เลขประจำตัวผู้เสียภาษี หรือเลขบัตรประชาชน
-              </label>
+              <label className="block font-semibold mb-1">*หมายเหตุ</label>
+              <div className="text-sm text-gray-600 mb-2">
+                ตามข้อกำหนดของกรมสรรพากรระบุให้การออกใบเสร็จรับเงินต้องมีเลขประจำตัวผู้เสียภาษีของนิติบุคคลหรือบุคคลธรรมดา ทางสมาคมจึงขอข้อมูลเพิ่มเติมดังนี้
+              </div>
+              <div className="flex flex-col gap-2">
+                <label className="flex gap-2 items-center">
+                  <input
+                    type="radio"
+                    name="receiptType"
+                    value="person"
+                    checked={form.receiptType === "person"}
+                    onChange={handleChange}
+                  />
+                  ออกใบเสร็จในนามบุคคล
+                </label>
+                <label className="flex gap-2 items-center">
+                  <input
+                    type="radio"
+                    name="receiptType"
+                    value="company_main"
+                    checked={form.receiptType === "company_main"}
+                    onChange={handleChange}
+                  />
+                  ออกใบเสร็จในนามนิติบุคคล สาขาใหญ่
+                </label>
+                <label className="flex flex-wrap gap-2 items-center">
+                  <input
+                    type="radio"
+                    name="receiptType"
+                    value="company_branch"
+                    checked={form.receiptType === "company_branch"}
+                    onChange={handleChange}
+                  />
+                  <span>ออกใบเสร็จในนามนิติบุคคล สาขาย่อย</span>
+                  {/* ช่องกรอกชื่อสาขา แสดงต่อเมื่อเลือก "company_branch" */}
+                  {form.receiptType === "company_branch" && (
+                    <input
+                      type="text"
+                      name="branchName"
+                      value={form.branchName}
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+                      className={`border px-3 py-1 rounded-lg min-w-[220px] max-w-full mt-2 md:mt-0 ${touched.branchName && errors.branchName ? "border-red-400" : ""
+                        }`}
+                      placeholder="โปรดระบุชื่อสาขาในข้อต่อไป"
+                    />
+                  )}
+                </label>
+                {form.receiptType === "company_branch" && touched.branchName && errors.branchName && (
+                  <div className="text-xs text-red-500">{errors.branchName}</div>
+                )}
+
+                {touched.receiptType && errors.receiptType && (
+                  <div className="text-xs text-red-500">{errors.receiptType}</div>
+                )}
+              </div>
+            </div>
+            <div>
+              <label className="block font-semibold mb-1">เลขประจำตัวผู้เสียภาษี หรือเลขบัตรประชาชน</label>
               <input
                 type="text"
                 name="taxId"
                 value={form.taxId}
                 onChange={handleChange}
-                className={`border px-3 py-2 rounded-xl w-full ${showErrors && errors.taxId ? "border-red-400" : ""}`}
+                onBlur={handleBlur}
+                className={`border px-3 py-2 rounded-xl w-full ${touched.taxId && errors.taxId ? "border-red-400" : ""}`}
                 placeholder="กรอกเลขประจำตัวผู้เสียภาษี หรือบัตรประชาชน"
               />
-              {showErrors && errors.taxId && (
+              {touched.taxId && errors.taxId && (
                 <div className="text-xs text-red-500">{errors.taxId}</div>
               )}
             </div>
           </div>
         )}
+
         {/* STEP 5 */}
         {step === 5 && (
           <div className="flex flex-col">
