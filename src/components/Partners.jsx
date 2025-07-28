@@ -1,3 +1,4 @@
+//Pass รอแก้ไขไฟล์ลำดับรูป
 import React, { useState, useRef, useEffect } from 'react'
 
 // Import logo1

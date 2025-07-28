@@ -1,3 +1,4 @@
+//Pass เหลือแก้บันทึก Step8 สลีปเงินและเพิ่มบัญชีธนาคาร
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { FaFileAlt, FaTrash, FaCloudUploadAlt, FaRegEdit } from "react-icons/fa";
 import { useUser } from "../contexts/UserContext";
@@ -259,6 +260,11 @@ export default function MemberModal({ open, onClose }) {
       if (values.docAddressType === "other" && !values.docAddressOther) err.docAddressOther = "กรุณากรอกที่อยู่ (อื่นๆ)";
       if (!values.receiptAddressType) err.receiptAddressType = "เลือกที่อยู่บนใบเสร็จ";
       if (values.receiptAddressType === "other" && !values.receiptAddressOther) err.receiptAddressOther = "กรุณากรอกที่อยู่ (อื่นๆ)";
+      // Validation สำหรับ receiptType และ branchName
+      if (!values.receiptType) err.receiptType = "กรุณาเลือกประเภทใบเสร็จ";
+      if (values.receiptType === "company_branch" && !values.branchName) {
+        err.branchName = "กรุณาระบุชื่อสาขา";
+      }
       if (!values.taxId) err.taxId = "กรุณากรอกเลขประจำตัวผู้เสียภาษีหรือบัตรประชาชน";
       else if (!/^\d{13}$/.test(values.taxId)) err.taxId = "เลขบัตรประชาชนต้องเป็นตัวเลข 13 หลัก";
       else {
@@ -266,6 +272,7 @@ export default function MemberModal({ open, onClose }) {
         if (hasDup) err.taxId = "เลขนี้มีในระบบแล้ว";
       }
     }
+
     if (stepToCheck === 5) {
       if (!values.agreeRule) err.agreeRule = "กรุณายอมรับข้อตกลง";
       if (!values.agreeConfirm) err.agreeConfirm = "กรุณายืนยันการรับทราบ";
@@ -1010,6 +1017,64 @@ export default function MemberModal({ open, onClose }) {
                 )}
                 {touched.receiptAddressOther && errors.receiptAddressOther && (
                   <div className="text-xs text-red-500">{errors.receiptAddressOther}</div>
+                )}
+              </div>
+            </div>
+            <div>
+              <label className="block font-semibold mb-1">*หมายเหตุ</label>
+              <div className="text-sm text-gray-600 mb-2">
+                ตามข้อกำหนดของกรมสรรพากรระบุให้การออกใบเสร็จรับเงินต้องมีเลขประจำตัวผู้เสียภาษีของนิติบุคคลหรือบุคคลธรรมดา ทางสมาคมจึงขอข้อมูลเพิ่มเติมดังนี้
+              </div>
+              <div className="flex flex-col gap-2">
+                <label className="flex gap-2 items-center">
+                  <input
+                    type="radio"
+                    name="receiptType"
+                    value="person"
+                    checked={form.receiptType === "person"}
+                    onChange={handleChange}
+                  />
+                  ออกใบเสร็จในนามบุคคล
+                </label>
+                <label className="flex gap-2 items-center">
+                  <input
+                    type="radio"
+                    name="receiptType"
+                    value="company_main"
+                    checked={form.receiptType === "company_main"}
+                    onChange={handleChange}
+                  />
+                  ออกใบเสร็จในนามนิติบุคคล สาขาใหญ่
+                </label>
+                <label className="flex flex-wrap gap-2 items-center">
+                  <input
+                    type="radio"
+                    name="receiptType"
+                    value="company_branch"
+                    checked={form.receiptType === "company_branch"}
+                    onChange={handleChange}
+                  />
+                  <span>ออกใบเสร็จในนามนิติบุคคล สาขาย่อย</span>
+                  {/* ช่องกรอกชื่อสาขา แสดงต่อเมื่อเลือก "company_branch" */}
+                  {form.receiptType === "company_branch" && (
+                    <input
+                      type="text"
+                      name="branchName"
+                      value={form.branchName}
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+                      className={`border px-3 py-1 rounded-lg min-w-[220px] max-w-full mt-2 md:mt-0 ${touched.branchName && errors.branchName ? "border-red-400" : ""
+                        }`}
+                      placeholder="โปรดระบุชื่อสาขาในข้อต่อไป"
+                    />
+                  )}
+                </label>
+                {form.receiptType === "company_branch" && touched.branchName && errors.branchName && (
+                  <div className="text-xs text-red-500">{errors.branchName}</div>
+                )}
+
+                {touched.receiptType && errors.receiptType && (
+                  <div className="text-xs text-red-500">{errors.receiptType}</div>
                 )}
               </div>
             </div>

@@ -1,3 +1,4 @@
+//Pass แก้ Email JS ให้เป็นของ สมาคมและย้ายลง .env
 import React, { useRef } from 'react';
 import emailjs from '@emailjs/browser';
 import { useForm } from 'react-hook-form';

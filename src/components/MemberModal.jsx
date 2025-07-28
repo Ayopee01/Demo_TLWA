@@ -1,3 +1,4 @@
+// สำรองไม่ได้ใช้
 import React, { useState, useEffect, useMemo } from "react";
 import { FaFileAlt, FaTrash, FaCloudUploadAlt } from "react-icons/fa";
 
@@ -21,7 +22,6 @@ const enRegex = /^[A-Za-z.]+$/;
 const thMin3 = /^[ก-๏]{3,}$/;
 const enMin3 = /^[a-zA-Z]{3,}$/;
 
-// ---------- Image Preview helper ----------
 function getPreviewUrl(file) {
   if (file && file.type && file.type.startsWith("image/")) {
     return URL.createObjectURL(file);
@@ -58,10 +58,8 @@ export default function MemberModal({ open, onClose }) {
     gbprimepayMock: "",
   });
 
-  // Preview URL state for step 6 images
   const [previewUrls, setPreviewUrls] = useState({});
 
-  // Create preview URLs for current files (revoke old URLs)
   useEffect(() => {
     const newPreviews = {};
     ["idCard", "houseReg", "profilePic", "educationCert", "medicalLicense"].forEach((field) => {
@@ -72,12 +70,8 @@ export default function MemberModal({ open, onClose }) {
         return null;
       });
     });
-
-    // Cleanup previous blob URLs
     Object.values(previewUrls).flat().forEach(url => url && URL.revokeObjectURL(url));
     setPreviewUrls(newPreviews);
-
-    // Cleanup when unmount
     return () => {
       Object.values(newPreviews).flat().forEach(url => url && URL.revokeObjectURL(url));
     };
@@ -224,6 +218,20 @@ export default function MemberModal({ open, onClose }) {
         errs.workPhone = "กรอกเฉพาะตัวเลข 9-10 หลัก";
     }
     if (step === 4) {
+      if (!form.taxId) {
+        errs.taxId = "กรุณาระบุเลขประจำตัวผู้เสียภาษี/บัตรประชาชน";
+      } else if (!/^\d{10,13}$/.test(form.taxId)) {
+        errs.taxId = "กรอกตัวเลข 10-13 หลักเท่านั้น";
+      }
+      if (!form.receiptType) {
+        errs.receiptType = "เลือกประเภทผู้รับใบเสร็จ";
+      } else if (form.receiptType === "branch") {
+        if (!form.branchName) {
+          errs.branchName = "กรุณาระบุชื่อสาขา";
+        } else if (form.branchName.length < 3) {
+          errs.branchName = "ชื่อสาขาต้องไม่ต่ำกว่า 3 ตัวอักษร";
+        }
+      }
       if (!form.docAddressType) {
         errs.docAddressType = "เลือกที่อยู่สำหรับรับเอกสาร";
       }
@@ -243,20 +251,6 @@ export default function MemberModal({ open, onClose }) {
         } else if (form.receiptAddressOther.length < 3) {
           errs.receiptAddressOther = "ที่อยู่ต้องไม่ต่ำกว่า 3 ตัวอักษร";
         }
-      }
-      if (!form.receiptType) {
-        errs.receiptType = "เลือกประเภทผู้รับใบเสร็จ";
-      } else if (form.receiptType === "branch") {
-        if (!form.branchName) {
-          errs.branchName = "กรุณากรอกชื่อสาขา";
-        } else if (form.branchName.length < 3) {
-          errs.branchName = "ชื่อสาขาต้องไม่ต่ำกว่า 3 ตัวอักษร";
-        }
-      }
-      if (!form.taxId) {
-        errs.taxId = "กรุณาระบุเลขประจำตัวผู้เสียภาษี/บัตรประชาชน";
-      } else if (!/^\d{10,13}$/.test(form.taxId)) {
-        errs.taxId = "กรอกตัวเลข 10-13 หลักเท่านั้น";
       }
     }
     if (step === 5) {
@@ -338,7 +332,6 @@ export default function MemberModal({ open, onClose }) {
         method: "POST",
         body: formData,
       });
-
       if (!res.ok) throw new Error(await res.text());
       setMsg("บันทึกข้อมูลสำเร็จ");
     } catch (err) {
@@ -356,7 +349,6 @@ export default function MemberModal({ open, onClose }) {
         onSubmit={handleSubmit}
         autoComplete="off"
       >
-        {/* ... Header & Step Progress ... (เหมือน code เดิม) */}
         <h2 className="text-2xl font-bold mb-6 text-gray-800 tracking-tight text-center">
           สมัครสมาชิก (ขั้นตอนที่ {step} / 8)
         </h2>
@@ -371,7 +363,7 @@ export default function MemberModal({ open, onClose }) {
           ))}
         </div>
 
-        {/* Step 1 */}
+        {/* Step 1-3 (เหมือนเดิม) */}
         {step === 1 && (
           <div className="flex flex-col gap-4">
             <div className="flex gap-3">
@@ -508,7 +500,6 @@ export default function MemberModal({ open, onClose }) {
           </div>
         )}
 
-        {/* Step 2 */}
         {step === 2 && (
           <div className="flex flex-col gap-4">
             <div className="flex gap-3">
@@ -602,7 +593,6 @@ export default function MemberModal({ open, onClose }) {
           </div>
         )}
 
-        {/* Step 3 */}
         {step === 3 && (
           <div className="flex flex-col gap-4">
             <div>
@@ -656,9 +646,80 @@ export default function MemberModal({ open, onClose }) {
           </div>
         )}
 
-        {/* Step 4 */}
+        {/* Step 4 (ครบทุก requirement!) */}
         {step === 4 && (
           <div className="flex flex-col gap-6">
+            <div className="mb-1 text-sm text-gray-700">
+              <span className="font-semibold text-red-600">หมายเหตุ:</span>
+              ตามข้อกำหนดของกรมสรรพากรระบุให้การออกใบเสร็จรับเงินต้องมีเลขประจำตัวผู้เสียภาษีของนิติบุคคลหรือบุคคลธรรมดา ทางสมาคมจึงขอข้อมูลเพิ่มเติมดังนี้
+            </div>
+            <div>
+              <label className="block font-semibold mb-1">
+                เลขประจำตัวผู้เสียภาษี หรือเลขบัตรประชาชน
+              </label>
+              <input
+                type="text"
+                name="taxId"
+                value={form.taxId}
+                onChange={handleChange}
+                className={`border px-3 py-2 rounded-xl w-full ${errors.taxId ? "border-red-400" : ""}`}
+                placeholder="กรอกเลขประจำตัวผู้เสียภาษี หรือบัตรประชาชน"
+              />
+              {errors.taxId && (
+                <div className="text-xs text-red-500">{errors.taxId}</div>
+              )}
+            </div>
+            <div>
+              <label className="block font-semibold mb-1">เลือกประเภทผู้ออกใบเสร็จ</label>
+              <div className="flex flex-col gap-2">
+                <label className="flex gap-2 items-center">
+                  <input
+                    type="radio"
+                    name="receiptType"
+                    value="person"
+                    checked={form.receiptType === "person"}
+                    onChange={handleChange}
+                  />
+                  ออกใบเสร็จในนามบุคคล
+                </label>
+                <label className="flex gap-2 items-center">
+                  <input
+                    type="radio"
+                    name="receiptType"
+                    value="company"
+                    checked={form.receiptType === "company"}
+                    onChange={handleChange}
+                  />
+                  ออกใบเสร็จในนามนิติบุคคล (สาขาใหญ่)
+                </label>
+                <label className="flex gap-2 items-center">
+                  <input
+                    type="radio"
+                    name="receiptType"
+                    value="branch"
+                    checked={form.receiptType === "branch"}
+                    onChange={handleChange}
+                  />
+                  ออกใบเสร็จในนามนิติบุคคล (สาขาย่อย)
+                  {form.receiptType === "branch" && (
+                    <input
+                      type="text"
+                      name="branchName"
+                      value={form.branchName}
+                      onChange={handleChange}
+                      className={`border px-3 py-1 rounded-lg ml-2 ${errors.branchName ? "border-red-400" : ""}`}
+                      placeholder="ระบุชื่อสาขา"
+                    />
+                  )}
+                </label>
+                {errors.receiptType && (
+                  <div className="text-xs text-red-500">{errors.receiptType}</div>
+                )}
+                {errors.branchName && (
+                  <div className="text-xs text-red-500">{errors.branchName}</div>
+                )}
+              </div>
+            </div>
             <div>
               <label className="block font-semibold mb-1">ที่อยู่สำหรับรับเอกสารจากสมาคม</label>
               <div className="flex flex-col gap-2">
@@ -761,77 +822,10 @@ export default function MemberModal({ open, onClose }) {
                 )}
               </div>
             </div>
-            <div>
-              <label className="block font-semibold mb-1">*หมายเหตุ ตามข้อกำหนดของกรมสรรพากรระบุให้การออกใบเสร็จรับเงินต้องมีเลขประจำตัวผู้เสียภาษีของนิติบุคคลหรือบุคคลธรรมดาทางสมาคมจึงขอข้อมูลเพิ่มเติมดังนี้</label>
-              <div className="flex flex-col gap-2">
-                <label className="flex gap-2 items-center">
-                  <input
-                    type="radio"
-                    name="receiptType"
-                    value="person"
-                    checked={form.receiptType === "person"}
-                    onChange={handleChange}
-                  />
-                  บุคคลธรรมดา
-                </label>
-                <label className="flex gap-2 items-center">
-                  <input
-                    type="radio"
-                    name="receiptType"
-                    value="company"
-                    checked={form.receiptType === "company"}
-                    onChange={handleChange}
-                  />
-                  นิติบุคคล (สาขาใหญ่)
-                </label>
-                <label className="flex gap-2 items-center">
-                  <input
-                    type="radio"
-                    name="receiptType"
-                    value="branch"
-                    checked={form.receiptType === "branch"}
-                    onChange={handleChange}
-                  />
-                  นิติบุคคล (สาขาย่อย)
-                  {form.receiptType === "branch" && (
-                    <input
-                      type="text"
-                      name="branchName"
-                      value={form.branchName}
-                      onChange={handleChange}
-                      className={`border px-3 py-1 rounded-lg ml-2 ${errors.branchName ? "border-red-400" : ""}`}
-                      placeholder="ระบุชื่อสาขา"
-                    />
-                  )}
-                </label>
-                {errors.receiptType && (
-                  <div className="text-xs text-red-500">{errors.receiptType}</div>
-                )}
-                {errors.branchName && (
-                  <div className="text-xs text-red-500">{errors.branchName}</div>
-                )}
-              </div>
-            </div>
-            <div>
-              <label className="block font-semibold mb-1">
-                เลขประจำตัวผู้เสียภาษี หรือเลขบัตรประชาชน
-              </label>
-              <input
-                type="text"
-                name="taxId"
-                value={form.taxId}
-                onChange={handleChange}
-                className={`border px-3 py-2 rounded-xl w-full ${errors.taxId ? "border-red-400" : ""}`}
-                placeholder="กรอกเลขประจำตัวผู้เสียภาษี หรือบัตรประชาชน"
-              />
-              {errors.taxId && (
-                <div className="text-xs text-red-500">{errors.taxId}</div>
-              )}
-            </div>
           </div>
         )}
 
-        {/* Step 5 */}
+        {/* Step 5-8 (เหมือนเดิมทุกประการ) */}
         {step === 5 && (
           <div className="flex flex-col">
             <label className="block font-semibold mb-2">
@@ -915,8 +909,6 @@ export default function MemberModal({ open, onClose }) {
             </div>
           </div>
         )}
-
-        {/* Step 6 */}
         {step === 6 && (
           <div className="flex flex-col gap-5">
             {[
@@ -929,7 +921,6 @@ export default function MemberModal({ open, onClose }) {
               <div key={name} className="flex items-start gap-4">
                 <label className="block font-medium flex-shrink-0 w-64">{label}</label>
                 <div className="flex flex-col flex-1 gap-2">
-                  {/* ---- รูป preview แบบแนวนอน ---- */}
                   <div className="flex flex-row flex-wrap gap-3 mb-1">
                     {(form[name] || []).map((file, idx) => (
                       <div key={idx} className="relative group border rounded-lg p-1 bg-gray-50 flex items-center shadow hover:shadow-md transition">
@@ -991,8 +982,6 @@ export default function MemberModal({ open, onClose }) {
             </div>
           </div>
         )}
-
-        {/* Step 7 */}
         {step === 7 && (
           <div className="flex flex-col gap-4">
             <label className="block font-medium mb-1">ท่านมีความสนใจในการสอบบอร์ดนานาชาติหรือไม่?</label>
@@ -1024,8 +1013,6 @@ export default function MemberModal({ open, onClose }) {
             {errors.boardInterest && <div className="text-xs text-red-500">{errors.boardInterest}</div>}
           </div>
         )}
-
-        {/* Step 8 */}
         {step === 8 && (
           <div className="flex flex-col items-center gap-4">
             <div className="text-lg text-center mb-3">
@@ -1042,7 +1029,6 @@ export default function MemberModal({ open, onClose }) {
           </div>
         )}
 
-        {/* Navigation */}
         <div className="flex justify-between mt-8">
           {step > 1 ? (
             <button

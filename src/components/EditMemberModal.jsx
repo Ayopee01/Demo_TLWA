@@ -1,3 +1,4 @@
+//Pass รอแก้ Step4 เพิ่มเติม
 import React, { useState, useEffect, useMemo } from "react";
 import { FaFileAlt, FaTrash, FaCloudUploadAlt } from "react-icons/fa";
 import { useUser } from "../contexts/UserContext";
@@ -6,14 +7,7 @@ const RELIGIONS = [
   "พุทธ", "คริสต์", "อิสลาม", "ฮินดู", "ซิกข์", "ยูดาย", "เชน", "เต๋า", "ชินโต", "Baháʼí", "ลัทธิขงจื๊อ", "ไม่มีศาสนา"
 ];
 
-// === เพิ่มฟังก์ชันบวกวัน +1 ===
-function addOneDay(dateStr) {
-  if (!dateStr) return "";
-  const date = new Date(dateStr);
-  if (isNaN(date)) return dateStr;
-  date.setDate(date.getDate() + 1);
-  return date.toISOString().slice(0, 10);
-}
+
 
 function toDateInputValue(date) {
   if (!date) return "";
@@ -112,7 +106,7 @@ export default function EditMemberModal({ open, onClose, memberData, afterSave }
     setForm(f => ({
       ...defaultForm,
       ...memberData,
-      birthDate: addOneDay(memberData.birthDate || ""),
+      birthDate: (memberData.birthDate || ""),
       idCard: [],
       houseReg: [],
       profilePic: [],

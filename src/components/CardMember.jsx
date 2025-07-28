@@ -1,4 +1,4 @@
-// CardMember.jsx
+//Pass
 import React, { useRef } from "react";
 import { FaRegEdit } from "react-icons/fa";
 

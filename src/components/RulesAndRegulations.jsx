@@ -1,3 +1,4 @@
+//Pass รอแก้ลิงค์ไฟล์ PDF ให้เป็นของ Web จริง
 import React, { useState, useRef, useEffect } from 'react'
 
 const RulesAndRegulations = () => {
