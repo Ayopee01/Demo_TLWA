@@ -1,33 +1,40 @@
 //Pass แก้ Email JS ให้เป็นของ สมาคมและย้ายลง .env
+
 import React, { useRef } from 'react';
 import emailjs from '@emailjs/browser';
 import { useForm } from 'react-hook-form';
-import { section } from 'framer-motion/client';
 
 function Contact() {
     const form = useRef();
     const { register, handleSubmit, reset, formState: { errors } } = useForm();
 
+    // ดึงค่าจาก .env
+    const serviceID = import.meta.env.VITE_EMAILJS_SERVICE_ID;
+    const templateID = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
+    const publicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
+    // ถ้าใช้ CRA ให้ใช้ process.env.REACT_APP_EMAILJS_SERVICE_ID
+
     const onSubmit = (data) => {
-        // ส่งอีเมลด้วย EmailJS
         emailjs.sendForm(
-            'ayopee01',
-            'template_ychozgb',
+            serviceID,
+            templateID,
             form.current,
-            '28OMdSdVazafrHpK2'
+            publicKey
         )
             .then((result) => {
                 console.log("Email sent successfully:", result.text);
                 alert("Email sent successfully!");
-                reset(); // รีเซ็ตฟอร์มหลังส่งสำเร็จ
+                reset();
             }, (error) => {
                 console.log("Email sending error:", error.text);
                 alert("Email sending error");
             });
     };
+
     const handleCancel = () => {
-        reset(); // ล้างค่าฟอร์มทั้งหมด
+        reset();
     };
+    
     return (
         <form id='contact' ref={form} onSubmit={handleSubmit(onSubmit)}>
             <div className="flex flex-col justify-center items-center h-full gap-y-14 py-10 bg-gray-800">
