@@ -1,40 +1,46 @@
 import React from 'react';
-import advertImage from '../assets/advert/28 กรกฎาคม.jpg';
+import advertImageXL from '../assets/advert/28 กรกฎาคม XL.jpg';
+import advertImageMD from '../assets/advert/28 กรกฎาคม MD.jpg';
+import advertImageSM from '../assets/advert/28 กรกฎาคม SM.jpg';
 import advertImageMobile from '../assets/advert/28 กรกฎาคม Mobile.jpg';
 
 function Advert({ onEnter }) {
   return (
     <div className="relative w-screen h-screen min-h-screen flex flex-col overflow-hidden bg-[#fcf6de]">
-      {/* รูป BG เต็มจอแบบ Responsive */}
+      {/* Responsive BG Image */}
       <picture>
-        {/* Mobile < md */}
+        {/* 2XL, XL screens */}
         <source
-          srcSet={advertImageMobile}
-          media="(max-width: 767px)"
+          srcSet={advertImageXL}
+          media="(min-width: 1280px)" // Tailwind xl = 1280px, 2xl = 1536px+
         />
-        {/* Desktop >= md */}
+        {/* Desktop (default) */}
+        <source
+          srcSet={advertImageMD}
+          media="(min-width: 768px)" // md = 768px up, but lower than 1280px
+        />
+        {/* Desktop (default) */}
+        <source
+          srcSet={advertImageSM}
+          media="(min-width: 640px)" // sm = 640px up, but lower than 1280px
+        />
+        {/* Mobile */}
         <img
-          src={advertImage}
+          src={advertImageMobile}
           alt="วันเฉลิมพระชนมพรรษา"
           className="absolute inset-0 w-full h-full object-cover object-top z-0 select-none pointer-events-none"
           draggable={false}
         />
       </picture>
-      
-      {/* Layer (Optional: ใส่ overlay ถ้าต้องการ softer หรือ gradient) */}
-      {/* <div className="absolute inset-0 bg-[#fcf6de]/60 z-0"></div> */}
 
-      {/* ปุ่มอยู่ล่างสุด (ซ้อนบน BG) */}
-      <div className="relative z-10 w-full flex flex-1 flex-col justify-end items-center">
-        {/* ตำแหน่งปุ่ม: ล่างสุดพอดี */}
-        <div className="w-full flex justify-center pb-8">
-          <button
-            onClick={onEnter}
-            className="bg-orange-500 hover:bg-orange-600 text-white text-lg font-semibold px-10 py-4 rounded-lg shadow-lg transition"
-          >
-            Enter Website
-          </button>
-        </div>
+      {/* ปุ่มด้านล่าง */}
+      <div className="absolute bottom-0 left-0 w-full h-[20%] flex items-center justify-center z-10">
+        <button
+          onClick={onEnter}
+          className="cursor-pointer bg-orange-500 hover:bg-orange-600 text-white text-lg font-semibold px-10 py-4 rounded-lg shadow-lg transition"
+        >
+          Enter Website
+        </button>
       </div>
     </div>
   );
