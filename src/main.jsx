@@ -1,14 +1,16 @@
-import React from 'react';
-// import { createRoot } from 'react-dom/client';
+import React from "react";
 import ReactDOM from "react-dom/client";
-import './index.css';
-import App from './App.jsx';
-import { UserProvider } from "./contexts/UserContext";
+import { BrowserRouter } from "react-router-dom";
+import App from "./App";
+import { UserProvider } from "./contexts/UserContext"; // ถ้ามี context
+import "./index.css";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
-    <UserProvider>
-      <App />
-    </UserProvider>
+    <BrowserRouter>
+      <UserProvider>
+        <App />
+      </UserProvider>
+    </BrowserRouter>
   </React.StrictMode>
 );

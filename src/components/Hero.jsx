@@ -1,5 +1,6 @@
 //Pass
 import React from 'react'
+import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 // import images
 import heroPeople from '../assets/hero/doctor.png'
@@ -233,20 +234,23 @@ function Hero() {
 
                     <div className='flex justify-center mt-4
                     lg:w-100'>
-                        <motion.button
-                            className="bg-indigo-500 text-white font-semibold w-32 h-15 rounded-xl shadow-lg 
-                            hover:bg-indigo-700 hover:shadow-xl transition-all duration-300 "
-                            initial={{ opacity: 0, scale: 0.8 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            transition={{ duration: 0.5, delay: 1.3 }}
-                            whileHover={{
-                                scale: 1.05,
-                                boxShadow: "0 20px 40px rgba(91, 73, 216, 0.3)"
-                            }}
-                            whileTap={{ scale: 0.95 }}
-                        >
-                            Read More
-                        </motion.button>
+                        <div className='flex justify-center mt-4 lg:w-100'>
+                            <Link to="/about">
+                                <motion.button
+                                    className="bg-indigo-500 text-white font-semibold w-32 h-15 rounded-xl shadow-lg hover:bg-indigo-700 hover:shadow-xl transition-all duration-300 "
+                                    initial={{ opacity: 0, scale: 0.8 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    transition={{ duration: 0.5, delay: 1.3 }}
+                                    whileHover={{
+                                        scale: 1.05,
+                                        boxShadow: "0 20px 40px rgba(91, 73, 216, 0.3)"
+                                    }}
+                                    whileTap={{ scale: 0.95 }}
+                                >
+                                    Read More
+                                </motion.button>
+                            </Link>
+                        </div>
                     </div>
                 </motion.div>
 
