@@ -1,3 +1,4 @@
+//Pass
 import React from 'react';
 import advertImageXL from '../assets/advert/28 กรกฎาคม XL.jpg';
 import advertImageMD from '../assets/advert/28 กรกฎาคม MD.jpg';

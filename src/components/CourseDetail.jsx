@@ -1,4 +1,4 @@
-//Pass
+//Pass รอเพิ่ม CV คุณหมอแต่ละท่าน
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";

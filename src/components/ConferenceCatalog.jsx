@@ -111,7 +111,7 @@ function ConferenceCatalog() {
   return (
     <section
       id="conference"
-      className="relative bg-white text-gray-900 py-6 px-1 sm:py-10 sm:px-2 md:py-16 md:px-4 overflow-hidden"
+      className="relative bg-white text-gray-900 py-6 px-4 sm:py-10 sm:px-2 md:py-16 md:px-4 overflow-hidden"
     >
       <img className="hidden sm:block absolute right-0 top-20" src={line1} alt="" />
       <div className="max-w-6xl mx-auto relative pt-2 sm:pt-5 md:pt-10">
@@ -132,7 +132,7 @@ function ConferenceCatalog() {
           <div className="relative flex items-center justify-center select-none w-full">
             {/* Prev Button */}
             <button
-              className="hidden md:flex z-20 absolute left-3 md:left-5 top-1/2 -translate-y-1/2 bg-white/95 hover:bg-blue-100 rounded-full shadow-xl p-3 md:p-4 transition"
+              className="hidden cursor-pointer md:flex z-20 absolute left-3 md:left-5 top-1/2 -translate-y-1/2 bg-white/95 hover:bg-blue-100 rounded-full shadow-xl p-3 md:p-4 transition"
               onClick={() => paginate(-1)}
               aria-label="Previous"
             >
@@ -171,7 +171,7 @@ function ConferenceCatalog() {
                 key={page}
                 className="
                   mx-1 sm:mx-3
-                  w-[340px] h-[500px]
+                  w-[380px] h-[400px]
                   sm:w-[350px] sm:h-[520px]
                   md:w-[480px] md:h-[680px]
                   overflow-hidden
@@ -244,7 +244,7 @@ function ConferenceCatalog() {
             </div>
             {/* Next Button */}
             <button
-              className="hidden md:flex z-20 absolute right-3 md:right-5 top-1/2 -translate-y-1/2 bg-white/95 hover:bg-blue-100 rounded-full shadow-xl p-3 md:p-4 transition"
+              className="hidden cursor-pointer md:flex z-20 absolute right-3 md:right-5 top-1/2 -translate-y-1/2 bg-white/95 hover:bg-blue-100 rounded-full shadow-xl p-3 md:p-4 transition"
               onClick={() => paginate(1)}
               aria-label="Next"
             >
@@ -256,10 +256,10 @@ function ConferenceCatalog() {
           {/* Title: เต็มแถว ตัด 2 บรรทัด ใกล้รูป */}
           <div
             className="
-              mt-1 sm:mt-2 px-2 sm:px-4 py-1 sm:py-2
+              mt-1 sm:mt-2 px-2 pt-10 sm:px-4 py-1 sm:py-2
               font-bold text-blue-700 text-lg sm:text-xl md:text-2xl
               text-center w-full leading-tight
-              transition hover:text-blue-900 cursor-pointer
+              transition hover:text-blue-900 cursor-pointer z-35
             "
             onClick={handleLink}
             tabIndex={0}
