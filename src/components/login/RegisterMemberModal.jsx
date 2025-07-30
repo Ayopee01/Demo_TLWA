@@ -1,6 +1,7 @@
+// Pass
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { FaFileAlt, FaTrash, FaCloudUploadAlt, FaRegEdit } from "react-icons/fa";
-import { useUser } from "../contexts/UserContext";
+import { useUser } from "../../contexts/UserContext";
 
 const RELIGIONS = [
   "พุทธ", "คริสต์", "อิสลาม", "ฮินดู", "ซิกข์", "ยูดาย", "เชน", "เต๋า", "ชินโต", "Baháʼí", "ลัทธิขงจื๊อ", "ไม่มีศาสนา"

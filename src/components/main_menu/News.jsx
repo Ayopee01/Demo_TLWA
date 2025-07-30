@@ -3,8 +3,8 @@ import React, { useState, useEffect } from "react";
 import { Link } from 'react-router-dom'
 
 // import line decoration
-import line1 from '../assets/news/line-1.png'
-import line2 from '../assets/news/line-2.png'
+import line1 from '/src/assets/news/line-1.png'
+import line2 from '/src/assets/news/line-2.png'
 
 function News() {
 

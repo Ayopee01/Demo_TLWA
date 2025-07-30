@@ -2,9 +2,10 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { FiPlusCircle } from "react-icons/fi";
-import line1 from "../assets/conference/line-1.png";
 import axios from "axios";
+
+//import line decoration
+import line1 from "/src/assets/conference/line-1.png";
 
 const transitionConfig = {
   duration: 0.16,

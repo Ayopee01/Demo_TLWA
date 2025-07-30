@@ -3,12 +3,12 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 
 // import images
-import Doc1 from '../assets/about/doc/Doc1.webp'
-import Doc2 from '../assets/about/doc/Doc2.webp'
-import Doc3 from '../assets/about/doc/Doc3.webp'
-import Doc4 from '../assets/about/doc/Doc4.webp'
-import Doc5 from '../assets/about/doc/Doc5.webp'
-import Doc6 from '../assets/about/doc/Doc6.webp'
+import Doc1 from '/src/assets/about/doc/Doc1.webp'
+import Doc2 from '/src/assets/about/doc/Doc2.webp'
+import Doc3 from '/src/assets/about/doc/Doc3.webp'
+import Doc4 from '/src/assets/about/doc/Doc4.webp'
+import Doc5 from '/src/assets/about/doc/Doc5.webp'
+import Doc6 from '/src/assets/about/doc/Doc6.webp'
 
 function About() {
   const [users, setUsers] = useState([]);

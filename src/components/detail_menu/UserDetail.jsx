@@ -1,4 +1,4 @@
-//รอแก้ให้ดึงจาก API
+//รอแก้ให้ดึงจาก API ตอนนี้ยังไม้ได้แสดง
 import { useParams, Link } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 

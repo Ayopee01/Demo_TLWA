@@ -1,11 +1,13 @@
 //Pass
 import React, { useState, useRef, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import logo from "../assets/logo/tlwa_logo.webp";
 import { FaUserCircle, FaChevronDown } from "react-icons/fa";
-import MemberSection from "./MemberSection";
-import AccountModal from "./AccountModal";
-import { useUser } from "../contexts/UserContext";
+import MemberSection from "../login/MemberSection";
+import AccountModal from "../login/AccountModal";
+import { useUser } from "../../contexts/UserContext";
+
+//import img logo
+import logo from "/src/assets/logo/tlwa_logo.webp";
 
 const NAVBAR_HEIGHT = 100;
 const navLinks = [

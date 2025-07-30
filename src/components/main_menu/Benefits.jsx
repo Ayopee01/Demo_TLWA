@@ -1,17 +1,17 @@
-//Pass รอแก้ Responsive
+//Pass
 import React, { useState } from 'react'
 import { motion, useAnimation, useCycle } from 'framer-motion'
 
 // import logo benefits
-import ben1 from '../assets/benefits/ben1.jpg'
-import ben2 from '../assets/benefits/ben2.jpg'
-import ben3 from '../assets/benefits/ben3.jpg'
-import ben4 from '../assets/benefits/ben4.png'
-import ben5 from '../assets/benefits/ben5.jpg'
-import ben6 from '../assets/benefits/ben6.webp'
+import ben1 from '/src/assets/benefits/ben1.jpg'
+import ben2 from '/src/assets/benefits/ben2.jpg'
+import ben3 from '/src/assets/benefits/ben3.jpg'
+import ben4 from '/src/assets/benefits/ben4.png'
+import ben5 from '/src/assets/benefits/ben5.jpg'
+import ben6 from '/src/assets/benefits/ben6.webp'
 
 // import line decoration
-import line from '../assets/benefits/line-9.png'
+import line from '/src/assets/benefits/line-9.png'
 
 // === Animated วงกลม BG ===
 function AnimatedCircle({ className, style, delay = 0, ...rest }) {

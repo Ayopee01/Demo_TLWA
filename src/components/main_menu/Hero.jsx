@@ -2,10 +2,11 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
+
 // import images
-import heroPeople from '../assets/hero/doctor.png'
-import bgWindow from '../assets/hero/window.png'
-import bgChecklist from '../assets/hero/chat-group.png'
+import heroPeople from '/src/assets/hero/doctor.png'
+import bgWindow from '/src/assets/hero/window.png'
+import bgChecklist from '/src/assets/hero/chat-group.png'
 
 function Hero() {
     // Animation variants

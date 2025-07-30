@@ -1,7 +1,7 @@
-//Pass รอแก้ Step4 เพิ่มเติม
+// Pass
 import React, { useState, useEffect, useMemo } from "react";
 import { FaFileAlt, FaTrash, FaCloudUploadAlt } from "react-icons/fa";
-import { useUser } from "../contexts/UserContext";
+import { useUser } from "../../contexts/UserContext";
 
 const RELIGIONS = [
   "พุทธ", "คริสต์", "อิสลาม", "ฮินดู", "ซิกข์", "ยูดาย", "เชน", "เต๋า", "ชินโต", "Baháʼí", "ลัทธิขงจื๊อ", "ไม่มีศาสนา"
@@ -104,7 +104,7 @@ export default function EditMemberModal({ open, onClose, memberData, afterSave }
     // eslint-disable-next-line
   }, [form.idCard, form.houseReg, form.profilePic, form.educationCert, form.medicalLicense]);
 
-  // อัปเดตข้อมูลฟอร์มเมื่อเปิด modal และรับ memberData (บวกวันเกิด +1)
+  // อัปเดตข้อมูลฟอร์มเมื่อเปิด modal และรับ memberData
   useEffect(() => {
     if (!open || !user || !memberData) return;
     setForm(f => ({

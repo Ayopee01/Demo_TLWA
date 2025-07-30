@@ -11,9 +11,9 @@ import {
   FiTag,
   FiCheck,
 } from "react-icons/fi";
-import Navbar from "./Navbar";
-import OrganizationDropdown from "./OrganizationDropdown";
-import { ORG_OPTIONS } from "../constants/orgs";
+import Navbar from "../main_menu/Navbar";
+import OrganizationDropdown from "../function/OrganizationDropdown";
+import { ORG_OPTIONS } from "../../constants/orgs";
 
 // ========== SuccessPopup ========== //
 function SuccessPopup({ open, onClose, message = "คำสั่งซื้อสำเร็จแล้ว!" }) {

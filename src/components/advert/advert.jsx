@@ -1,9 +1,9 @@
 //Pass
 import React from 'react';
-import advertImageXL from '../assets/advert/28 กรกฎาคม XL.jpg';
-import advertImageMD from '../assets/advert/28 กรกฎาคม MD.jpg';
-import advertImageSM from '../assets/advert/28 กรกฎาคม SM.jpg';
-import advertImageMobile from '../assets/advert/28 กรกฎาคม Mobile.jpg';
+import advertImageXL from '/src/assets/advert/28 กรกฎาคม XL.jpg';
+import advertImageMD from '/src/assets/advert/28 กรกฎาคม MD.jpg';
+import advertImageSM from '/src/assets/advert/28 กรกฎาคม SM.jpg';
+import advertImageMobile from '/src/assets/advert/28 กรกฎาคม Mobile.jpg';
 
 function Advert({ onEnter }) {
   return (

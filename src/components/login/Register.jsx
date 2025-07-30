@@ -1,47 +1,27 @@
-//Pass
-import { useState, useEffect, useRef } from "react";
+// Pass
+import { useState, useRef } from "react";
 import axios from "axios";
-import { useUser } from "../contexts/UserContext";
 
 const THAI_REGEX = /^[\u0E00-\u0E7F\s]+$/;
 const ENGLISH_REGEX = /^[A-Za-z\s]+$/;
 
-export default function AccountModal({ open, onClose }) {
-  const { user, updateUser } = useUser();
-  const formRef = useRef(null);
-  const API_URL = import.meta.env.VITE_API_URL;
-
+export default function Register({ onClose, onSwitchToLogin }) {
   const [form, setForm] = useState({
-    prefix: "",
-    firstName: "",
-    lastName: "",
-    firstNameEn: "",
-    lastNameEn: "",
-    address: "",
-    phone: "",
-    email: "",
+    prefix: '',
+    firstName: '',
+    lastName: '',
+    firstNameEn: '',
+    lastNameEn: '',
+    address: '',
+    phone: '',
+    email: '',
+    password: '',
+    confirmPassword: ''
   });
   const [errors, setErrors] = useState({});
-  const [popup, setPopup] = useState("");
+  const [popup, setPopup] = useState('');
   const [submitting, setSubmitting] = useState(false);
-
-  useEffect(() => {
-    if (user && open) {
-      setForm({
-        prefix: user.prefix || "",
-        firstName: user.firstName || "",
-        lastName: user.lastName || "",
-        firstNameEn: user.firstNameEn || "",
-        lastNameEn: user.lastNameEn || "",
-        address: user.address || "",
-        phone: user.phone || "",
-        email: user.email || "",
-      });
-      setErrors({});
-      setPopup("");
-      setSubmitting(false);
-    }
-  }, [user, open]);
+  const formRef = useRef(null);
 
   const validate = () => {
     const newErrors = {};
@@ -57,51 +37,44 @@ export default function AccountModal({ open, onClose }) {
     if (!form.address) newErrors.address = "กรุณากรอกที่อยู่";
     if (!form.phone) newErrors.phone = "กรุณากรอกเบอร์โทรศัพท์";
     else if (!/^0\d{8,9}$/.test(form.phone)) newErrors.phone = "กรุณากรอกให้ครบ 9-10 หลัก";
+    if (!form.email) newErrors.email = "กรุณากรอกอีเมล";
+    else if (!/\S+@\S+\.\S+/.test(form.email)) newErrors.email = "อีเมลไม่ถูกต้อง";
+    if (!form.password) newErrors.password = "กรุณากรอกรหัสผ่าน";
+    else if (form.password.length < 6) newErrors.password = "รหัสผ่านอย่างน้อย 6 ตัว";
+    if (!form.confirmPassword) newErrors.confirmPassword = "กรุณายืนยันรหัสผ่าน";
+    else if (form.password !== form.confirmPassword) newErrors.confirmPassword = "รหัสผ่านไม่ตรงกัน";
     return newErrors;
   };
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
-    setErrors((prev) => ({ ...prev, [name]: undefined, api: undefined }));
-    setPopup("");
+    setForm({ ...form, [e.target.name]: e.target.value });
+    setErrors((prev) => ({ ...prev, [e.target.name]: undefined, api: undefined }));
   };
 
-  const handleSubmit = async (e) => {
+  const handleRegister = async (e) => {
     e.preventDefault();
-    if (!user || !user.id) {
-      setPopup("ไม่พบ user id");
-      return;
-    }
-
-    const validationErrors = validate();
-    if (Object.keys(validationErrors).length > 0) {
-      setErrors(validationErrors);
-      setPopup("กรุณากรอกข้อมูลให้ครบถ้วน");
-      return;
-    }
-
+    setPopup('');
     setSubmitting(true);
+    const newErrors = validate();
+    setErrors(newErrors);
+    if (Object.keys(newErrors).length > 0) {
+      setSubmitting(false);
+      return;
+    }
     try {
-      await axios.put(`${API_URL}/api/users/${user.id}`, form, { withCredentials: true });
-
-      const resUser = await axios.get(`${API_URL}/api/users/${user.id}`, { withCredentials: true });
-      const userFresh = resUser.data?.user;
-      if (userFresh) {
-        updateUser(userFresh);
-        localStorage.setItem("user", JSON.stringify(userFresh));
-      }
-
-      setPopup("แก้ไขข้อมูลเรียบร้อย");
+      const { confirmPassword, ...registerData } = form;
+      await axios.post(`${import.meta.env.VITE_API_URL}/api/register`, registerData);
+      setPopup('สมัครสมาชิกสำเร็จ');
       setTimeout(() => {
-        setPopup("");
-        if (onClose) onClose();
+        setPopup('');
+        setSubmitting(false);
+        onClose && onClose();
       }, 1200);
     } catch (err) {
-      setPopup(err.response?.data?.message || "เกิดข้อผิดพลาดในการบันทึก");
-      setErrors({ api: err.response?.data?.message || "เกิดข้อผิดพลาด" });
+      setPopup('');
+      setErrors({ api: err.response?.data?.message || 'สมัครสมาชิกไม่สำเร็จ' });
+      setSubmitting(false);
     }
-    setSubmitting(false);
   };
 
   const handleOverlayClick = (e) => {
@@ -110,24 +83,32 @@ export default function AccountModal({ open, onClose }) {
     }
   };
 
-  if (!open) return null;
-
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-lg"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
       onMouseDown={handleOverlayClick}
     >
       <form
         ref={formRef}
-        className="relative w-full flex flex-col items-center rounded-2xl shadow-2xl bg-white border border-gray-200 py-5 px-8 transition-all duration-200 overflow-y-auto max-h-[67dvh] max-w-sm sm:max-w-lg"
-        onSubmit={handleSubmit}
-        onMouseDown={(e) => e.stopPropagation()}
-        autoComplete="off"
+        className={`
+          relative w-full flex flex-col items-center
+          rounded-2xl shadow-2xl
+          bg-white backdrop-blur-xl border border-gray-200
+          py-5 px-8 transition-all duration-200
+          overflow-y-auto
+          max-h-[67dvh]
+          max-w-sm sm:max-w-lg
+        `}
+        style={{
+          WebkitOverflowScrolling: 'touch',
+        }}
+        onSubmit={handleRegister}
+        onMouseDown={e => e.stopPropagation()}
       >
         {/* ปุ่มปิด */}
         <button
           type="button"
-          className="absolute top-3 right-3 bg-gray-200 cursor-pointer hover:bg-red-400 text-gray-500 hover:text-white rounded-full w-9 h-9 flex items-center justify-center transition"
+          className="cursor-pointer absolute top-3 right-3 bg-gray-200 hover:bg-red-400 text-gray-500 hover:text-white rounded-full w-9 h-9 flex items-center justify-center transition"
           onClick={onClose}
           aria-label="Close"
           disabled={submitting}
@@ -136,8 +117,7 @@ export default function AccountModal({ open, onClose }) {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
           </svg>
         </button>
-
-        <h2 className="text-2xl font-bold mb-6 text-gray-800 tracking-tight">Edit Account</h2>
+        <h2 className="text-2xl font-bold mb-6 text-gray-800 tracking-tight">Register</h2>
         {errors.api && <div className="mb-4 text-red-500 text-sm">{errors.api}</div>}
         {popup && <div className="mb-4 text-green-600 text-sm">{popup}</div>}
 
@@ -177,6 +157,7 @@ export default function AccountModal({ open, onClose }) {
                 onChange={handleChange}
                 placeholder="กรอกชื่อจริง"
                 disabled={submitting}
+                autoComplete="off"
               />
             </div>
             {/* นามสกุล */}
@@ -193,12 +174,15 @@ export default function AccountModal({ open, onClose }) {
                 onChange={handleChange}
                 placeholder="กรอกนามสกุล"
                 disabled={submitting}
+                autoComplete="off"
               />
             </div>
-            {/* First Name EN */}
+            {/* First Name (English) */}
             <div>
-              <label className="block mb-1 text-gray-700 font-medium text-sm">First Name (English)</label>
-              {errors.firstNameEn && <span className="text-red-500 text-sm">{errors.firstNameEn}</span>}
+              <div className="flex flex-col">
+                <label className="block mb-1 text-gray-700 font-medium text-sm">First Name (English)</label>
+                {errors.firstNameEn && <span className="text-red-500 font-medium text-sm">{errors.firstNameEn}</span>}
+              </div>
               <input
                 name="firstNameEn"
                 type="text"
@@ -207,12 +191,15 @@ export default function AccountModal({ open, onClose }) {
                 onChange={handleChange}
                 placeholder="First Name"
                 disabled={submitting}
+                autoComplete="off"
               />
             </div>
-            {/* Last Name EN */}
+            {/* Last Name (English) */}
             <div>
-              <label className="block mb-1 text-gray-700 font-medium text-sm">Last Name (English)</label>
-              {errors.lastNameEn && <span className="text-red-500 text-sm">{errors.lastNameEn}</span>}
+              <div className="flex flex-col">
+                <label className="block mb-1 text-gray-700 font-medium text-sm">Last Name (English)</label>
+                {errors.lastNameEn && <span className="text-red-500 font-medium text-sm">{errors.lastNameEn}</span>}
+              </div>
               <input
                 name="lastNameEn"
                 type="text"
@@ -221,6 +208,7 @@ export default function AccountModal({ open, onClose }) {
                 onChange={handleChange}
                 placeholder="Last Name"
                 disabled={submitting}
+                autoComplete="off"
               />
             </div>
           </div>
@@ -228,20 +216,61 @@ export default function AccountModal({ open, onClose }) {
           <div className="flex-1 flex flex-col gap-3 min-w-0">
             {/* Email */}
             <div>
-              <label className="block mb-1 text-gray-700 font-medium text-sm">Email</label>
+              <div className="flex gap-3">
+                <label className="block mb-1 text-gray-700 font-medium text-sm">Email</label>
+                {errors.email && <span className="text-red-500 font-medium text-sm">{errors.email}</span>}
+              </div>
               <input
                 name="email"
                 type="email"
-                className="border px-3 py-2 rounded-xl bg-gray-100 text-gray-500 cursor-not-allowed"
+                className={`border px-3 py-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400 transition ${errors.email ? 'border-red-400 focus:ring-red-400' : 'border-gray-300 focus:border-blue-400'}`}
                 value={form.email}
-                readOnly
-                disabled
+                onChange={handleChange}
+                autoComplete="username"
+                placeholder="your@email.com"
+                disabled={submitting}
               />
             </div>
-            {/* Phone */}
+            {/* Password */}
             <div>
-              <label className="block mb-1 text-gray-700 font-medium text-sm">เบอร์โทรศัพท์</label>
-              {errors.phone && <span className="text-red-500 text-sm">{errors.phone}</span>}
+              <div className="flex gap-3">
+                <label className="block mb-1 text-gray-700 font-medium text-sm">Password</label>
+                {errors.password && <span className="text-red-500 font-medium text-sm">{errors.password}</span>}
+              </div>
+              <input
+                name="password"
+                type="password"
+                className={`border px-3 py-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400 transition ${errors.password ? 'border-red-400 focus:ring-red-400' : 'border-gray-300 focus:border-blue-400'}`}
+                value={form.password}
+                onChange={handleChange}
+                autoComplete="new-password"
+                placeholder="สร้างรหัสผ่าน"
+                disabled={submitting}
+              />
+            </div>
+            {/* Confirm Password */}
+            <div>
+              <div className="flex flex-col">
+                <label className="block mb-1 text-gray-700 font-medium text-sm">Confirm Password</label>
+                {errors.confirmPassword && <span className="text-red-500 font-medium text-sm">{errors.confirmPassword}</span>}
+              </div>
+              <input
+                name="confirmPassword"
+                type="password"
+                className={`border px-3 py-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400 transition ${errors.confirmPassword ? 'border-red-400 focus:ring-red-400' : 'border-gray-300 focus:border-blue-400'}`}
+                value={form.confirmPassword}
+                onChange={handleChange}
+                autoComplete="new-password"
+                placeholder="ยืนยันรหัสผ่าน"
+                disabled={submitting}
+              />
+            </div>
+            {/* เบอร์โทรศัพท์ */}
+            <div>
+              <div className="flex flex-col">
+                <label className="block mb-1 text-gray-700 font-medium text-sm">เบอร์โทรศัพท์</label>
+                {errors.phone && <span className="text-red-500 font-medium text-sm">{errors.phone}</span>}
+              </div>
               <input
                 name="phone"
                 type="tel"
@@ -252,10 +281,12 @@ export default function AccountModal({ open, onClose }) {
                 disabled={submitting}
               />
             </div>
-            {/* Address */}
+            {/* ที่อยู่ */}
             <div>
-              <label className="block mb-1 text-gray-700 font-medium text-sm">ที่อยู่</label>
-              {errors.address && <span className="text-red-500 text-sm">{errors.address}</span>}
+              <div className="flex gap-3">
+                <label className="block mb-1 text-gray-700 font-medium text-sm">ที่อยู่</label>
+                {errors.address && <span className="text-red-500 font-medium text-sm">{errors.address}</span>}
+              </div>
               <textarea
                 name="address"
                 rows={2}
@@ -268,23 +299,21 @@ export default function AccountModal({ open, onClose }) {
             </div>
           </div>
         </div>
-
         <button
           type="submit"
-          className="cursor-pointer w-full mt-5 mb-3 py-2 rounded-xl bg-gradient-to-r from-blue-500 via-indigo-500 to-violet-500 text-white font-semibold shadow-md hover:from-blue-600 hover:to-indigo-600 transition-all text-lg"
+          className="cursor-pointer w-full mb-3 mt-5 py-2 rounded-xl bg-gradient-to-r from-blue-500 via-indigo-500 to-violet-500 text-white font-semibold shadow-md transition duration-300 hover:from-blue-600 hover:to-indigo-600 transition-all text-lg"
           disabled={submitting}
         >
-          {submitting ? "Saving..." : "Save"}
+          {submitting ? "กำลังสมัคร..." : "Register"}
         </button>
-
-        <div className="mt-2 flex w-full justify-end">
+        <div className="mt-2 flex w-full">
           <button
             type="button"
-            className="cursor-pointer text-gray-500 hover:text-blue-600 text-sm hover:underline transition"
-            onClick={onClose}
+            className="cursor-pointer text-gray-500 transition duration-300 hover:text-blue-600 text-sm hover:underline transition"
+            onClick={onSwitchToLogin}
             disabled={submitting}
           >
-            Cancel
+            Back to Login
           </button>
         </div>
       </form>

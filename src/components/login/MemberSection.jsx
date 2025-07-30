@@ -1,11 +1,11 @@
-// components/MemberSection.jsx
+// Pass
 import React, { useEffect, useState } from "react";
 import RegisterMemberModal from "./RegisterMemberModal";
 import EditMemberModal from "./EditMemberModal";
 import CardMember from "./CardMember";
-import { useUser } from "../contexts/UserContext";
+import { useUser } from "../../contexts/UserContext";
 
-// คอมโพเนนต์ตัวกลางแสดง Register, Card, Edit
+// Components ตัวกลางแสดง Register, Card, Edit
 export default function MemberSection({ open, onClose }) {
   const { user } = useUser();
   const [memberData, setMemberData] = useState(null);
