@@ -1,4 +1,3 @@
-//Pass รอเพิ่ม CV คุณหมอแต่ละท่าน
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
@@ -10,12 +9,13 @@ import {
   FiUsers,
   FiTag,
   FiCheck,
+  FiZoomIn,
 } from "react-icons/fi";
 import Navbar from "../main_menu/Navbar";
 import OrganizationDropdown from "../function/OrganizationDropdown";
 import { ORG_OPTIONS } from "../../constants/orgs";
 
-// ========== SuccessPopup ========== //
+// ========== SuccessPopup ==========
 function SuccessPopup({ open, onClose, message = "คำสั่งซื้อสำเร็จแล้ว!" }) {
   useEffect(() => {
     if (open) {
@@ -52,7 +52,7 @@ function SuccessPopup({ open, onClose, message = "คำสั่งซื้อ
   );
 }
 
-// ========== PaymentPopup ========== //
+// ========== PaymentPopup ==========
 function PaymentPopup({ open, amount, discount, onClose, onSubmit, paymentMethod, setPaymentMethod }) {
   const [file, setFile] = useState(null);
   const [fileUrl, setFileUrl] = useState("");
@@ -150,7 +150,146 @@ function PaymentPopup({ open, amount, discount, onClose, onSubmit, paymentMethod
   );
 }
 
-// ========== MAIN COMPONENT ========== //
+// ========== SpeakerGridSection ==========
+// ========== SpeakerGridSection (NEW Version) ==========
+function SpeakerGridSection() {
+  const [speakers, setSpeakers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [popup, setPopup] = useState(null);
+
+  useEffect(() => {
+    setLoading(true);
+    axios
+      .get(`${import.meta.env.VITE_API_URL}/api/course_speakers`)
+      .then((res) => setSpeakers(Array.isArray(res.data) ? res.data : []))
+      .catch(() => setSpeakers([]))
+      .finally(() => setLoading(false));
+  }, []);
+
+  // Sort by ID ASC
+  const sortedSpeakers = speakers
+    .slice()
+    .sort((a, b) => (a.id > b.id ? 1 : -1));
+
+  return (
+    <div className="mt-16 pb-16">
+      <div className="mb-6 flex items-center gap-3">
+        <div className="w-1.5 h-7 bg-gradient-to-b from-blue-600 to-fuchsia-700 rounded-full shadow"></div>
+        <h2 className="text-lg sm:text-2xl font-extrabold bg-gradient-to-r from-blue-800 to-fuchsia-700 bg-clip-text text-transparent tracking-wide">
+          ผู้บรรยาย/วิทยากร
+        </h2>
+      </div>
+      {loading ? (
+        <div className="text-center py-12 text-blue-500 font-bold animate-pulse">
+          กำลังโหลดข้อมูล...
+        </div>
+      ) : sortedSpeakers.length === 0 ? (
+        <div className="text-center text-gray-400 py-8">
+          ไม่พบข้อมูลผู้บรรยายในระบบ
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-1">
+          {sortedSpeakers.map((spk) => (
+            <div
+              key={spk.id}
+              className="flex flex-col items-center group transition-all duration-300 cursor-pointer"
+              onClick={() => setPopup(spk)}
+            >
+              <div
+                className={`
+                  w-30 h-30 mt-4 mb-4
+                  rounded-full shadow-2xl
+                  bg-gradient-to-br from-blue-50 to-fuchsia-50
+                  overflow-hidden
+                  transition-all duration-300
+                  group-hover:scale-110 group-hover:shadow-3xl
+                  border-4 border-transparent
+                  hover:border-blue-300
+                `}
+                style={{
+                  boxShadow: '0 8px 36px 4px rgba(80,130,255,0.09), 0 1.5px 6px 2px rgba(55,80,140,0.13)',
+                }}
+              >
+                <img
+                  src={spk.avatar_url || "/profile-placeholder.webp"}
+                  alt={spk.name}
+                  className="object-cover w-full h-full rounded-full select-none transition duration-300"
+                  draggable={false}
+                />
+              </div>
+              <div className="text-center">
+                <div className="font-bold text-blue-900 text-sm mt-1 drop-shadow-lg">
+                  {spk.name}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Popup Fullscreen Profile */}
+      {popup && (
+        <div
+          className="fixed inset-0 z-[9999] bg-black/80 flex items-center justify-center animate-fadeIn"
+          onClick={() => setPopup(null)}
+        >
+          <div
+            className="relative flex items-center justify-center"
+            onClick={e => e.stopPropagation()}
+          >
+            {/* ปุ่มปิดบนรูป */}
+            <button
+              className="absolute z-20 bg-red-600 text-white rounded-full p-2 shadow-xl hover:bg-red-700"
+              style={{
+                top: 18,
+                right: 18,
+              }}
+              onClick={() => setPopup(null)}
+              title="ปิด"
+            >
+              <FiX size={28} />
+            </button>
+            {/* แสดง image_url เต็ม ไม่มีกรอบ */}
+            <img
+              src={popup.image_url || "/profile-placeholder.webp"}
+              alt={popup.name}
+              className="
+          rounded-2xl shadow-2xl object-contain max-h-[85vh] max-w-[98vw] border-0
+          bg-white select-none
+        "
+              draggable={false}
+              style={{
+                display: "block",
+                background: "#fff",
+                boxShadow: "0 12px 44px 8px rgba(80,130,255,0.13), 0 2px 12px 2px rgba(55,80,140,0.13)",
+              }}
+            />
+          </div>
+          <style>{`
+      .animate-fadeIn { animation: fadeIn .32s cubic-bezier(.65,.05,.36,1); }
+      @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    `}</style>
+        </div>
+      )}
+
+
+      {/* Animations & Shadow */}
+      <style>{`
+        .animate-fadeIn { animation: fadeIn .32s cubic-bezier(.65,.05,.36,1); }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .shadow-3xl {
+          box-shadow:
+            0 8px 36px 12px rgba(80,130,255,0.22),
+            0 1.5px 6px 2px rgba(55,80,140,0.17);
+        }
+      `}</style>
+    </div>
+  );
+}
+
+
+// ========== Main ==========
+
 const API_URL = import.meta.env.VITE_API_URL || "";
 
 const MEMBER_OPTIONS = [
@@ -249,7 +388,7 @@ export default function CourseDetail({ setModal }) {
   const totalCoursePrice = selectedCourseObjs.reduce((sum, c) => sum + (Number(c.price) || 0), 0);
 
   let totalDiscount = 0;
-  if (isAnyMember && courseCount === 3)      totalDiscount = totalCoursePrice * 0.3;
+  if (isAnyMember && courseCount === 3) totalDiscount = totalCoursePrice * 0.3;
   else if (isAnyMember && (courseCount === 1 || courseCount === 2)) totalDiscount = totalCoursePrice * 0.25;
   else if (isNoneMember && courseCount === 3) totalDiscount = totalCoursePrice * 0.2;
 
@@ -736,6 +875,10 @@ export default function CourseDetail({ setModal }) {
           onSubmit={handleSubmitPayment}
         />
         <SuccessPopup open={showSuccessPopup} onClose={() => setShowSuccessPopup(false)} />
+
+        {/* Section ผู้บรรยาย/วิทยากร */}
+        <SpeakerGridSection />
+
       </div>
       <style jsx>{`
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
