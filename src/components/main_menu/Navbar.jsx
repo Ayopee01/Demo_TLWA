@@ -242,15 +242,14 @@ function Navbar({ onLoginClick, onAccountClick }) {
       {/* Drawer */}
       <div
         className={`
-    fixed left-0 z-[100] w-[83vw] max-w-xs bg-white shadow-2xl
-    transition-transform duration-300 border-r border-gray-200
-    flex flex-col overflow-y-auto
+    fixed left-0 top-[100px] z-[100] w-[83vw] max-w-xs h-[calc(100vh-100px)]
+    bg-white shadow-2xl transition-transform duration-300 border-r border-gray-200
+    flex flex-col
     ${open ? "translate-x-0" : "-translate-x-full"}
   `}
-        style={{ top: drawerTop, height: drawerHeight }}
       >
-        <nav className="flex flex-col h-full px-0 py-2">
-          <ul className="flex flex-col">
+        <nav className="flex flex-col h-full">
+          <ul className="flex flex-col flex-grow">
             {navLinks.map(link => (
               <li key={link.label}>
                 <a
@@ -263,7 +262,7 @@ function Navbar({ onLoginClick, onAccountClick }) {
                       : "text-gray-800 hover:bg-gray-100"}
             `}
                   style={{
-                    borderLeftWidth: activeSection === link.href ? "4px" : "4px",
+                    borderLeftWidth: "4px",
                     borderLeftColor: activeSection === link.href ? "#6366F1" : "transparent",
                   }}
                 >
@@ -272,7 +271,7 @@ function Navbar({ onLoginClick, onAccountClick }) {
               </li>
             ))}
           </ul>
-          {/* ปุ่ม Login/ผู้ใช้ อยู่ล่างสุดแบบ responsive */}
+          {/* ปุ่ม Log in/User อยู่ "ล่างสุด" จริง 100% */}
           <div className="mt-auto mb-6 px-6">
             {!user ? (
               <button
