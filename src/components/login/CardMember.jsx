@@ -108,7 +108,7 @@ export default function CardMember({ memberData, onEdit, onClose }) {
           onClick={() => {
             if (typeof onEdit === "function") onEdit();
           }}
-          className="mt-4 mb-5 flex items-center gap-2 py-2 px-7 rounded-xl bg-indigo-500 hover:bg-indigo-600 text-white font-bold shadow transition-all"
+          className="cursor-pointer mt-4 mb-5 flex items-center gap-2 py-2 px-7 rounded-xl bg-indigo-500 hover:bg-indigo-600 text-white font-bold shadow transition-all"
         >
           <FaRegEdit /> Edit Profile
         </button>

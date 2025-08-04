@@ -1,14 +1,14 @@
-// Pass
 import { useState } from "react";
 import { Routes, Route, useLocation } from "react-router-dom";
+
 // --------------------- Components ---------------------
-{/* Log in */}
 import Login from "./components/login/Login";
 import Register from "./components/login/Register";
 import ForgotPassword from "./components/login/ForgotPassword";
 import ResetPassword from "./components/login/ResetPassword";
 import AccountModal from "./components/login/AccountModal";
-{/* Main Menu */}
+
+// Main Menu
 import Navbar from "./components/main_menu/Navbar";
 import Hero from "./components/main_menu/Hero";
 import ConferenceCatalog from "./components/main_menu/ConferenceCatalog";
@@ -19,15 +19,20 @@ import Partners from "./components/main_menu/Partners";
 import RulesAndRegulations from "./components/main_menu/RulesAndRegulations";
 import Contact from "./components/main_menu/Contact";
 import Footer from "./components/main_menu/Footer";
-{/* Detail Menu */}
+
+// Detail Menu
 import About from "./components/detail_menu/About";
 import CourseDetail from "./components/detail_menu/CourseDetail";
-{/* Function */}
+import NewsDetail from "./components/detail_menu/NewsDetail";
+import NewsDetail_ID from "./components/detail_menu/NewsDetail_ID";   // <-- Import ที่นี่
+
+// Function
 import { useUser } from "./contexts/UserContext";
 import useScrollToSection from "./hooks/useScrollToSection";
 import ScrollToTop from "./components/function/ScrollToTop";
-{/* Advert/ใช้สำหรับมีปกวันสำคัญต่างๆ */}
-import Advert from "./components/advert/advert";
+
+// Advert/ใช้สำหรับมีปกวันสำคัญต่างๆ
+// import Advert from "./components/advert/advert";
 
 function MainContent({ setModal }) {
   useScrollToSection();
@@ -55,16 +60,13 @@ function App() {
   const { user, loginUser } = useUser();
   const [showIntro, setShowIntro] = useState(true);
 
-  // ใช้ useLocation ใน App ได้ เพราะ <BrowserRouter> อยู่ที่ main.jsx แล้ว
   const location = useLocation();
   const isHome = location.pathname === "/";
 
-  // แสดง Advert เฉพาะหน้าแรก (path "/") และ showIntro = true เท่านั้น
-  if (isHome && showIntro) {
-    return <Advert onEnter={() => setShowIntro(false)} />;
-  }
+  // if (isHome && showIntro) {
+  //   return <Advert onEnter={() => setShowIntro(false)} />;
+  // }
 
-  // หน้าปกติ (ทุกหน้า ยกเว้น / และ showIntro = true)
   return (
     <>
       <ScrollToTop />
@@ -87,7 +89,7 @@ function App() {
           }
         />
 
-        {/* Reset Password page */}
+        {/* Reset Password */}
         <Route path="/reset-password" element={<ResetPassword />} />
 
         {/* Course detail page */}
@@ -100,6 +102,36 @@ function App() {
                 onAccountClick={() => setModal("account")}
               />
               <CourseDetail setModal={setModal} />
+            </>
+          }
+        />
+
+        {/* News List Page */}
+        <Route
+          path="/news"
+          element={
+            <>
+              <Navbar
+                onLoginClick={() => setModal("login")}
+                onAccountClick={() => setModal("account")}
+              />
+              <NewsDetail />
+              <Footer />
+            </>
+          }
+        />
+
+        {/* News Detail by ID Page */}
+        <Route
+          path="/news/:id"
+          element={
+            <>
+              <Navbar
+                onLoginClick={() => setModal("login")}
+                onAccountClick={() => setModal("account")}
+              />
+              <NewsDetail_ID />
+              <Footer />
             </>
           }
         />
@@ -143,5 +175,3 @@ function App() {
 }
 
 export default App;
-
-

@@ -167,7 +167,7 @@ function Navbar({ onLoginClick, onAccountClick }) {
           <div className="hidden xl:flex items-center">
             {!user ? (
               <button
-                className="font-medium bg-indigo-500 text-white px-8 py-2 rounded-xl hover:bg-indigo-600 transition"
+                className="cursor-pointer font-medium bg-indigo-500 text-white px-8 py-2 rounded-xl hover:bg-indigo-600 transition"
                 onClick={onLoginClick}
               >
                 Log in
@@ -242,26 +242,26 @@ function Navbar({ onLoginClick, onAccountClick }) {
       {/* Drawer */}
       <div
         className={`
-          fixed left-0 z-[100] w-[83vw] max-w-xs bg-white shadow-2xl
-          transition-transform duration-300 border-r border-gray-200
-          flex flex-col overflow-y-auto
-          ${open ? "translate-x-0" : "-translate-x-full"}
-        `}
+    fixed left-0 z-[100] w-[83vw] max-w-xs bg-white shadow-2xl
+    transition-transform duration-300 border-r border-gray-200
+    flex flex-col overflow-y-auto
+    ${open ? "translate-x-0" : "-translate-x-full"}
+  `}
         style={{ top: drawerTop, height: drawerHeight }}
       >
-        <nav className="flex flex-col justify-between h-full px-0">
-          <ul className="flex flex-col flex-1">
+        <nav className="flex flex-col h-full px-0 py-2">
+          <ul className="flex flex-col">
             {navLinks.map(link => (
               <li key={link.label}>
                 <a
                   href={link.href}
                   onClick={handleNavClick(link.href)}
                   className={`
-                    flex items-center px-6 py-3 font-medium transition
-                    ${activeSection === link.href
+              flex items-center px-6 py-3 font-medium transition
+              ${activeSection === link.href
                       ? "text-indigo-700 bg-indigo-50 border-l-4 border-indigo-500"
                       : "text-gray-800 hover:bg-gray-100"}
-                  `}
+            `}
                   style={{
                     borderLeftWidth: activeSection === link.href ? "4px" : "4px",
                     borderLeftColor: activeSection === link.href ? "#6366F1" : "transparent",
@@ -272,10 +272,11 @@ function Navbar({ onLoginClick, onAccountClick }) {
               </li>
             ))}
           </ul>
-          <div className="flex flex-col justify-center m-4 relative">
+          {/* ปุ่ม Login/ผู้ใช้ อยู่ล่างสุดแบบ responsive */}
+          <div className="mt-auto mb-6 px-6">
             {!user ? (
               <button
-                className="font-medium bg-indigo-500 text-white px-8 py-2 rounded-xl hover:bg-indigo-600 transition"
+                className="w-full cursor-pointer font-medium bg-indigo-500 text-white px-8 py-2 rounded-xl hover:bg-indigo-600 transition"
                 onClick={() => { setOpen(false); onLoginClick(); }}
               >
                 Log in
@@ -294,14 +295,14 @@ function Navbar({ onLoginClick, onAccountClick }) {
                 {mobileUserDropdown && (
                   <div
                     className="
-                      absolute
-                      bottom-[110%] left-1/2
-                      -translate-x-1/2
-                      w-full max-w-[220px]
-                      bg-white border rounded-xl shadow-lg z-50
-                      flex flex-col items-stretch
-                      mobile-user-dropdown-popup
-                    "
+                absolute
+                bottom-[110%] left-1/2
+                -translate-x-1/2
+                w-full max-w-[220px]
+                bg-white border rounded-xl shadow-lg z-50
+                flex flex-col items-stretch
+                mobile-user-dropdown-popup
+              "
                   >
                     <ul className="py-1 text-sm text-indigo-900">
                       <li>
@@ -342,6 +343,7 @@ function Navbar({ onLoginClick, onAccountClick }) {
           </div>
         </nav>
       </div>
+
       {/* Popup Modals */}
       <MemberSection open={showMemberModal} onClose={() => setShowMemberModal(false)} />
       <AccountModal open={showAccountModal} onClose={() => setShowAccountModal(false)} />

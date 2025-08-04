@@ -1024,16 +1024,16 @@ export default function EditMemberModal({ open, onClose, memberData, afterSave }
         <div className="flex justify-between mt-8">
           {step > 1 ? (
             <button type="button"
-              className="px-6 py-2 rounded-xl bg-gray-100 text-gray-700 font-semibold hover:bg-gray-200 transition"
+              className="cursor-pointer px-6 py-2 rounded-xl bg-gray-100 text-gray-700 font-semibold hover:bg-gray-200 transition"
               onClick={handleBack} disabled={saving}>Back</button>
           ) : <div />}
           {step < 6 ? (
             <button type="button"
-              className="px-6 py-2 rounded-xl bg-gradient-to-r from-blue-500 via-indigo-500 to-violet-500 text-white font-semibold shadow-md hover:from-blue-600 hover:to-indigo-600 transition-all"
+              className="cursor-pointer px-6 py-2 rounded-xl bg-gradient-to-r from-blue-500 via-indigo-500 to-violet-500 text-white font-semibold shadow-md hover:from-blue-600 hover:to-indigo-600 transition-all"
               onClick={handleNext} disabled={saving}>Next</button>
           ) : (
             <button type="submit"
-              className="px-8 py-2 rounded-xl bg-gradient-to-r from-blue-500 via-indigo-500 to-violet-500 text-white font-semibold shadow-md hover:from-blue-600 hover:to-indigo-600 transition-all"
+              className="cursor-pointer px-8 py-2 rounded-xl bg-gradient-to-r from-blue-500 via-indigo-500 to-violet-500 text-white font-semibold shadow-md hover:from-blue-600 hover:to-indigo-600 transition-all"
               disabled={saving}>
               {saving ? "Saving..." : "บันทึก"}
             </button>
