@@ -130,7 +130,7 @@ function Navbar({ onLoginClick, onAccountClick }) {
         <div className="container mx-auto flex items-center justify-between h-25 px-4 xl:px-0">
           {/* LOGO */}
           <Link to="/" className="flex items-center">
-            <img className="h-15 w-auto" src={logo} alt="Logo" />
+            <img className="h-12 w-auto" src={logo} alt="Logo" />
           </Link>
           {/* Desktop Nav */}
           <ul className="hidden xl:flex space-x-8 items-center">
@@ -218,11 +218,11 @@ function Navbar({ onLoginClick, onAccountClick }) {
           </div>
           {/* Mobile Hamburger */}
           <button
-            className="xl:hidden flex items-center justify-center w-15 h-15 rounded-full bg-gray-100 border border-gray-300 cursor-pointer focus:outline-none hover:bg-gray-300"
+            className="xl:hidden flex items-center justify-center w-12 h-12 rounded-full bg-gray-100 border border-gray-300 cursor-pointer focus:outline-none hover:bg-gray-300"
             aria-label="Toggle menu"
             onClick={() => setOpen(o => !o)}
           >
-            <svg className="w-10 h-10 text-black" fill="none" viewBox="0 0 24 24">
+            <svg className="w-8 h-8 text-black" fill="none" viewBox="0 0 24 24">
               <line x1="6" y1="8" x2="18" y2="8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
               <line x1="6" y1="12" x2="18" y2="12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
               <line x1="6" y1="16" x2="18" y2="16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
