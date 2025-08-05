@@ -1,12 +1,9 @@
-//Pass
 import React, { useState, useRef, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { FaUserCircle, FaChevronDown } from "react-icons/fa";
 import MemberSection from "../login/MemberSection";
 import AccountModal from "../login/AccountModal";
 import { useUser } from "../../contexts/UserContext";
-
-//import img logo
 import logo from "/src/assets/logo/tlwa_logo.webp";
 
 const NAVBAR_HEIGHT = 100;
@@ -21,6 +18,7 @@ const navLinks = [
   { label: "Contact", href: "#contact" },
 ];
 
+// Hook สำหรับ track section active
 function useActiveSection(navLinks) {
   const [active, setActive] = useState(navLinks[0].href);
   useEffect(() => {
@@ -47,7 +45,7 @@ function Navbar({ onLoginClick, onAccountClick }) {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // --- Drawer & user state
+  // Drawer & User
   const [open, setOpen] = useState(false);
   const [dropdown, setDropdown] = useState(false);
   const [mobileUserDropdown, setMobileUserDropdown] = useState(false);
@@ -58,6 +56,7 @@ function Navbar({ onLoginClick, onAccountClick }) {
   const [hideNav, setHideNav] = useState(false);
   const prevScrollY = useRef(window.scrollY);
 
+  // ปิด navbar บน scroll ลง
   useEffect(() => { if (open) setHideNav(false); }, [open]);
   useEffect(() => {
     if (open) return;
@@ -76,7 +75,7 @@ function Navbar({ onLoginClick, onAccountClick }) {
     return () => { document.body.style.overflow = ""; };
   }, [open]);
 
-  // Dropdown, mobile user
+  // Dropdown desktop
   useEffect(() => {
     if (!dropdown) return;
     const handleClick = (e) => {
@@ -85,6 +84,7 @@ function Navbar({ onLoginClick, onAccountClick }) {
     document.addEventListener("mousedown", handleClick);
     return () => document.removeEventListener("mousedown", handleClick);
   }, [dropdown]);
+  // Dropdown mobile
   useEffect(() => {
     if (!mobileUserDropdown) return;
     const handleClick = (e) => {
@@ -99,27 +99,21 @@ function Navbar({ onLoginClick, onAccountClick }) {
 
   const activeSection = useActiveSection(navLinks);
 
-  // --- MAIN LOGIC for scroll/cross-route navigation
+  // Handle click nav menu
   const handleNavClick = (href) => (e) => {
     e.preventDefault();
     setOpen(false);
-    // ถ้าไม่อยู่หน้า "/" ให้ navigate ไป "/" + hash เพื่อ scroll หลังเปลี่ยนหน้า
     if (location.pathname !== "/") {
       navigate(`/${href}`);
     } else {
       setTimeout(() => {
         const section = document.querySelector(href);
-        if (section) {
-          section.scrollIntoView({ behavior: "smooth", block: "start" });
-        }
+        if (section) section.scrollIntoView({ behavior: "smooth", block: "start" });
       }, 20);
     }
   };
 
-  // Drawer
-  const drawerTop = NAVBAR_HEIGHT;
-  const drawerHeight = `calc(100vh - ${NAVBAR_HEIGHT}px)`;
-
+  // --- Render ---
   return (
     <>
       {/* Navbar */}
@@ -155,9 +149,7 @@ function Navbar({ onLoginClick, onAccountClick }) {
                         ? "w-full opacity-100"
                         : "w-0 opacity-0 group-hover:opacity-100 group-hover:w-full"}
                     `}
-                    style={{
-                      transitionProperty: "width, opacity"
-                    }}
+                    style={{ transitionProperty: "width, opacity" }}
                   ></span>
                 </a>
               </li>
@@ -242,11 +234,11 @@ function Navbar({ onLoginClick, onAccountClick }) {
       {/* Drawer */}
       <div
         className={`
-    fixed left-0 top-[100px] z-[100] w-[83vw] max-w-xs h-[calc(100vh-100px)]
-    bg-white shadow-2xl transition-transform duration-300 border-r border-gray-200
-    flex flex-col
-    ${open ? "translate-x-0" : "-translate-x-full"}
-  `}
+          fixed left-0 top-[100px] z-[100] w-[83vw] max-w-xs h-screen
+          bg-white shadow-2xl transition-transform duration-300 border-r border-gray-200
+          flex flex-col overflow-y-auto
+          ${open ? "translate-x-0" : "-translate-x-full"}
+        `}
       >
         <nav className="flex flex-col h-full">
           <ul className="flex flex-col flex-grow">
@@ -256,11 +248,11 @@ function Navbar({ onLoginClick, onAccountClick }) {
                   href={link.href}
                   onClick={handleNavClick(link.href)}
                   className={`
-              flex items-center px-6 py-3 font-medium transition
-              ${activeSection === link.href
+                    flex items-center px-6 py-3 font-medium transition
+                    ${activeSection === link.href
                       ? "text-indigo-700 bg-indigo-50 border-l-4 border-indigo-500"
                       : "text-gray-800 hover:bg-gray-100"}
-            `}
+                  `}
                   style={{
                     borderLeftWidth: "4px",
                     borderLeftColor: activeSection === link.href ? "#6366F1" : "transparent",
@@ -271,7 +263,7 @@ function Navbar({ onLoginClick, onAccountClick }) {
               </li>
             ))}
           </ul>
-          {/* ปุ่ม Log in/User อยู่ "ล่างสุด" จริง 100% */}
+          {/* Log in/User dropdown mobile */}
           <div className="mt-auto mb-6 px-6">
             {!user ? (
               <button
@@ -294,14 +286,9 @@ function Navbar({ onLoginClick, onAccountClick }) {
                 {mobileUserDropdown && (
                   <div
                     className="
-                absolute
-                bottom-[110%] left-1/2
-                -translate-x-1/2
-                w-full max-w-[220px]
-                bg-white border rounded-xl shadow-lg z-50
-                flex flex-col items-stretch
-                mobile-user-dropdown-popup
-              "
+                      absolute bottom-[110%] left-1/2 -translate-x-1/2 w-full max-w-[220px]
+                      bg-white border rounded-xl shadow-lg z-50 flex flex-col items-stretch mobile-user-dropdown-popup
+                    "
                   >
                     <ul className="py-1 text-sm text-indigo-900">
                       <li>
