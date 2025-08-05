@@ -1,3 +1,5 @@
+// src/components/main_menu/Navbar.jsx
+
 import React, { useState, useRef, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { FaUserCircle, FaChevronDown } from "react-icons/fa";
@@ -18,7 +20,7 @@ const navLinks = [
   { label: "Contact", href: "#contact" },
 ];
 
-// Hook สำหรับ track section active
+// Track section active (เหมือนเดิม)
 function useActiveSection(navLinks) {
   const [active, setActive] = useState(navLinks[0].href);
   useEffect(() => {
@@ -45,7 +47,7 @@ function Navbar({ onLoginClick, onAccountClick }) {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Drawer & User
+  // State
   const [open, setOpen] = useState(false);
   const [dropdown, setDropdown] = useState(false);
   const [mobileUserDropdown, setMobileUserDropdown] = useState(false);
@@ -56,7 +58,7 @@ function Navbar({ onLoginClick, onAccountClick }) {
   const [hideNav, setHideNav] = useState(false);
   const prevScrollY = useRef(window.scrollY);
 
-  // ปิด navbar บน scroll ลง
+  // Hide nav on scroll (desktop)
   useEffect(() => { if (open) setHideNav(false); }, [open]);
   useEffect(() => {
     if (open) return;
@@ -75,7 +77,7 @@ function Navbar({ onLoginClick, onAccountClick }) {
     return () => { document.body.style.overflow = ""; };
   }, [open]);
 
-  // Dropdown desktop
+  // Dropdown outside click (desktop)
   useEffect(() => {
     if (!dropdown) return;
     const handleClick = (e) => {
@@ -84,7 +86,7 @@ function Navbar({ onLoginClick, onAccountClick }) {
     document.addEventListener("mousedown", handleClick);
     return () => document.removeEventListener("mousedown", handleClick);
   }, [dropdown]);
-  // Dropdown mobile
+  // Dropdown outside click (mobile)
   useEffect(() => {
     if (!mobileUserDropdown) return;
     const handleClick = (e) => {
@@ -99,7 +101,7 @@ function Navbar({ onLoginClick, onAccountClick }) {
 
   const activeSection = useActiveSection(navLinks);
 
-  // Handle click nav menu
+  // Scroll logic
   const handleNavClick = (href) => (e) => {
     e.preventDefault();
     setOpen(false);
@@ -108,15 +110,16 @@ function Navbar({ onLoginClick, onAccountClick }) {
     } else {
       setTimeout(() => {
         const section = document.querySelector(href);
-        if (section) section.scrollIntoView({ behavior: "smooth", block: "start" });
+        if (section) {
+          section.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
       }, 20);
     }
   };
 
-  // --- Render ---
   return (
     <>
-      {/* Navbar */}
+      {/* Navbar (Top Bar) */}
       <nav
         className={`fixed top-0 left-0 w-full z-50 bg-white shadow transition-transform duration-300 ${hideNav ? "-translate-y-full" : "translate-y-0"}`}
         style={{ height: NAVBAR_HEIGHT }}
@@ -149,7 +152,9 @@ function Navbar({ onLoginClick, onAccountClick }) {
                         ? "w-full opacity-100"
                         : "w-0 opacity-0 group-hover:opacity-100 group-hover:w-full"}
                     `}
-                    style={{ transitionProperty: "width, opacity" }}
+                    style={{
+                      transitionProperty: "width, opacity"
+                    }}
                   ></span>
                 </a>
               </li>
@@ -231,16 +236,22 @@ function Navbar({ onLoginClick, onAccountClick }) {
         />
       )}
 
-      {/* Drawer */}
+      {/* Drawer (Mobile Side Menu) */}
       <div
         className={`
-          fixed left-0 top-[100px] z-[100] w-[83vw] max-w-xs h-screen
+          fixed left-0 top-[100px] z-[100] w-[83vw] max-w-xs
           bg-white shadow-2xl transition-transform duration-300 border-r border-gray-200
-          flex flex-col overflow-y-auto
+          flex flex-col
           ${open ? "translate-x-0" : "-translate-x-full"}
         `}
+        style={{
+          height: "calc(100dvh - 100px)", // <<-- รองรับมือถือ 100%
+          minHeight: 420, // ไม่เตี้ยเกิน
+          paddingBottom: "env(safe-area-inset-bottom, 24px)",
+          maxHeight: "calc(100dvh - 100px)",
+        }}
       >
-        <nav className="flex flex-col h-full">
+        <nav className="flex flex-col h-full overflow-y-auto">
           <ul className="flex flex-col flex-grow">
             {navLinks.map(link => (
               <li key={link.label}>
@@ -263,12 +274,16 @@ function Navbar({ onLoginClick, onAccountClick }) {
               </li>
             ))}
           </ul>
-          {/* Log in/User dropdown mobile */}
+          {/* ปุ่ม Log in/User อยู่ล่างสุดจริง 100% */}
           <div className="mt-auto mb-6 px-6">
             {!user ? (
               <button
                 className="w-full cursor-pointer font-medium bg-indigo-500 text-white px-8 py-2 rounded-xl hover:bg-indigo-600 transition"
                 onClick={() => { setOpen(false); onLoginClick(); }}
+                style={{
+                  minHeight: 48,
+                  marginBottom: "env(safe-area-inset-bottom, 12px)",
+                }}
               >
                 Log in
               </button>
@@ -282,12 +297,15 @@ function Navbar({ onLoginClick, onAccountClick }) {
                   <span className="font-medium text-indigo-900 truncate">{user.firstName} {user.lastName}</span>
                   <FaChevronDown className="ml-1 text-indigo-500" />
                 </button>
-                {/* Dropdown Popup */}
                 {mobileUserDropdown && (
                   <div
                     className="
-                      absolute bottom-[110%] left-1/2 -translate-x-1/2 w-full max-w-[220px]
-                      bg-white border rounded-xl shadow-lg z-50 flex flex-col items-stretch mobile-user-dropdown-popup
+                      absolute bottom-[110%] left-1/2
+                      -translate-x-1/2
+                      w-full max-w-[220px]
+                      bg-white border rounded-xl shadow-lg z-50
+                      flex flex-col items-stretch
+                      mobile-user-dropdown-popup
                     "
                   >
                     <ul className="py-1 text-sm text-indigo-900">
