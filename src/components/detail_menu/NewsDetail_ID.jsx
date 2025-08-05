@@ -27,16 +27,18 @@ export default function NewsDetail_ID() {
   // โหลด news_detail
   useEffect(() => {
     if (!id) return;
-    axios.get(`${API_URL}/api/news_detail/${id}`)
-      .then(res => setDetail(res.data || null))
+    axios
+      .get(`${API_URL}/api/news_detail/${id}`)
+      .then((res) => setDetail(res.data || null))
       .catch(() => setDetail(null));
   }, [id]);
 
   // โหลดข่าวหลัก
   useEffect(() => {
     if (!detail?.news_id) return;
-    axios.get(`${API_URL}/api/news/${detail.news_id}`)
-      .then(res => setNews(res.data || null))
+    axios
+      .get(`${API_URL}/api/news/${detail.news_id}`)
+      .then((res) => setNews(res.data || null))
       .catch(() => setNews(null));
   }, [detail?.news_id]);
 
@@ -44,9 +46,10 @@ export default function NewsDetail_ID() {
   useEffect(() => {
     if (!detail || !Array.isArray(detail.images)) return;
     let imgs = [...detail.images];
-    setPagedImages(imgs.slice((page - 1) * IMAGES_PER_PAGE, page * IMAGES_PER_PAGE));
+    setPagedImages(
+      imgs.slice((page - 1) * IMAGES_PER_PAGE, page * IMAGES_PER_PAGE)
+    );
     setTotalPages(Math.ceil(imgs.length / IMAGES_PER_PAGE) || 1);
-    // scroll to top gallery ทุกครั้งเปลี่ยนหน้า
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, [detail, news, page]);
 
@@ -76,7 +79,9 @@ export default function NewsDetail_ID() {
                   src={a.author_image_url}
                   alt={a.author_name}
                   className="w-20 h-20 object-cover rounded-full mb-2 border-2 border-blue-100"
-                  style={{ boxShadow: "0 2px 8px 0 rgba(80,100,200,0.07)" }}
+                  style={{
+                    boxShadow: "0 2px 8px 0 rgba(80,100,200,0.07)",
+                  }}
                 />
               ) : (
                 <div className="w-16 h-16 flex items-center justify-center rounded-full bg-gray-100 mb-2">
@@ -96,7 +101,10 @@ export default function NewsDetail_ID() {
     <div className="relative min-h-screen bg-white pb-12 pt-30">
       <div className="max-w-5xl mx-auto py-10 px-2 md:px-10 relative">
         <div className="mb-5">
-          <Link to="/news" className="inline-flex items-center text-indigo-600 hover:underline mb-6">
+          <Link
+            to="/news"
+            className="inline-flex items-center text-indigo-600 hover:underline mb-6"
+          >
             <FiArrowLeft className="mr-2" /> กลับหน้าข่าวทั้งหมด
           </Link>
         </div>
@@ -124,21 +132,37 @@ export default function NewsDetail_ID() {
             {/* Cover Image Full */}
             {news.cover_image_url && (
               <div className="w-full flex justify-center items-center mb-8">
-                <img
-                  src={news.cover_image_url}
-                  alt=""
-                  className="w-full h-[420px] md:h-[540px] object-contain object-center"
+                <div
                   style={{
-                    maxWidth: "100%",
+                    width: "100%",
+                    maxWidth: 900,
                     margin: "0 auto",
-                    display: "block",
+                    overflow: "hidden",
                     background: "#f6fafd",
+                    borderRadius: "18px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
                   }}
-                />
+                >
+                  <img
+                    src={news.cover_image_url}
+                    alt=""
+                    style={{
+                      width: "100%",
+                      height: "auto",
+                      objectFit: "contain",
+                      borderRadius: "18px",
+                      display: "block",
+                    }}
+                  />
+                </div>
               </div>
             )}
             {detail.caption && (
-              <div className="text-gray-700 italic mb-8 text-lg text-center">"{detail.caption}"</div>
+              <div className="text-gray-700 italic mb-8 text-lg text-center">
+                "{detail.caption}"
+              </div>
             )}
           </>
         )}
@@ -153,21 +177,32 @@ export default function NewsDetail_ID() {
               </div>
             ) : (
               pagedImages.map((img) => (
-                <div key={img.id} className="flex flex-col items-center w-full mb-6">
+                <div
+                  key={img.id}
+                  className="w-full max-w-4xl mx-auto mb-8"
+                  style={{
+                    width: "100%",
+                    maxWidth: 900,
+                    margin: "0 auto 32px auto",
+                    overflow: "hidden",
+                    background: "#f9fbfc",
+                    borderRadius: "18px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
                   <img
                     src={img.image_url}
                     alt={img.caption || ""}
-                    className="w-full"
                     style={{
-                      maxHeight: 560,
                       width: "100%",
+                      height: "auto",
                       objectFit: "contain",
-                      background: "#f9fbfc"
+                      borderRadius: "18px",
+                      display: "block",
                     }}
                   />
-                  {img.caption && (
-                    <span className="block mt-3 text-base text-gray-600 text-center max-w-2xl">{img.caption}</span>
-                  )}
                 </div>
               ))
             )}
