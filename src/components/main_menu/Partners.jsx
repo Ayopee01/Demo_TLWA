@@ -95,64 +95,50 @@ import logo6_6_June_2025 from "/src/assets/partners/6_June_2025/6.PCA_LOGO.png";
 const GROUPS = [
   {
     title: "6 July 2024",
-    boxes: [
-      [logo1_6_7_2024, logo2_6_7_2024, logo3_6_7_2024, logo4_6_7_2024, logo5_6_7_2024, logo6_6_7_2024, logo7_6_7_2024],
-      [logo8_6_7_2024, logo9_6_7_2024, logo10_6_7_2024, logo11_6_7_2024, logo12_6_7_2024, logo13_6_7_2024, logo14_6_7_2024, logo15_6_7_2024],
-      [logo16_6_7_2024, logo17_6_7_2024, logo18_6_7_2024, logo19_6_7_2024, logo20_6_7_2024, logo21_6_7_2024, logo22_6_7_2024],
+    logos: [
+      logo1_6_7_2024, logo2_6_7_2024, logo3_6_7_2024, logo4_6_7_2024, logo5_6_7_2024, logo6_6_7_2024, logo7_6_7_2024,
+      logo8_6_7_2024, logo9_6_7_2024, logo10_6_7_2024, logo11_6_7_2024, logo12_6_7_2024, logo13_6_7_2024, logo14_6_7_2024, logo15_6_7_2024,
+      logo16_6_7_2024, logo17_6_7_2024, logo18_6_7_2024, logo19_6_7_2024, logo20_6_7_2024, logo21_6_7_2024, logo22_6_7_2024,
     ],
+    grid: "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-7",
   },
   {
     title: "21 February 2025",
-    boxes: [
-      [logo1_21_2_2025, logo2_21_2_2025, logo3_21_2_2025, logo4_21_2_2025, logo5_21_2_2025],
-      [logo6_21_2_2025, logo7_21_2_2025, logo8_21_2_2025, logo9_21_2_2025],
-      [logo10_21_2_2025, logo11_21_2_2025, logo12_21_2_2025, logo13_21_2_2025, logo14_21_2_2025],
-      [logo15_21_2_2025, logo16_21_2_2025, logo17_21_2_2025, logo18_21_2_2025, logo19_21_2_2025],
-      [logo20_21_2_2025, logo21_21_2_2025, logo22_21_2_2025, logo23_21_2_2025, logo24_21_2_2025],
-      [logo25_21_2_2025, logo26_21_2_2025, logo27_21_2_2025, logo28_21_2_2025, logo29_21_2_2025],
-      [logo30_21_2_2025, logo31_21_2_2025, logo32_21_2_2025, logo33_21_2_2025, logo34_21_2_2025],
-      [logo35_21_2_2025, logo36_21_2_2025, logo37_21_2_2025, logo38_21_2_2025, logo39_21_2_2025],
-      [logo40_21_2_2025, logo41_21_2_2025, logo42_21_2_2025, logo43_21_2_2025, logo44_21_2_2025, logo45_21_2_2025],
-      [logo46_21_2_2025, logo47_21_2_2025, logo48_21_2_2025, logo49_21_2_2025, logo50_21_2_2025],
+    logos: [
+      logo1_21_2_2025, logo2_21_2_2025, logo3_21_2_2025, logo4_21_2_2025, logo5_21_2_2025, logo6_21_2_2025, logo7_21_2_2025, logo8_21_2_2025, logo9_21_2_2025, logo10_21_2_2025,
+      logo11_21_2_2025, logo12_21_2_2025, logo13_21_2_2025, logo14_21_2_2025, logo15_21_2_2025, logo16_21_2_2025, logo17_21_2_2025, logo18_21_2_2025, logo19_21_2_2025, logo20_21_2_2025,
+      logo21_21_2_2025, logo22_21_2_2025, logo23_21_2_2025, logo24_21_2_2025, logo25_21_2_2025, logo26_21_2_2025, logo27_21_2_2025, logo28_21_2_2025, logo29_21_2_2025, logo30_21_2_2025,
+      logo31_21_2_2025, logo32_21_2_2025, logo33_21_2_2025, logo34_21_2_2025, logo35_21_2_2025, logo36_21_2_2025, logo37_21_2_2025, logo38_21_2_2025, logo39_21_2_2025, logo40_21_2_2025,
+      logo41_21_2_2025, logo42_21_2_2025, logo43_21_2_2025, logo44_21_2_2025, logo45_21_2_2025, logo46_21_2_2025, logo47_21_2_2025, logo48_21_2_2025, logo49_21_2_2025, logo50_21_2_2025,
     ],
+    grid: "grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5",
   },
-  // *** สองกล่องสุดท้ายจะเป็น custom layout ไม่ต้องรวมใน GROUPS ***
 ];
 
-// ===== 6 มิถุนายน 2025 : Oxford Mindfulness =====
 const GROUP_OXFORD = {
   title: "6 June 2025 : Oxford Mindfulness",
-  boxes: [
-    [logo1_6_June_2025_Oxford, logo2_6_June_2025_Oxford],
-  ],
-  // สำหรับจัด layout (ฝั่งซ้าย)
-  customClass: "max-w-[400px] w-full min-w-[300px]",
+  logos: [logo1_6_June_2025_Oxford, logo2_6_June_2025_Oxford],
+  grid: "grid-cols-2",
 };
 
-// ===== 6 มิถุนายน 2025 =====
 const GROUP_JUNE = {
   title: "6 June 2025",
-  boxes: [
-    [
-      logo1_6_June_2025,
-      logo2_6_June_2025,
-      logo3_6_June_2025,
-      logo4_6_June_2025,
-      logo5_6_June_2025,
-      logo6_6_June_2025,
-    ],
+  logos: [
+    logo1_6_June_2025,
+    logo2_6_June_2025,
+    logo3_6_June_2025,
+    logo4_6_June_2025,
+    logo5_6_June_2025,
+    logo6_6_June_2025,
   ],
-  // สำหรับจัด layout (ฝั่งขวา)
-  customClass: "flex-1 min-w-[380px]",
+  grid: "grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6",
 };
 
 export default function Partners() {
   const [showAll, setShowAll] = useState(false);
 
-  // เฉพาะ 6 July 2024
   const mainGroups = [GROUPS[0]];
-  // ทั้งหมด (รวม custom 2 กล่องสุดท้าย)
-  const allGroups = [...GROUPS, "CUSTOM_JUNE"]; // ใช้ string เป็น flag เฉย ๆ
+  const logoClass = "object-contain w-28 h-20 md:w-32 md:h-24 max-h-24 mx-auto";
 
   return (
     <section id="partners" className="relative bg-white text-gray-900 py-10 px-4 overflow-hidden">
@@ -172,14 +158,12 @@ export default function Partners() {
         </div>
 
         <div className="max-w-6xl mx-auto flex flex-col gap-12">
-          {/* --- แสดงเฉพาะกลุ่มที่ต้องการ --- */}
-          {(showAll ? GROUPS : mainGroups).map((group, groupIdx) => (
+          {/* Main Groups */}
+          {(showAll ? GROUPS : mainGroups).map((group, i) => (
             <div
               key={group.title}
               className="relative rounded-2xl border-[3px] border-sky-300 bg-white py-6 px-1 md:px-8"
-              style={{
-                boxShadow: "0 2px 16px 0 rgba(80,173,255,0.12)",
-              }}
+              style={{ boxShadow: "0 2px 16px 0 rgba(80,173,255,0.12)" }}
             >
               <div className="absolute left-0 top-0 w-full flex justify-center -translate-y-1/2">
                 <div className="bg-white px-6">
@@ -188,49 +172,42 @@ export default function Partners() {
                   </h2>
                 </div>
               </div>
-              <div className="flex flex-col gap-6 pt-8">
-                {group.boxes.map((row, rowIdx) => (
+              <div className={`pt-8 grid gap-4 md:gap-8 ${group.grid} justify-items-center`}>
+                {group.logos.map((logo, idx) => (
                   <div
-                    key={rowIdx}
-                    className="flex flex-row justify-center items-center gap-4 md:gap-8"
+                    key={idx}
+                    className="flex items-center justify-center bg-transparent"
+                    style={{
+                      padding: "10px",
+                    }}
                   >
-                    {row.map((logo, idx) => (
-                      <div
-                        key={idx}
-                        className="bg-transparent flex items-center justify-center"
-                        style={{
-                          padding: "10px",
-                          minWidth: 64,
-                          minHeight: 64,
-                          maxWidth: 120,
-                          maxHeight: 100,
-                        }}
-                      >
-                        <img
-                          src={logo}
-                          alt=""
-                          className="object-contain w-full h-16 md:h-20 max-h-24"
-                          style={{
-                            margin: "auto",
-                            background: "none",
-                            boxShadow: "none",
-                          }}
-                          loading="lazy"
-                        />
-                      </div>
-                    ))}
+                    <img
+                      src={logo}
+                      alt=""
+                      className={logoClass}
+                      loading="lazy"
+                    />
                   </div>
                 ))}
               </div>
             </div>
           ))}
 
-          {/* --- 2 กล่องสุดท้าย แสดงเฉพาะตอน showAll --- */}
+          {/* --- 2 กล่องสุดท้าย --- */}
           {showAll && (
-            <div className="flex flex-row gap-2 w-full justify-center items-stretch mt-2">
-              {/* --- ซ้าย: Oxford Mindfulness --- */}
+            <div className="
+              w-full max-w-6xl mx-auto
+              flex flex-col xl:flex-row gap-6
+              justify-center items-stretch mt-2
+            ">
+              {/* Oxford Mindfulness */}
               <div
-                className={`${GROUP_OXFORD.customClass} rounded-2xl border-[3px] border-sky-300 bg-white flex flex-col justify-center items-center py-6 px-3 relative`}
+                className="
+                  w-full xl:w-[34%] max-w-full
+                  rounded-2xl border-[3px] border-sky-300 bg-white
+                  flex flex-col justify-center items-center py-6 px-3 relative
+                  transition-all
+                "
                 style={{
                   boxShadow: "0 2px 16px 0 rgba(80,173,255,0.12)",
                   alignSelf: "stretch",
@@ -238,60 +215,43 @@ export default function Partners() {
               >
                 <div className="absolute left-0 top-0 w-full flex justify-center -translate-y-1/2">
                   <div className="bg-white px-4">
-                    <span className="text-base md:text-lg font-bold text-black tracking-tight">
+                    <span className="text-sm md:text-lg font-bold text-black tracking-tight">
                       {GROUP_OXFORD.title}
                     </span>
                   </div>
                 </div>
-                <div className="flex flex-row items-center justify-center pt-8 w-full">
-                  {/* โลโก้อันที่ 1 */}
-                  <div
-                    className="flex items-center justify-center"
-                    style={{
-                      padding: "10px",
-                      minWidth: 64,
-                      minHeight: 64,
-                      maxWidth: 120,
-                      maxHeight: 100,
-                    }}
-                  >
-                    <img
-                      src={GROUP_OXFORD.boxes[0][0]}
-                      alt=""
-                      className="object-contain w-full h-16 md:h-20 max-h-24"
-                      style={{ margin: "auto", background: "none", boxShadow: "none" }}
-                      loading="lazy"
+                {/* Responsive divider & logos */}
+                <div className="flex items-center justify-center w-full h-full gap-0 xl:gap-0 relative">
+                  {/* สำหรับจอใหญ่ = แนวนอน, จอเล็ก = แนวตั้ง */}
+                  {/* ซ้าย */}
+                  <div className="flex-1 flex justify-end items-center order-1 xl:order-1">
+                    <div className="flex items-center justify-center" style={{ paddingRight: "40px", paddingBottom: "0px", paddingTop: "0px" }}>
+                      <img src={GROUP_OXFORD.logos[0]} alt="" className={logoClass} />
+                    </div>
+                  </div>
+                  {/* Divider (always vertical) */}
+                  <div className="order-2 xl:order-2 flex flex-col items-center justify-center">
+                    <div
+                      className="w-0 h-20 xl:h-32 border-l-2 border-gray-700 mx-auto"
+                      style={{ marginLeft: "0px", marginRight: "0px" }}
                     />
                   </div>
-
-                  {/* เส้นคั่นแนวตั้ง */}
-                  <div className="mx-6 h-14 md:h-20 border-l-2 border-gray-400" />
-
-                  {/* โลโก้อันที่ 2 */}
-                  <div
-                    className="flex items-center justify-center"
-                    style={{
-                      padding: "10px",
-                      minWidth: 64,
-                      minHeight: 64,
-                      maxWidth: 120,
-                      maxHeight: 100,
-                    }}
-                  >
-                    <img
-                      src={GROUP_OXFORD.boxes[0][1]}
-                      alt=""
-                      className="object-contain w-full h-16 md:h-20 max-h-24"
-                      style={{ margin: "auto", background: "none", boxShadow: "none" }}
-                      loading="lazy"
-                    />
+                  {/* ขวา */}
+                  <div className="flex-1 flex justify-start items-center order-3 xl:order-3">
+                    <div className="flex items-center justify-center" style={{ paddingLeft: "10px", paddingBottom: "0px", paddingTop: "0px" }}>
+                      <img src={GROUP_OXFORD.logos[1]} alt="" className={logoClass} />
+                    </div>
                   </div>
                 </div>
               </div>
-
-              {/* --- ขวา: 6 June 2025 --- */}
+              {/* 6 June 2025 */}
               <div
-                className={`${GROUP_JUNE.customClass} rounded-2xl border-[3px] border-sky-300 bg-white flex flex-col justify-center items-center py-6 px-3 relative`}
+                className="
+                  w-full xl:w-[66%] max-w-full
+                  rounded-2xl border-[3px] border-sky-300 bg-white
+                  flex flex-col justify-center items-center py-6 px-3 relative
+                  transition-all
+                "
                 style={{
                   boxShadow: "0 2px 16px 0 rgba(80,173,255,0.12)",
                   alignSelf: "stretch",
@@ -304,24 +264,19 @@ export default function Partners() {
                     </span>
                   </div>
                 </div>
-                <div className="flex flex-row flex-wrap gap-2 pt-8 justify-center items-center w-full">
-                  {GROUP_JUNE.boxes[0].map((logo, idx) => (
+                <div className={`pt-8 grid gap-4 w-full justify-items-center ${GROUP_JUNE.grid}`}>
+                  {GROUP_JUNE.logos.map((logo, idx) => (
                     <div
                       key={idx}
                       className="flex items-center justify-center"
                       style={{
                         padding: "10px",
-                        minWidth: 64,
-                        minHeight: 64,
-                        maxWidth: 120,
-                        maxHeight: 100,
                       }}
                     >
                       <img
                         src={logo}
                         alt=""
-                        className="object-contain w-full h-16 md:h-20 max-h-24"
-                        style={{ margin: "auto", background: "none", boxShadow: "none" }}
+                        className={logoClass}
                         loading="lazy"
                       />
                     </div>
@@ -335,7 +290,7 @@ export default function Partners() {
             <button
               onClick={() => setShowAll((val) => !val)}
               className="cursor-pointer bg-indigo-500 text-white font-semibold w-32 h-12 rounded-xl shadow-lg
-            hover:bg-indigo-700 hover:shadow-xl transition-all duration-300 flex items-center justify-center"
+              hover:bg-indigo-700 hover:shadow-xl transition-all duration-300 flex items-center justify-center"
             >
               {showAll ? "Show less" : "Show more"}
             </button>
