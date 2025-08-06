@@ -15,7 +15,7 @@ import ConferenceCatalog from "./components/main_menu/ConferenceCatalog";
 import Benefits from "./components/main_menu/Benefits";
 import News from "./components/main_menu/News";
 import Media from "./components/main_menu/Media";
-// import Partners from "./components/main_menu/Partners";
+import Partners from "./components/main_menu/Partners";
 import RulesAndRegulations from "./components/main_menu/RulesAndRegulations";
 import Contact from "./components/main_menu/Contact";
 import Footer from "./components/main_menu/Footer";
@@ -47,7 +47,7 @@ function MainContent({ setModal }) {
       <Benefits />
       <News />
       <Media />
-      {/* <Partners /> */}
+      <Partners />
       <RulesAndRegulations />
       <Contact />
       <Footer />

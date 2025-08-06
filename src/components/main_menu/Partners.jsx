@@ -1,329 +1,347 @@
-//Pass รอแก้ให้ดึงจาก API
-import React, { useState, useRef, useEffect } from 'react'
+import React, { useState } from "react";
+//import line
+import line1 from "/src/assets/news/line-1.png";
 
-// Import logo1
-import logo1 from '/src/assets/partners/logo1/1.webp'
-import logo2 from '/src/assets/partners/logo1/2.webp'
-import logo3 from '/src/assets/partners/logo1/3.webp'
-import logo4 from '/src/assets/partners/logo1/4.webp'
-import logo5 from '/src/assets/partners/logo1/5.webp'
-import logo6 from '/src/assets/partners/logo1/6.webp'
-import logo7 from '/src/assets/partners/logo1/7.webp'
-import logo8 from '/src/assets/partners/logo1/8.webp'
-import logo9 from '/src/assets/partners/logo1/9.webp'
-import logo10 from '/src/assets/partners/logo1/10.webp'
-import logo11 from '/src/assets/partners/logo1/11.webp'
-import logo12 from '/src/assets/partners/logo1/12.webp'
-import logo13 from '/src/assets/partners/logo1/13.webp'
-import logo14 from '/src/assets/partners/logo1/14.webp'
-import logo15 from '/src/assets/partners/logo1/15.webp'
-import logo16 from '/src/assets/partners/logo1/16.webp'
-import logo17 from '/src/assets/partners/logo1/17.webp'
-import logo18 from '/src/assets/partners/logo1/18.webp'
-import logo19 from '/src/assets/partners/logo1/19.webp'
-import logo20 from '/src/assets/partners/logo1/20.webp'
-import logo21 from '/src/assets/partners/logo1/21.webp'
-import logo22 from '/src/assets/partners/logo1/22.webp'
-import logo23 from '/src/assets/partners/logo1/23.webp'
-import logo24 from '/src/assets/partners/logo1/24.webp'
-import logo25 from '/src/assets/partners/logo1/25.webp'
-import logo26 from '/src/assets/partners/logo1/26.webp'
-import logo27 from '/src/assets/partners/logo1/27.webp'
-import logo28 from '/src/assets/partners/logo1/28.webp'
-import logo29 from '/src/assets/partners/logo1/29.webp'
-import logo30 from '/src/assets/partners/logo1/30.webp'
+// ===== 6 กรกฎาคม 2024 =====
+import logo1_6_7_2024 from "/src/assets/partners/6_July_2024/1.png";
+import logo2_6_7_2024 from "/src/assets/partners/6_July_2024/2.png";
+import logo3_6_7_2024 from "/src/assets/partners/6_July_2024/3.jpg";
+import logo4_6_7_2024 from "/src/assets/partners/6_July_2024/4.png";
+import logo5_6_7_2024 from "/src/assets/partners/6_July_2024/5.png";
+import logo6_6_7_2024 from "/src/assets/partners/6_July_2024/6.png";
+import logo7_6_7_2024 from "/src/assets/partners/6_July_2024/7.jpg";
+import logo8_6_7_2024 from "/src/assets/partners/6_July_2024/8.png";
+import logo9_6_7_2024 from "/src/assets/partners/6_July_2024/9.png";
+import logo10_6_7_2024 from "/src/assets/partners/6_July_2024/10.png";
+import logo11_6_7_2024 from "/src/assets/partners/6_July_2024/11.png";
+import logo12_6_7_2024 from "/src/assets/partners/6_July_2024/12.png";
+import logo13_6_7_2024 from "/src/assets/partners/6_July_2024/13.png";
+import logo14_6_7_2024 from "/src/assets/partners/6_July_2024/14.jpg";
+import logo15_6_7_2024 from "/src/assets/partners/6_July_2024/15.png";
+import logo16_6_7_2024 from "/src/assets/partners/6_July_2024/16.png";
+import logo17_6_7_2024 from "/src/assets/partners/6_July_2024/17.jpg";
+import logo18_6_7_2024 from "/src/assets/partners/6_July_2024/18.jpg";
+import logo19_6_7_2024 from "/src/assets/partners/6_July_2024/19.jpg";
+import logo20_6_7_2024 from "/src/assets/partners/6_July_2024/20.jpg";
+import logo21_6_7_2024 from "/src/assets/partners/6_July_2024/21.png";
+import logo22_6_7_2024 from "/src/assets/partners/6_July_2024/22.jpg";
 
-// Import logo2
-import logo2_1 from '/src/assets/partners/logo2/1.สมาคมเวชศาสตร์วิถีชีวิตและสุขภาวะไทย-TLWA.webp'
-import logo2_2 from '/src/assets/partners/logo2/2.สถาบันเทคโนโลยีพระจอมเกล้าเจ้าคุณทหารลาดกระบัง.webp'
-import logo2_3 from '/src/assets/partners/logo2/3.มหามกุฏราชวิทยาลัย.webp'
-import logo2_4 from '/src/assets/partners/logo2/4.สถาบันวิจัยพุทธศาสตร์-มหาวิทยาลัยมหาจุฬาลงกรณราชวิทยาลัย.webp'
-import logo2_5 from '/src/assets/partners/logo2/5.สถาบันการขนส่ง-จุฬาลงกรณ์มหาวิทยาลัย.webp'
-import logo2_6 from '/src/assets/partners/logo2/6.คณะครุศาสตร์-จุฬาลงกรณ์มหาวิทยาลัย.webp'
-import logo2_7 from '/src/assets/partners/logo2/7.บัณฑิตวิทยาลัย-มหาลัยจุฬา.webp'
-import logo2_8 from '/src/assets/partners/logo2/8.คณะวิทยาศาสตร์การกีฬา-มหาวิทยาลัยจุฬา.webp'
-import logo2_9 from '/src/assets/partners/logo2/9.วิทยาลัยประชากรศาสตร์-จุฬาลงกรณ์มหาวิทยาลัย.webp'
-import logo2_10 from '/src/assets/partners/logo2/10.คณะศิลปกรรมศาสตร์-จุฬาลงกรณ์มหาวิทยาลัย.webp'
-import logo2_11 from '/src/assets/partners/logo2/11.คณะสหเวชศาสตร์-จุฬาลงกรณ์-มหาวิทยาลัย.webp'
-import logo2_12 from '/src/assets/partners/logo2/12.เทคโนโลยีราชมงคลรัตนโกสินทร์.png'
-import logo2_13 from '/src/assets/partners/logo2/13.มหาวิทยาลัยมหิดล-สถาบันแห่งชาติเพื่อการพัฒนาเด็กและครอบครัว.png'
-import logo2_14 from '/src/assets/partners/logo2/14.มหาวิทยาลัยสงขลานครินทร์.webp'
-import logo2_15 from '/src/assets/partners/logo2/15.กรมสนับสนุนบริการสุขภาพ-กระทรวงสาธารณสุข.webp'
-import logo2_16 from '/src/assets/partners/logo2/16.กองทุนประชากรแห่งสหประชาชาติ.webp'
-import logo2_17 from '/src/assets/partners/logo2/17.ทันตแพทยสภา.webp'
-import logo2_18 from '/src/assets/partners/logo2/18.สภาเทคนิคการแพทย์.webp'
-import logo2_19 from '/src/assets/partners/logo2/19.มหาวิทยาลัยเกษตรศาสตร์.webp'
-import logo2_20 from '/src/assets/partners/logo2/20.มหาวิยยาลัยขอนแก่น.png'
-import logo2_21 from '/src/assets/partners/logo2/21.มหาลัยเชียงใหม่.webp'
-import logo2_22 from '/src/assets/partners/logo2/22.สถาบันบัณฑิตบริหารธุรกิจศศินทร์แห่งจุฬาลงกรณ์มหาวิทยาลัย.png'
-import logo2_23 from '/src/assets/partners/logo2/23.วิทยาลัยแพทยศาสตร์นานาชาติจุฬาภรณ์-มหาวิทยาลัยธรรมศาสตร์.webp'
-import logo2_24 from '/src/assets/partners/logo2/24.สหเวชศาสตร์-มหาวิทยาลัยบูรพา.webp'
-import logo2_25 from '/src/assets/partners/logo2/25.สภาผู้ปกครองและครูแห่งประเทศไทย.webp'
-import logo2_26 from '/src/assets/partners/logo2/26.สำนักงานบรรเทาทุกข์และประชานามัยพิทักษ์-สภากาชาดไทย.webp'
-import logo2_27 from '/src/assets/partners/logo2/27.สถาบันการสร้างชาติ.webp'
-import logo2_28 from '/src/assets/partners/logo2/28.มูลนิธิอนุสรณ์-หม่อมงามจิตต์-บุรฉัตร-ในพระราชูปถัม.webp'
-import logo2_29 from '/src/assets/partners/logo2/29.มูลนิธิตะวันฉาย.png'
-import logo2_30 from '/src/assets/partners/logo2/30.มูลนิธิธรรมดี.webp'
-import logo2_31 from '/src/assets/partners/logo2/31.มูลนิธิสถาบันพลังจิตตานุภาพหลวงพ่อวิริยังค์-สิรินุธโร.webp'
-import logo2_32 from '/src/assets/partners/logo2/32.มูลนิธิเสถียรธรรมสถาน.webp'
-import logo2_33 from '/src/assets/partners/logo2/33.มูลนิธิหนึ่งน้ำใจ-ONE LOVE FOUNDATION.webp'
-import logo2_34 from '/src/assets/partners/logo2/34.Spiritual-Health-Foundation.webp'
-import logo2_35 from '/src/assets/partners/logo2/35.สมาพันธ์สมาคมสปาแอนด์เวลเนสไทย.webp'
-import logo2_36 from '/src/assets/partners/logo2/36.สมาคมคณะกรรมการสถานศึกษา.webp'
-import logo2_37 from '/src/assets/partners/logo2/37.สมาคมนักธุรกิจจีนโพ้นทะเล.webp'
-import logo2_38 from '/src/assets/partners/logo2/38.สมาคมนิทราเวชศาสตร์-TASM.webp'
-import logo2_39 from '/src/assets/partners/logo2/39.สมาคมพัฒนาประชากรและชุมชน.webp'
-import logo2_40 from '/src/assets/partners/logo2/40.สมาคมเพศวิทยาคลินิกและเวชศาสตร์ทางเพศ.webp'
-import logo2_41 from '/src/assets/partners/logo2/41.สมาคมโรคจากการการหลับแห่งประเทศไทย-png.webp'
-import logo2_42 from '/src/assets/partners/logo2/42.สมาคมวัยหมดระดูแห่งประเทศไทย.webp'
-import logo2_43 from '/src/assets/partners/logo2/43.สมาคมศิษย์เก่าศูนย์ฝึกอาชีพและพัฒนาสมรรถภาพคนตาบอด.webp'
-import logo2_44 from '/src/assets/partners/logo2/44.สมาคมอนามัยเจริญพันธุ์-ไทย.webp'
-import logo2_45 from '/src/assets/partners/logo2/45.กองทุนพัฒนาสื่อปลอดภัยและสร้างสรรค์.webp'
-import logo2_46 from '/src/assets/partners/logo2/46.โรงพยาบาลปิยะเวท.webp'
-import logo2_47 from '/src/assets/partners/logo2/47.โรงพยาบาลวิมุตเทพธารินทร์.webp'
-import logo2_48 from '/src/assets/partners/logo2/48.สมิติเวช.webp'
-import logo2_49 from '/src/assets/partners/logo2/49.บริษัท-บำรุงราษฎร์-เซอร์วิสเซส-จำกัด.webp'
-import logo2_50 from '/src/assets/partners/logo2/50.บริษัท-ไอ.ซี.ซี.อินเตอร์เนชั่นแนล-จำกัด-มหาชน.webp'
+// ===== 21 กุมภาพันธ์ 2025 =====
+import logo1_21_2_2025 from "/src/assets/partners/21_February_2025/1.สมาคมเวชศาสตร์วิถีชีวิตและสุขภาวะไทย TLWA.png";
+import logo2_21_2_2025 from "/src/assets/partners/21_February_2025/2.สถาบันเทคโนโลยีพระจอมเกล้าเจ้าคุณทหารลาดกระบัง.png";
+import logo3_21_2_2025 from "/src/assets/partners/21_February_2025/3.มหามกุฏราชวิทยาลัย.jpg";
+import logo4_21_2_2025 from "/src/assets/partners/21_February_2025/4.สถาบันวิจัยพุทธศาสตร์ มหาวิทยาลัยมหาจุฬาลงกรณราชวิทยาลัย.png";
+import logo5_21_2_2025 from "/src/assets/partners/21_February_2025/5.สถาบันการขนส่ง จุฬาลงกรณ์มหาวิทยาลัย.png";
+import logo6_21_2_2025 from "/src/assets/partners/21_February_2025/6.คณะครุศาสตร์ จุฬาลงกรณ์มหาวิทยาลัย.jpg";
+import logo7_21_2_2025 from "/src/assets/partners/21_February_2025/7.บัณฑิตวิทยาลัย มหาลัยจุฬา.png";
+import logo8_21_2_2025 from "/src/assets/partners/21_February_2025/8.วิทยาลัยประชากรศาสตร์ จุฬาลงกรณ์มหาวิทยาลัย.png";
+import logo9_21_2_2025 from "/src/assets/partners/21_February_2025/9.คณะวิทยาศาสตร์การกีฬา มหาวิทยาลัยจุฬา.jpg";
+import logo10_21_2_2025 from "/src/assets/partners/21_February_2025/10.คณะศิลปกรรมศาสตร์ จุฬาลงกรณ์มหาวิทยาลัย.jpg";
+import logo11_21_2_2025 from "/src/assets/partners/21_February_2025/11.คณะสหเวชศาสตร์ จุฬาลงกรณ์ มหาวิทยาลัย.jpg";
+import logo12_21_2_2025 from "/src/assets/partners/21_February_2025/12.เทคโนโลยีราชมงคลรัตนโกสินทร์.png";
+import logo13_21_2_2025 from "/src/assets/partners/21_February_2025/13.มหาวิทยาลัยมหิดล สถาบันแห่งชาติเพื่อการพัฒนาเด็กและครอบครัว.jpg";
+import logo14_21_2_2025 from "/src/assets/partners/21_February_2025/14.มหาวิทยาลัยสงขลานครินทร์.png";
+import logo15_21_2_2025 from "/src/assets/partners/21_February_2025/15.กรมสนับสนุนบริการสุขภาพ กระทรวงสาธารณสุข.png";
+import logo16_21_2_2025 from "/src/assets/partners/21_February_2025/16.กองทุนประชากรแห่งสหประชาชาติ.png";
+import logo17_21_2_2025 from "/src/assets/partners/21_February_2025/17.ทันตแพทยสภา.png";
+import logo18_21_2_2025 from "/src/assets/partners/21_February_2025/18.สภาเทคนิคการแพทย์.png";
+import logo19_21_2_2025 from "/src/assets/partners/21_February_2025/19.มหาวิทยาลัยเกษตรศาสตร์ กลม.png";
+import logo20_21_2_2025 from "/src/assets/partners/21_February_2025/20.มหาวิยยาลัยขอนแก่น.png";
+import logo21_21_2_2025 from "/src/assets/partners/21_February_2025/21.มหาลัยเชียงใหม่ มอเชียงใหม่.png";
+import logo22_21_2_2025 from "/src/assets/partners/21_February_2025/22.สถาบันบัณฑิตบริหารธุรกิจศศินทร์แห่งจุฬาลงกรณ์มหาวิทยาลัย.png";
+import logo23_21_2_2025 from "/src/assets/partners/21_February_2025/23.วิทยาลัยแพทยศาสตร์นานาชาติจุฬาภรณ์ มหาวิทยาลัยธรรมศาสตร์.jpg";
+import logo24_21_2_2025 from "/src/assets/partners/21_February_2025/24.สหเวชศาสตร์ มหาวิทยาลัยบูรพา.jpg";
+import logo25_21_2_2025 from "/src/assets/partners/21_February_2025/25.สภาผู้ปกครองและครูแห่งประเทศไทย.JPG";
+import logo26_21_2_2025 from "/src/assets/partners/21_February_2025/26.สำนักงานบรรเทาทุกข์และประชานามัยพิทักษ์ สภากาชาดไทย.png";
+import logo27_21_2_2025 from "/src/assets/partners/21_February_2025/27.สถาบันการสร้างชาติ.png";
+import logo28_21_2_2025 from "/src/assets/partners/21_February_2025/28.มูลนิธิอนุสรณ์ หม่อมงามจิตต์ บุรฉัตร ในพระราชูปถัม.png";
+import logo29_21_2_2025 from "/src/assets/partners/21_February_2025/29.มูลนิธิตะวันฉาย.png";
+import logo30_21_2_2025 from "/src/assets/partners/21_February_2025/30.มูลนิธิธรรมดี PNG.png";
+import logo31_21_2_2025 from "/src/assets/partners/21_February_2025/31.มูลนิธิสถาบันพลังจิตตานุภาพหลวงพ่อวิริยังค์ สิรินุธโร.png";
+import logo32_21_2_2025 from "/src/assets/partners/21_February_2025/32.มูลนิธิเสถียรธรรมสถาน.jpg";
+import logo33_21_2_2025 from "/src/assets/partners/21_February_2025/33.One love.jpg";
+import logo34_21_2_2025 from "/src/assets/partners/21_February_2025/34.Spiritual Health Foundation.jpg";
+import logo35_21_2_2025 from "/src/assets/partners/21_February_2025/35.สมาพันธ์สมาคมสปาแอนด์เวลเนสไทย.jpg";
+import logo36_21_2_2025 from "/src/assets/partners/21_February_2025/36.สมาคมคณะกรรมการสถานศึกษา.jpg";
+import logo37_21_2_2025 from "/src/assets/partners/21_February_2025/37.สมาคมนักธุรกิจจีนโพ้นทะเล.jpg";
+import logo38_21_2_2025 from "/src/assets/partners/21_February_2025/38.สมาคมนิทราเวชศาสตร์ TASM.png";
+import logo39_21_2_2025 from "/src/assets/partners/21_February_2025/39.สมาคมพัฒนาประชากรและชุมชน.jpg";
+import logo40_21_2_2025 from "/src/assets/partners/21_February_2025/40.สมาคมเพศวิทยาคลินิกและเวชศาสตร์ทางเพศ.jpg";
+import logo41_21_2_2025 from "/src/assets/partners/21_February_2025/41.สมาคมโรคจากการการหลับแห่งประเทศไทย png.png";
+import logo42_21_2_2025 from "/src/assets/partners/21_February_2025/42.สมาคมวัยหมดระดูแห่งประเทศไทย.jpg";
+import logo43_21_2_2025 from "/src/assets/partners/21_February_2025/43.สมาคมศิษย์เก่าศูนย์ฝึกอาชีพและพัฒนาสมรรถภาพคนตาบอด.jpg";
+import logo44_21_2_2025 from "/src/assets/partners/21_February_2025/44.สมาคมอนามัยเจริญพันธุ์ (ไทย).jpg";
+import logo45_21_2_2025 from "/src/assets/partners/21_February_2025/45.กองทุนพัฒนาสื่อปลอดภัยและสร้างสรรค์.jpg";
+import logo46_21_2_2025 from "/src/assets/partners/21_February_2025/46.โรงพยาบาลปิยะเวท.jpg";
+import logo47_21_2_2025 from "/src/assets/partners/21_February_2025/47.โรงพยาบาลวิมุตเทพธารินทร์ Jpg (Thai).jpg";
+import logo48_21_2_2025 from "/src/assets/partners/21_February_2025/48.สมิติเวช.jpg";
 
-// ✅ Import sister_logo
-import sister1 from '/src/assets/partners/sister_logo/1.American college of lifestyle medicine.png'
-import sister2 from '/src/assets/partners/sister_logo/2.webp'
-import sister3 from '/src/assets/partners/sister_logo/3.webp'
-import sister4 from '/src/assets/partners/sister_logo/4.webp'
-import sister5 from '/src/assets/partners/sister_logo/5.webp'
-import sister6 from '/src/assets/partners/sister_logo/6.webp'
-import sister7 from '/src/assets/partners/sister_logo/7.webp'
-import sister8 from '/src/assets/partners/sister_logo/8.webp'
-import sister9 from '/src/assets/partners/sister_logo/9.webp'
-import sister10 from '/src/assets/partners/sister_logo/10.webp'
-import sister11 from '/src/assets/partners/sister_logo/11.webp'
-import sister12 from '/src/assets/partners/sister_logo/12.webp'
-import sister13 from '/src/assets/partners/sister_logo/13.webp'
-import sister14 from '/src/assets/partners/sister_logo/14.webp'
-import sister15 from '/src/assets/partners/sister_logo/15.webp'
-import sister16 from '/src/assets/partners/sister_logo/16.webp'
-import sister17 from '/src/assets/partners/sister_logo/17.webp'
-import sister18 from '/src/assets/partners/sister_logo/18.webp'
-import sister19 from '/src/assets/partners/sister_logo/19.webp'
-import sister20 from '/src/assets/partners/sister_logo/20.webp'
-import sister21 from '/src/assets/partners/sister_logo/21.webp'
-import sister22 from '/src/assets/partners/sister_logo/22.webp'
-import sister23 from '/src/assets/partners/sister_logo/23.webp'
-import sister24 from '/src/assets/partners/sister_logo/24.webp'
-import sister25 from '/src/assets/partners/sister_logo/25.webp'
-import sister26 from '/src/assets/partners/sister_logo/26.webp'
-import sister27 from '/src/assets/partners/sister_logo/27.webp'
-import sister28 from '/src/assets/partners/sister_logo/28.webp'
-import sister29 from '/src/assets/partners/sister_logo/29.webp'
-import sister30 from '/src/assets/partners/sister_logo/30.webp'
+import logo49_21_2_2025 from "/src/assets/partners/21_February_2025/49.บริษัท_บำรุงราษฎร์_เซอร์วิสเซส_จำกัด.jpg";
+import logo50_21_2_2025 from "/src/assets/partners/21_February_2025/50.บริษัท ไอ.ซี.ซี.อินเตอร์เนชั่นแนล จำกัด (มหาชน).jpg";
 
-const logos = [
-  { name: 'Veganerie', logo: logo1, url: 'https://www.veganerie.co' },
-  { name: 'Kiew-Kai-Ka', logo: logo2, url: 'https://www.kiewkaika.com' },
-  { name: 'Kinokuniya', logo: logo3, url: 'https://thailand.kinokuniya.com' },
-  { name: 'CHULA BOOK', logo: logo4, url: 'https://www.chulabook.com' },
-  { name: 'Asia Books', logo: logo5, url: 'https://www.asiabooks.com' },
-  { name: 'Family Med College', logo: logo6, url: '#' },
-  { name: 'Paolo Hospital', logo: logo7, url: 'https://www.paolohospital.com' },
-  { name: 'Phyathai Hospital', logo: logo8, url: 'https://www.phyathai.com' },
-  { name: 'DPU', logo: logo9, url: 'https://www.dpu.ac.th' },
-  { name: 'H.E.A.T.', logo: logo10, url: '#' },
-  { name: 'LM Global Alliance', logo: logo11, url: 'https://lmglobalalliance.org' },
-  { name: 'IBLM', logo: logo12, url: 'https://www.iblm.org' },
-  { name: 'Chulabhorn Royal Academy', logo: logo13, url: '#' },
-  { name: 'Department of Health', logo: logo14, url: 'https://www.anamai.moph.go.th' },
-  { name: 'Chakri Naruebodindra Hospital', logo: logo15, url: '#' },
-  { name: 'Mental Health Dept.', logo: logo16, url: 'https://www.dmh.go.th' },
-  { name: 'Ophthalmology College', logo: logo17, url: '#' },
-  { name: 'Preventive Medicine', logo: logo18, url: '#' },
-  { name: 'Mahidol Public Health', logo: logo19, url: 'https://ph.mahidol.ac.th' },
-  { name: 'NFI', logo: logo20, url: 'https://www.nfi.or.th' },
-  { name: 'Diabetes Association', logo: logo21, url: '#' },
-  { name: 'Physicians College', logo: logo22, url: '#' },
-  { name: 'Family Physicians', logo: logo23, url: '#' },
-  { name: 'Thai Traditional Medicine', logo: logo24, url: '#' },
-  { name: 'Public Health Faculty', logo: logo25, url: 'https://ph.mahidol.ac.th' },
-  { name: 'ArokaGO', logo: logo26, url: '#' },
-  { name: 'Phramongkutklao Hospital', logo: logo27, url: '#' },
-  { name: 'MedCMU', logo: logo28, url: 'https://www.med.cmu.ac.th' },
-  { name: 'ThaiHealth', logo: logo29, url: 'https://www.thaihealth.or.th' },
-  { name: 'Human Development Association', logo: logo30, url: '#' },
-]
+// ===== 6 มิถุนายน 2025 : Oxford Mindfulness =====
+import logo1_6_June_2025_Oxford from "/src/assets/partners/6_June_2025_Oxford/1.Oxford_Mindfulness_logo.png";
+import logo2_6_June_2025_Oxford from "/src/assets/partners/6_June_2025_Oxford/2.สมาคมเวชศาสตร์วิถีชีวิตและสุขภาวะไทย TLWA.png";
 
-const logo2List = [
-  { name: 'Extended Org 1', logo: logo2_1, url: '#' },
-  { name: 'Extended Org 2', logo: logo2_2, url: '#' },
-  { name: 'Extended Org 3', logo: logo2_3, url: '#' },
-  { name: 'Extended Org 3', logo: logo2_4, url: '#' },
-  { name: 'Extended Org 3', logo: logo2_5, url: '#' },
-  { name: 'Extended Org 3', logo: logo2_6, url: '#' },
-  { name: 'Extended Org 3', logo: logo2_7, url: '#' },
-  { name: 'Extended Org 3', logo: logo2_8, url: '#' },
-  { name: 'Extended Org 3', logo: logo2_9, url: '#' },
-  { name: 'Extended Org 3', logo: logo2_10, url: '#' },
-  { name: 'Extended Org 1', logo: logo2_11, url: '#' },
-  { name: 'Extended Org 2', logo: logo2_12, url: '#' },
-  { name: 'Extended Org 3', logo: logo2_13, url: '#' },
-  { name: 'Extended Org 3', logo: logo2_14, url: '#' },
-  { name: 'Extended Org 3', logo: logo2_15, url: '#' },
-  { name: 'Extended Org 3', logo: logo2_16, url: '#' },
-  { name: 'Extended Org 3', logo: logo2_17, url: '#' },
-  { name: 'Extended Org 3', logo: logo2_18, url: '#' },
-  { name: 'Extended Org 3', logo: logo2_19, url: '#' },
-  { name: 'Extended Org 3', logo: logo2_20, url: '#' },
-  { name: 'Extended Org 1', logo: logo2_21, url: '#' },
-  { name: 'Extended Org 2', logo: logo2_22, url: '#' },
-  { name: 'Extended Org 3', logo: logo2_23, url: '#' },
-  { name: 'Extended Org 3', logo: logo2_24, url: '#' },
-  { name: 'Extended Org 3', logo: logo2_25, url: '#' },
-  { name: 'Extended Org 3', logo: logo2_26, url: '#' },
-  { name: 'Extended Org 3', logo: logo2_27, url: '#' },
-  { name: 'Extended Org 3', logo: logo2_28, url: '#' },
-  { name: 'Extended Org 3', logo: logo2_29, url: '#' },
-  { name: 'Extended Org 3', logo: logo2_30, url: '#' },
-  { name: 'Extended Org 1', logo: logo2_31, url: '#' },
-  { name: 'Extended Org 2', logo: logo2_32, url: '#' },
-  { name: 'Extended Org 3', logo: logo2_33, url: '#' },
-  { name: 'Extended Org 3', logo: logo2_34, url: '#' },
-  { name: 'Extended Org 3', logo: logo2_35, url: '#' },
-  { name: 'Extended Org 3', logo: logo2_36, url: '#' },
-  { name: 'Extended Org 3', logo: logo2_37, url: '#' },
-  { name: 'Extended Org 3', logo: logo2_38, url: '#' },
-  { name: 'Extended Org 3', logo: logo2_39, url: '#' },
-  { name: 'Extended Org 3', logo: logo2_40, url: '#' },
-  { name: 'Extended Org 1', logo: logo2_41, url: '#' },
-  { name: 'Extended Org 2', logo: logo2_42, url: '#' },
-  { name: 'Extended Org 3', logo: logo2_43, url: '#' },
-  { name: 'Extended Org 3', logo: logo2_44, url: '#' },
-  { name: 'Extended Org 3', logo: logo2_45, url: '#' },
-  { name: 'Extended Org 3', logo: logo2_46, url: '#' },
-  { name: 'Extended Org 3', logo: logo2_47, url: '#' },
-  { name: 'Extended Org 3', logo: logo2_48, url: '#' },
-  { name: 'Extended Org 3', logo: logo2_49, url: '#' },
-  { name: 'Extended Org 3', logo: logo2_50, url: '#' },
-]
+// ===== 6 มิถุนายน 2025 =====
+import logo1_6_June_2025 from "/src/assets/partners/6_June_2025/1.สมาคมเวชศาสตร์วิถีชีวิตและสุขภาวะไทย TLWA.png";
+import logo2_6_June_2025 from "/src/assets/partners/6_June_2025/2.UDDC LOGO.png";
+import logo3_6_June_2025 from "/src/assets/partners/6_June_2025/3.File LOGO TWA(1).jpg";
+import logo4_6_June_2025 from "/src/assets/partners/6_June_2025/4.Green Standard black.png";
+import logo5_6_June_2025 from "/src/assets/partners/6_June_2025/5.586506.jpg";
+import logo6_6_June_2025 from "/src/assets/partners/6_June_2025/6.PCA_LOGO.png";
 
-const sisterLogos = [
-  { logo: sister1 },
-  { logo: sister2 },
-  { logo: sister3 },
-  { logo: sister4 },
-  { logo: sister5 },
-  { logo: sister6 },
-  { logo: sister7 },
-  { logo: sister8 },
-  { logo: sister9 },
-  { logo: sister10 },
-  { logo: sister11 },
-  { logo: sister12 },
-  { logo: sister13 },
-  { logo: sister14 },
-  { logo: sister15 },
-  { logo: sister16 },
-  { logo: sister17 },
-  { logo: sister18 },
-  { logo: sister19 },
-  { logo: sister20 },
-  { logo: sister21 },
-  { logo: sister22 },
-  { logo: sister23 },
-  { logo: sister24 },
-  { logo: sister25 },
-  { logo: sister26 },
-  { logo: sister27 },
-  { logo: sister28 },
-  { logo: sister29 },
-  { logo: sister30 },
-]
+// ====== GROUPS Array ======
+const GROUPS = [
+  {
+    title: "6 July 2024",
+    boxes: [
+      [logo1_6_7_2024, logo2_6_7_2024, logo3_6_7_2024, logo4_6_7_2024, logo5_6_7_2024, logo6_6_7_2024, logo7_6_7_2024],
+      [logo8_6_7_2024, logo9_6_7_2024, logo10_6_7_2024, logo11_6_7_2024, logo12_6_7_2024, logo13_6_7_2024, logo14_6_7_2024, logo15_6_7_2024],
+      [logo16_6_7_2024, logo17_6_7_2024, logo18_6_7_2024, logo19_6_7_2024, logo20_6_7_2024, logo21_6_7_2024, logo22_6_7_2024],
+    ],
+  },
+  {
+    title: "21 February 2025",
+    boxes: [
+      [logo1_21_2_2025, logo2_21_2_2025, logo3_21_2_2025, logo4_21_2_2025, logo5_21_2_2025],
+      [logo6_21_2_2025, logo7_21_2_2025, logo8_21_2_2025, logo9_21_2_2025],
+      [logo10_21_2_2025, logo11_21_2_2025, logo12_21_2_2025, logo13_21_2_2025, logo14_21_2_2025],
+      [logo15_21_2_2025, logo16_21_2_2025, logo17_21_2_2025, logo18_21_2_2025, logo19_21_2_2025],
+      [logo20_21_2_2025, logo21_21_2_2025, logo22_21_2_2025, logo23_21_2_2025, logo24_21_2_2025],
+      [logo25_21_2_2025, logo26_21_2_2025, logo27_21_2_2025, logo28_21_2_2025, logo29_21_2_2025],
+      [logo30_21_2_2025, logo31_21_2_2025, logo32_21_2_2025, logo33_21_2_2025, logo34_21_2_2025],
+      [logo35_21_2_2025, logo36_21_2_2025, logo37_21_2_2025, logo38_21_2_2025, logo39_21_2_2025],
+      [logo40_21_2_2025, logo41_21_2_2025, logo42_21_2_2025, logo43_21_2_2025, logo44_21_2_2025, logo45_21_2_2025],
+      [logo46_21_2_2025, logo47_21_2_2025, logo48_21_2_2025, logo49_21_2_2025, logo50_21_2_2025],
+    ],
+  },
+  // *** สองกล่องสุดท้ายจะเป็น custom layout ไม่ต้องรวมใน GROUPS ***
+];
 
-function Partners() {
-  const [expanded, setExpanded] = useState(false)
+// ===== 6 มิถุนายน 2025 : Oxford Mindfulness =====
+const GROUP_OXFORD = {
+  title: "6 June 2025 : Oxford Mindfulness",
+  boxes: [
+    [logo1_6_June_2025_Oxford, logo2_6_June_2025_Oxford],
+  ],
+  // สำหรับจัด layout (ฝั่งซ้าย)
+  customClass: "max-w-[400px] w-full min-w-[300px]",
+};
 
-  const firstRow = logos.slice(0, 5)
-  const secondRow = logos.slice(5, 10)
-  const remaining = logos.slice(10)
+// ===== 6 มิถุนายน 2025 =====
+const GROUP_JUNE = {
+  title: "6 June 2025",
+  boxes: [
+    [
+      logo1_6_June_2025,
+      logo2_6_June_2025,
+      logo3_6_June_2025,
+      logo4_6_June_2025,
+      logo5_6_June_2025,
+      logo6_6_June_2025,
+    ],
+  ],
+  // สำหรับจัด layout (ฝั่งขวา)
+  customClass: "flex-1 min-w-[380px]",
+};
+
+export default function Partners() {
+  const [showAll, setShowAll] = useState(false);
+
+  // เฉพาะ 6 July 2024
+  const mainGroups = [GROUPS[0]];
+  // ทั้งหมด (รวม custom 2 กล่องสุดท้าย)
+  const allGroups = [...GROUPS, "CUSTOM_JUNE"]; // ใช้ string เป็น flag เฉย ๆ
 
   return (
-    <section id="partners" className="bg-gradient-to-b from-blue-600 to-indigo-700 text-white py-20 px-4">
+    <section id="partners" className="relative bg-white text-gray-900 py-10 px-4 overflow-hidden">
+      <div className="absolute top-0 left-0 w-32 h-32 bg-pink-300 opacity-30 rounded-full z-0 -translate-x-2/5 -translate-y-2/5"></div>
+      <img className="absolute right-0" src={line1} alt="" />
+
       {/* Header */}
-      <div className="text-center mb-12">
-        <h3 className="text-pink-300 font-semibold text-xl mb-2">Partners</h3>
-        <h2 className="text-4xl font-bold mb-4">Mutual understanding and joint goals……</h2>
-        <p className="max-w-3xl mx-auto text-lg font-light">
-          Our partners are a diverse group of industry leaders, innovative startups, and dedicated organizations
-          committed to excellence and collaboration. Together, we drive forward-thinking solutions, share valuable
-          insights, and achieve mutual success through shared goals and resources.
-        </p>
-      </div>
+      <div className="max-w-6xl mx-auto relative pt-12">
+        <div className="flex flex-col text-start mb-16">
+          <h3 className="text-pink-400 font-semibold text-xl mb-2">Partners</h3>
+          <h2 className="text-6xl font-bold mb-12 max-w-sm">Mutual understanding and joint goals……</h2>
+          <p className="text-gray-800 font-semibold text-lg max-w-6xl">
+            Our partners are a diverse group of industry leaders, innovative startups, and dedicated organizations
+            committed to excellence and collaboration. Together, we drive forward-thinking solutions, share valuable
+            insights, and achieve mutual success through shared goals and resources.
+          </p>
+        </div>
 
-      {/* Logos preview */}
-      <div className="max-w-6xl mx-auto grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-6 justify-center items-center">
-        {firstRow.map((partner, index) => (
-          <a key={index} href={partner.url} target="_blank" rel="noopener noreferrer" className="flex flex-col items-center hover:scale-105 transition">
-            <img src={partner.logo} alt={partner.name} className="h-20 w-auto object-contain mb-2" />
-            <p className="text-sm text-white text-center">{partner.name}</p>
-          </a>
-        ))}
-
-        {secondRow.map((partner, index) => (
-          <a key={index} href={partner.url} target="_blank" rel="noopener noreferrer"
-            className={`flex flex-col items-center hover:scale-105 transition ${!expanded ? 'blur-sm opacity-60 pointer-events-none' : ''}`}>
-            <img src={partner.logo} alt={partner.name} className="h-20 w-auto object-contain mb-2" />
-            <p className="text-sm text-white text-center">{partner.name}</p>
-          </a>
-        ))}
-
-        {expanded && remaining.map((partner, index) => (
-          <a key={index} href={partner.url} target="_blank" rel="noopener noreferrer" className="flex flex-col items-center hover:scale-105 transition">
-            <img src={partner.logo} alt={partner.name} className="h-20 w-auto object-contain mb-2" />
-            <p className="text-sm text-white text-center">{partner.name}</p>
-          </a>
-        ))}
-      </div>
-
-      {/* Extended logos */}
-      {expanded && (
-        <>
-          <div className="text-center mt-24 mb-8">
-            <h3 className="text-pink-300 font-semibold text-xl mb-2">Extended Partners</h3>
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">More organizations joining our mission</h2>
-          </div>
-          <div className="max-w-6xl mx-auto grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-6 justify-center items-center">
-            {logo2List.map((partner, index) => (
-              <a key={index} href={partner.url} target="_blank" rel="noopener noreferrer" className="flex flex-col items-center hover:scale-105 transition">
-                <img src={partner.logo} alt={partner.name} className="h-20 w-auto object-contain mb-2" />
-                <p className="text-sm text-white text-center">{partner.name}</p>
-              </a>
-            ))}
-          </div>
-
-          <div className="text-center mt-24 mb-8">
-            <h3 className="text-pink-300 font-semibold text-xl mb-2">Sister Organizations</h3>
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">Our Strategic Collaborators</h2>
-          </div>
-          <div className="max-w-6xl mx-auto grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-6 justify-center items-center">
-            {sisterLogos.map((partner, index) => (
-              <div key={index} className="flex flex-col items-center hover:scale-105 transition">
-                <img src={partner.logo} alt={`Sister Logo ${index + 1}`} className="h-20 w-auto object-contain mb-2" />
+        <div className="max-w-6xl mx-auto flex flex-col gap-12">
+          {/* --- แสดงเฉพาะกลุ่มที่ต้องการ --- */}
+          {(showAll ? GROUPS : mainGroups).map((group, groupIdx) => (
+            <div
+              key={group.title}
+              className="relative rounded-2xl border-[3px] border-sky-300 bg-white py-6 px-1 md:px-8"
+              style={{
+                boxShadow: "0 2px 16px 0 rgba(80,173,255,0.12)",
+              }}
+            >
+              <div className="absolute left-0 top-0 w-full flex justify-center -translate-y-1/2">
+                <div className="bg-white px-6">
+                  <h2 className="text-xl md:text-2xl font-bold text-black text-center tracking-tight">
+                    {group.title}
+                  </h2>
+                </div>
               </div>
-            ))}
+              <div className="flex flex-col gap-6 pt-8">
+                {group.boxes.map((row, rowIdx) => (
+                  <div
+                    key={rowIdx}
+                    className="flex flex-row justify-center items-center gap-4 md:gap-8"
+                  >
+                    {row.map((logo, idx) => (
+                      <div
+                        key={idx}
+                        className="bg-transparent flex items-center justify-center"
+                        style={{
+                          padding: "10px",
+                          minWidth: 64,
+                          minHeight: 64,
+                          maxWidth: 120,
+                          maxHeight: 100,
+                        }}
+                      >
+                        <img
+                          src={logo}
+                          alt=""
+                          className="object-contain w-full h-16 md:h-20 max-h-24"
+                          style={{
+                            margin: "auto",
+                            background: "none",
+                            boxShadow: "none",
+                          }}
+                          loading="lazy"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+
+          {/* --- 2 กล่องสุดท้าย แสดงเฉพาะตอน showAll --- */}
+          {showAll && (
+            <div className="flex flex-row gap-2 w-full justify-center items-stretch mt-2">
+              {/* --- ซ้าย: Oxford Mindfulness --- */}
+              <div
+                className={`${GROUP_OXFORD.customClass} rounded-2xl border-[3px] border-sky-300 bg-white flex flex-col justify-center items-center py-6 px-3 relative`}
+                style={{
+                  boxShadow: "0 2px 16px 0 rgba(80,173,255,0.12)",
+                  alignSelf: "stretch",
+                }}
+              >
+                <div className="absolute left-0 top-0 w-full flex justify-center -translate-y-1/2">
+                  <div className="bg-white px-4">
+                    <span className="text-base md:text-lg font-bold text-black tracking-tight">
+                      {GROUP_OXFORD.title}
+                    </span>
+                  </div>
+                </div>
+                <div className="flex flex-row items-center justify-center pt-8 w-full">
+                  {/* โลโก้อันที่ 1 */}
+                  <div
+                    className="flex items-center justify-center"
+                    style={{
+                      padding: "10px",
+                      minWidth: 64,
+                      minHeight: 64,
+                      maxWidth: 120,
+                      maxHeight: 100,
+                    }}
+                  >
+                    <img
+                      src={GROUP_OXFORD.boxes[0][0]}
+                      alt=""
+                      className="object-contain w-full h-16 md:h-20 max-h-24"
+                      style={{ margin: "auto", background: "none", boxShadow: "none" }}
+                      loading="lazy"
+                    />
+                  </div>
+
+                  {/* เส้นคั่นแนวตั้ง */}
+                  <div className="mx-6 h-14 md:h-20 border-l-2 border-gray-400" />
+
+                  {/* โลโก้อันที่ 2 */}
+                  <div
+                    className="flex items-center justify-center"
+                    style={{
+                      padding: "10px",
+                      minWidth: 64,
+                      minHeight: 64,
+                      maxWidth: 120,
+                      maxHeight: 100,
+                    }}
+                  >
+                    <img
+                      src={GROUP_OXFORD.boxes[0][1]}
+                      alt=""
+                      className="object-contain w-full h-16 md:h-20 max-h-24"
+                      style={{ margin: "auto", background: "none", boxShadow: "none" }}
+                      loading="lazy"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* --- ขวา: 6 June 2025 --- */}
+              <div
+                className={`${GROUP_JUNE.customClass} rounded-2xl border-[3px] border-sky-300 bg-white flex flex-col justify-center items-center py-6 px-3 relative`}
+                style={{
+                  boxShadow: "0 2px 16px 0 rgba(80,173,255,0.12)",
+                  alignSelf: "stretch",
+                }}
+              >
+                <div className="absolute left-0 top-0 w-full flex justify-center -translate-y-1/2">
+                  <div className="bg-white px-4">
+                    <span className="text-base md:text-lg font-bold text-black tracking-tight">
+                      {GROUP_JUNE.title}
+                    </span>
+                  </div>
+                </div>
+                <div className="flex flex-row flex-wrap gap-2 pt-8 justify-center items-center w-full">
+                  {GROUP_JUNE.boxes[0].map((logo, idx) => (
+                    <div
+                      key={idx}
+                      className="flex items-center justify-center"
+                      style={{
+                        padding: "10px",
+                        minWidth: 64,
+                        minHeight: 64,
+                        maxWidth: 120,
+                        maxHeight: 100,
+                      }}
+                    >
+                      <img
+                        src={logo}
+                        alt=""
+                        className="object-contain w-full h-16 md:h-20 max-h-24"
+                        style={{ margin: "auto", background: "none", boxShadow: "none" }}
+                        loading="lazy"
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          <div className="flex justify-center">
+            <button
+              onClick={() => setShowAll((val) => !val)}
+              className="cursor-pointer bg-indigo-500 text-white font-semibold w-32 h-12 rounded-xl shadow-lg
+            hover:bg-indigo-700 hover:shadow-xl transition-all duration-300 flex items-center justify-center"
+            >
+              {showAll ? "Show less" : "Show more"}
+            </button>
           </div>
-        </>
-      )}
-
-      {/* Read More Button */}
-      <div className="text-center mt-10">
-        <button
-          onClick={() => setExpanded(!expanded)}
-          className="cursor-pointer bg-pink-500 transition-all duration-300 hover:bg-pink-600 text-white font-medium py-2 px-6 rounded-full transition"
-        >
-          {expanded ? 'Show Less' : 'Read More'}
-        </button>
+        </div>
       </div>
-
-
     </section>
-  )
+  );
 }
-
-export default Partners
