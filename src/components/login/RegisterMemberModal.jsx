@@ -3,6 +3,8 @@ import React, { useState, useEffect, useMemo, useRef } from "react";
 import { FaFileAlt, FaTrash, FaCloudUploadAlt, FaRegEdit } from "react-icons/fa";
 import { useUser } from "../../contexts/UserContext";
 
+// PDF path
+const PDF_RULES = "/rules/ข้อบังคับสมาคม-ฉบับแก้ไขครั้งที่-1.pdf";
 const RELIGIONS = [
   "พุทธ", "คริสต์", "อิสลาม", "ฮินดู", "ซิกข์", "ยูดาย", "เชน", "เต๋า", "ชินโต", "Baháʼí", "ลัทธิขงจื๊อ", "ไม่มีศาสนา"
 ];
@@ -1098,7 +1100,7 @@ export default function RegisterMemberModal({ open, onClose }) {
                 <div className="font-semibold mt-1">
                   (อ่านรายละเอียดข้อบังคับที่{" "}
                   <a
-                    href="https://www.TLWA.or.th"
+                    href={PDF_RULES}
                     className="text-blue-500 hover:text-blue-800 transition"
                     target="_blank"
                     rel="noopener noreferrer"
