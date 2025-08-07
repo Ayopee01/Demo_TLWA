@@ -859,7 +859,7 @@ export default function EditMemberModal({ open, onClose, memberData, afterSave }
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    Website TLWA
+                    Link
                   </a>
                   )
                 </div>

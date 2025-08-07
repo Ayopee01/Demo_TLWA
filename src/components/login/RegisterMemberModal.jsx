@@ -1105,7 +1105,7 @@ export default function RegisterMemberModal({ open, onClose }) {
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    Website TLWA
+                    Link
                   </a>
                   )
                 </div>
