@@ -26,6 +26,8 @@ import About from "./components/detail_menu/About";
 import CourseDetail from "./components/detail_menu/CourseDetail";
 import NewsDetail from "./components/detail_menu/NewsDetail";
 import NewsDetail_ID from "./components/detail_menu/NewsDetail_ID";   // <-- Import ที่นี่
+import MediaDetail from "./components/detail_menu/MediaDetail";
+import MediaDetail_ID from "./components/detail_menu/MediaDetail_ID";
 
 // Function
 import { useUser } from "./contexts/UserContext";
@@ -108,7 +110,7 @@ function App() {
           }
         />
 
-        {/* News List Page */}
+        {/* News Detail Page */}
         <Route
           path="/news"
           element={
@@ -133,6 +135,36 @@ function App() {
                 onAccountClick={() => setModal("account")}
               />
               <NewsDetail_ID />
+              <Footer />
+            </>
+          }
+        />
+
+        {/* MediaDetail */}
+        <Route
+          path="/videos"
+          element={
+            <>
+              <Navbar
+                onLoginClick={() => setModal("login")}
+                onAccountClick={() => setModal("account")}
+              />
+              <MediaDetail />
+              <Footer />
+            </>
+          }
+        />
+
+        {/* MediaDetail by ID Page */}
+        <Route
+          path="/videos/:id"
+          element={
+            <>
+              <Navbar
+                onLoginClick={() => setModal("login")}
+                onAccountClick={() => setModal("account")}
+              />
+              <MediaDetail_ID />
               <Footer />
             </>
           }

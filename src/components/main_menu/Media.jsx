@@ -1,48 +1,78 @@
-//Wait
-import React from 'react'
+import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import axios from "axios";
 
-function Media() {
-  return (
-        <section id="media" className="relative bg-[#f5f9fc] text-gray-800 py-20 px-4 overflow-hidden">
-      {/* Heading */}
-      <div className="text-center mb-12">
-        <h2 className="text-pink-600 font-semibold text-xl mb-2">WELL-BEING...</h2>
-        <p className="max-w-2xl mx-auto text-lg font-medium">
-          “Health is a state of complete physical, mental and social well-being and not merely
-          the absence of disease or infirmity.”<br />
-          <span className="text-sm text-gray-600">...from the Constitution of the World Health Organization</span>
-        </p>
-      </div>
+const API_URL = import.meta.env.VITE_API_URL;
 
-      {/* Content */}
-      <div className="flex flex-col lg:flex-row items-center justify-center gap-8 max-w-6xl mx-auto">
-        {/* Left Card */}
-        <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white p-8 rounded-xl shadow-lg max-w-sm">
-          <h3 className="text-2xl font-bold mb-4">Well Being</h3>
-          <p className="text-base">
-            “Health is a state of complete physical, mental and social well-being and not merely
-            the absence of disease or infirmity.”<br />
-            <span className="text-sm text-gray-200">...from the Constitution of the World Health Organization</span>
-          </p>
-        </div>
-
-        {/* Video Card */}
-        <div className="relative w-full lg:w-2/3 max-w-3xl rounded-xl overflow-hidden shadow-xl">
-          <video
-            className="w-full h-auto object-cover"
-            controls
-            poster="/path-to-thumbnail.jpg" // หรือสามารถลบออกได้
-          >
-            <source src="/your-video.mp4" type="video/mp4" />
-            Your browser does not support the video tag.
-          </video>
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-            <h3 className="text-white text-4xl font-semibold drop-shadow-xl">Well-being</h3>
-          </div>
-        </div>
-      </div>
-    </section>
-  )
+function getYoutubeId(url) {
+  // รองรับ url youtube ทั่วไป
+  const regExp = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
+  const match = url.match(regExp);
+  return match ? match[1] : "";
 }
 
-export default Media
+export default function Media() {
+  const [video, setVideo] = useState(null);
+
+  useEffect(() => {
+    axios.get(`${API_URL}/api/videos/1`)
+      .then(res => setVideo(res.data))
+      .catch(() => setVideo(null));
+  }, []);
+
+  return (
+    <section
+      id="media"
+      className="relative min-h-[80vh] bg-[#f5f9fc] text-gray-800 py-16 px-4 flex flex-col items-center justify-center"
+    >
+      {/* Heading */}
+      <div className="text-center mb-10">
+        <h2 className="text-pink-600 font-bold text-2xl sm:text-3xl mb-3 tracking-wide">
+          WELL-BEING...
+        </h2>
+        <p className="max-w-xl mx-auto text-lg font-medium leading-relaxed">
+          “Health is a state of complete physical, mental and social well-being and not merely
+          the absence of disease or infirmity.”
+        </p>
+        <span className="block mt-2 text-sm text-gray-500">
+          ...from the Constitution of the World Health Organization
+        </span>
+      </div>
+
+      {/* Video Card */}
+      <div className="w-full max-w-2xl bg-white rounded-2xl shadow-xl p-0 flex flex-col items-center mb-8">
+        {video ? (
+          <>
+            <div className="w-full aspect-video rounded-t-2xl overflow-hidden">
+              <iframe
+                width="100%"
+                height="400"
+                src={`https://www.youtube.com/embed/${getYoutubeId(video.youtube_url)}`}
+                title={video.title}
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+                className="w-full h-full rounded-t-2xl"
+                style={{ minHeight: 260, background: "#000" }}
+              />
+            </div>
+            <div className="px-6 py-4 w-full text-center">
+              <h3 className="text-lg font-semibold">{video.title}</h3>
+            </div>
+          </>
+        ) : (
+          <div className="p-16 text-center text-gray-400">No video found.</div>
+        )}
+      </div>
+
+      {/* View More Button */}
+      <div className="w-full flex justify-center">
+        <Link
+          to="/videos"
+          className="inline-block px-8 py-3 bg-pink-600 text-white text-lg font-medium rounded-full shadow-lg hover:bg-pink-700 transition-all"
+        >
+          View more
+        </Link>
+      </div>
+    </section>
+  );
+}
