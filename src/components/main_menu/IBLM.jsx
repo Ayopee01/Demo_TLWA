@@ -25,7 +25,7 @@ function AnimatedCircle({ className, style, delay = 0, ...rest }) {
 }
 
 // PDF path
-const PDF_FILE = "/src/assets/iblm/ข้อกำหนดการสมัครสอบ IBLM adjusted 14-6-2025.pdf";
+const PDF_FILE = "/iblm/ข้อกำหนดการสมัครสอบ IBLM adjusted 14-6-2025.pdf";
 
 const LINE_OFFICIAL_NAME = "T.L.W.A.";
 const LINE_QR_URL = "https://qr-official.line.me/gs/M_980winmq_BW.png?oat_content=qr";
