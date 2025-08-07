@@ -7,7 +7,6 @@ import line from '/src/assets/benefits/line-9.png'
 
 // === Animated วงกลม BG ===
 function AnimatedCircle({ className, style, delay = 0, ...rest }) {
-    // cycle ระหว่าง 2 ค่า ให้ลอยขึ้น/ลง
     const [animation, cycle] = useCycle({ y: 0 }, { y: 40 }, { y: -30 });
     React.useEffect(() => {
         const timer = setInterval(cycle, 2400 + delay)
@@ -26,15 +25,13 @@ function AnimatedCircle({ className, style, delay = 0, ...rest }) {
 
 // PDF path
 const PDF_FILE = "/iblm/ข้อกำหนดการสมัครสอบ IBLM adjusted 14-6-2025.pdf";
-
-const LINE_OFFICIAL_NAME = "T.L.W.A.";
-const LINE_QR_URL = "https://qr-official.line.me/gs/M_980winmq_BW.png?oat_content=qr";
-const LINE_LINK = "https://lin.ee/pd1Bpje";
+const PDF_TEMPLATE = "/iblm/MDDOCertificationCaseStudyTemplate.pdf";
 
 // --- Pill Language Switcher
 function PillLang({ lang, setLang }) {
     return (
-        <div className="flex justify-end my-2">
+        <div className="flex justify-start my-2">
+            {/* ปุ่มเปลี่ยนภาษา TH/EN */}
             <div className="flex border border-indigo-200 rounded-full overflow-hidden shadow-sm ml-2 mb-10">
                 <button
                     className={`cursor-pointer px-5 py-2 text-base font-semibold transition 
@@ -56,7 +53,7 @@ function PillLang({ lang, setLang }) {
 }
 
 // -- Full content
-const IBLM_CONTENT = {
+const IBLM_CONTENT = (pdfLink) => ({
     en: (
         <div className="space-y-3 text-base xl:text-lg leading-relaxed text-black">
             <div>Become Certified in Lifestyle Medicine Practice</div>
@@ -82,7 +79,7 @@ const IBLM_CONTENT = {
                     </li>
                     <li>
                         Submit documentation of completion of your exam prerequisites 30 or more days before the exam date, using the instructions provided by TLWA, after you sign up for the exam. Please note: physicians must also complete and submit a case study, retrievable via{" "}
-                        <a href="https://drive.google.com/drive/folders/1Dm8BW5WVgNJsegGQEUBaxzoxaNoaXrDy?usp=sharing" target="_blank" rel="noopener noreferrer" className="underline text-blue-600 font-medium">Link: Case Study Form</a>
+                        <a href={pdfLink} target="_blank" rel="noopener noreferrer" className="underline text-blue-600 font-medium">Link: Case Study Form</a>
                     </li>
                     <li>
                         Attendance of LMW Bangkok 2025 immediately preceding an exam is exempt from the above 30-day rule.
@@ -151,7 +148,7 @@ const IBLM_CONTENT = {
                 </li>
                 <li>
                     ระยะเวลาการส่งหลักฐานตามข้อกำหนดของการสอบคือ อย่างน้อย 30 วันก่อนวันสอบ โดยให้ปฎิบัติตามคำแนะนำของ TLWA ภายหลังจากที่ได้สมัครสอบแล้ว โปรดทราบ: แพทย์จะต้องกรอกและส่งกรณีศึกษาหนึ่งกรณี ซึ่งสามารถใช้แบบฟอร์มสำหรับกรอกกรณีศึกษาได้จาก{" "}
-                    <a href="https://drive.google.com/drive/folders/1Dm8BW5WVgNJsegGQEUBaxzoxaNoaXrDy?usp=sharing" target="_blank" rel="noopener noreferrer" className="underline text-blue-600 font-medium">Link: แบบฟอร์มกรณีศึกษา</a>
+                    <a href={pdfLink} target="_blank" rel="noopener noreferrer" className="underline text-blue-600 font-medium">Link: แบบฟอร์มกรณีศึกษา</a>
                 </li>
                 <li>
                     การเข้าร่วม LMW Bangkok 2025 ก่อนการสอบ จะได้รับการยกเว้นจากกฎ 30 วันดังที่กล่าวข้างต้น
@@ -187,7 +184,11 @@ const IBLM_CONTENT = {
             </div>
         </div>
     ),
-};
+});
+
+const LINE_OFFICIAL_NAME = "T.L.W.A.";
+const LINE_QR_URL = "https://qr-official.line.me/gs/M_980winmq_BW.png?oat_content=qr";
+const LINE_LINK = "https://lin.ee/pd1Bpje";
 
 export default function IBLM() {
     const [popup, setPopup] = useState(false);
@@ -256,10 +257,21 @@ export default function IBLM() {
                             onClick={e => e.stopPropagation()}
                             style={{ color: "#222" }}
                         >
+                            {/* ปุ่มปิด (X) มุมขวาบน */}
+                            <button
+                                onClick={() => setPopup(false)}
+                                className="cursor-pointer absolute top-8 right-3 bg-gray-200 hover:bg-red-400 text-gray-500 hover:text-white rounded-full w-9 h-9 flex items-center justify-center transition z-10"
+                                title="Close"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+
                             {/* Language Switcher */}
                             <PillLang lang={lang} setLang={setLang} />
                             {/* Full content */}
-                            <div>{IBLM_CONTENT[lang]}</div>
+                            <div>{IBLM_CONTENT(PDF_TEMPLATE)[lang]}</div>
                         </div>
                     </div>
                 )}
