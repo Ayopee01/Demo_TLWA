@@ -12,11 +12,12 @@ import AccountModal from "./components/login/AccountModal";
 import Navbar from "./components/main_menu/Navbar";
 import Hero from "./components/main_menu/Hero";
 import ConferenceCatalog from "./components/main_menu/ConferenceCatalog";
-import Benefits from "./components/main_menu/Benefits";
+import IBLM from "./components/main_menu/IBLM";
+// import Benefits from "./components/main_menu/Benefits";
 import News from "./components/main_menu/News";
 import Media from "./components/main_menu/Media";
 import Partners from "./components/main_menu/Partners";
-import RulesAndRegulations from "./components/main_menu/RulesAndRegulations";
+// import RulesAndRegulations from "./components/main_menu/RulesAndRegulations";
 import Contact from "./components/main_menu/Contact";
 import Footer from "./components/main_menu/Footer";
 
@@ -44,11 +45,12 @@ function MainContent({ setModal }) {
       />
       <Hero />
       <ConferenceCatalog />
-      <Benefits />
+      <IBLM />
+      {/* <Benefits /> */}
       <News />
       <Media />
       <Partners />
-      <RulesAndRegulations />
+      {/* <RulesAndRegulations /> */}
       <Contact />
       <Footer />
     </>

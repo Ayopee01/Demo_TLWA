@@ -12,11 +12,12 @@ const NAVBAR_HEIGHT = 100;
 const navLinks = [
   { label: "Home", href: "#hero" },
   { label: "Conference", href: "#conference" },
-  { label: "Benefits", href: "#benefits" },
+  { label: "IBLM", href: "#iblm" },
+  // { label: "Benefits", href: "#benefits" },
   { label: "News", href: "#news" },
   { label: "Media", href: "#media" },
   { label: "Partners", href: "#partners" },
-  { label: "Rules and Regulations", href: "#rules" },
+  // { label: "Rules and Regulations", href: "#rules" },
   { label: "Contact", href: "#contact" },
 ];
 
