@@ -1,11 +1,31 @@
 import React, { useState } from "react";
 import { FiFileText, FiMessageCircle } from "react-icons/fi";
+import { motion, useAnimation, useCycle } from 'framer-motion'
+
+// import line decoration
+import line from '/src/assets/benefits/line-9.png'
+
+// === Animated วงกลม BG ===
+function AnimatedCircle({ className, style, delay = 0, ...rest }) {
+    // cycle ระหว่าง 2 ค่า ให้ลอยขึ้น/ลง
+    const [animation, cycle] = useCycle({ y: 0 }, { y: 40 }, { y: -30 });
+    React.useEffect(() => {
+        const timer = setInterval(cycle, 2400 + delay)
+        return () => clearInterval(timer)
+    }, [cycle, delay])
+    return (
+        <motion.div
+            className={className}
+            style={style}
+            animate={animation}
+            transition={{ duration: 2.2, ease: "easeInOut" }}
+            {...rest}
+        />
+    )
+}
 
 // PDF path
-const PDF_FILES = {
-    en: "/pdf/IBLM_Guide_EN.pdf",
-    th: "/pdf/IBLM_Guide_TH.pdf",
-};
+const PDF_FILE = "/src/assets/iblm/ข้อกำหนดการสมัครสอบ IBLM adjusted 14-6-2025.pdf";
 
 const LINE_OFFICIAL_NAME = "T.L.W.A.";
 const LINE_QR_URL = "https://qr-official.line.me/gs/M_980winmq_BW.png?oat_content=qr";
@@ -175,7 +195,11 @@ export default function IBLM() {
     const [showLine, setShowLine] = useState(false);
 
     return (
-        <div className="relative bg-gray-900 text-white py-24 px-4 overflow-hidden">
+        <section id="iblm" className="relative bg-gray-900 text-white py-24 px-4 overflow-hidden">
+            {/* Animated BG decor */}
+            <AnimatedCircle className="absolute -left-32 bottom-0 w-72 h-72 bg-gray-500 opacity-60 rounded-full" delay={0} />
+            <AnimatedCircle className="absolute left-32 top-96 w-6 h-6 bg-gray-500 opacity-40 rounded-full" delay={1400} />
+            <img className='absolute right-0' src={line} alt="" />
             <div className="max-w-6xl mx-auto px-4 py-10 relative">
 
                 {/* Main title */}
@@ -200,7 +224,7 @@ export default function IBLM() {
                 <div className="flex items-center gap-6 mt-8">
                     {/* PDF */}
                     <a
-                        href={PDF_FILES[lang]}
+                        href={PDF_FILE}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex items-center gap-2 text-blue-700 hover:text-blue-900 transition"
@@ -265,9 +289,9 @@ export default function IBLM() {
                                     href={LINE_LINK}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="underline text-blue-600 font-semibold text-base hover:text-blue-800"
+                                    className="underline text-blue-500 font-semibold text-base hover:text-blue-800"
                                 >
-                                    Click Link Line Official
+                                    Line Official
                                 </a>
                             </div>
                             <div className="text-center text-sm text-gray-600 mt-2">Scan this QR code to add our official LINE account.</div>
@@ -284,6 +308,6 @@ export default function IBLM() {
                 .underline.text-blue-600 { color: #2563eb !important; }
                 `}</style>
             </div>
-        </div>
+        </section>
     );
 }
