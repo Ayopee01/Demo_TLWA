@@ -238,7 +238,7 @@ function Hero() {
                         <div className='flex justify-center mt-4 lg:w-100'>
                             <Link to="/about">
                                 <motion.button
-                                    className="bg-indigo-500 text-white font-semibold w-32 h-15 rounded-xl shadow-lg hover:bg-indigo-700 hover:shadow-xl transition-all duration-300 "
+                                    className="cursor-pointer bg-indigo-500 text-white font-semibold w-32 h-15 rounded-xl shadow-lg hover:bg-indigo-700 hover:shadow-xl transition-all duration-300 "
                                     initial={{ opacity: 0, scale: 0.8 }}
                                     animate={{ opacity: 1, scale: 1 }}
                                     transition={{ duration: 0.5, delay: 1.3 }}
