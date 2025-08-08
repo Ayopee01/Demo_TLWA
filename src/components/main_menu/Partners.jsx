@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import line1 from "/src/assets/news/line-1.png";
 
 // ===== 6 กรกฎาคม 2024 =====
-import logo1_6_7_2024 from "/src/assets/partners/6_July_2024/1.png";
+import logo1_6_7_2024 from "/src/assets/partners/6_July_2024/1.jpg";
 import logo2_6_7_2024 from "/src/assets/partners/6_July_2024/2.png";
 import logo3_6_7_2024 from "/src/assets/partners/6_July_2024/3.jpg";
 import logo4_6_7_2024 from "/src/assets/partners/6_July_2024/4.png";
@@ -12,7 +12,7 @@ import logo6_6_7_2024 from "/src/assets/partners/6_July_2024/6.png";
 import logo7_6_7_2024 from "/src/assets/partners/6_July_2024/7.jpg";
 import logo8_6_7_2024 from "/src/assets/partners/6_July_2024/8.png";
 import logo9_6_7_2024 from "/src/assets/partners/6_July_2024/9.png";
-import logo10_6_7_2024 from "/src/assets/partners/6_July_2024/10.png";
+import logo10_6_7_2024 from "/src/assets/partners/6_July_2024/10.jpg";
 import logo11_6_7_2024 from "/src/assets/partners/6_July_2024/11.png";
 import logo12_6_7_2024 from "/src/assets/partners/6_July_2024/12.png";
 import logo13_6_7_2024 from "/src/assets/partners/6_July_2024/13.png";
@@ -27,14 +27,14 @@ import logo21_6_7_2024 from "/src/assets/partners/6_July_2024/21.png";
 import logo22_6_7_2024 from "/src/assets/partners/6_July_2024/22.jpg";
 
 // ===== 21 กุมภาพันธ์ 2025 =====
-import logo1_21_2_2025 from "/src/assets/partners/21_February_2025/1.สมาคมเวชศาสตร์วิถีชีวิตและสุขภาวะไทย TLWA.png";
+import logo1_21_2_2025 from "/src/assets/partners/21_February_2025/1.สมาคมเวชศาสตร์วิถีชีวิตและสุขภาวะไทย TLWA.jpg";
 import logo2_21_2_2025 from "/src/assets/partners/21_February_2025/2.สถาบันเทคโนโลยีพระจอมเกล้าเจ้าคุณทหารลาดกระบัง.png";
 import logo3_21_2_2025 from "/src/assets/partners/21_February_2025/3.มหามกุฏราชวิทยาลัย.jpg";
 import logo4_21_2_2025 from "/src/assets/partners/21_February_2025/4.สถาบันวิจัยพุทธศาสตร์ มหาวิทยาลัยมหาจุฬาลงกรณราชวิทยาลัย.png";
-import logo5_21_2_2025 from "/src/assets/partners/21_February_2025/5.สถาบันการขนส่ง จุฬาลงกรณ์มหาวิทยาลัย.png";
-import logo6_21_2_2025 from "/src/assets/partners/21_February_2025/6.คณะครุศาสตร์ จุฬาลงกรณ์มหาวิทยาลัย.jpg";
-import logo7_21_2_2025 from "/src/assets/partners/21_February_2025/7.บัณฑิตวิทยาลัย มหาลัยจุฬา.png";
-import logo8_21_2_2025 from "/src/assets/partners/21_February_2025/8.วิทยาลัยประชากรศาสตร์ จุฬาลงกรณ์มหาวิทยาลัย.png";
+import logo5_21_2_2025 from "/src/assets/partners/21_February_2025/5.สถาบันการขนส่ง จุฬาลงกรณ์มหาวิทยาลัย.jpg";
+import logo6_21_2_2025 from "/src/assets/partners/21_February_2025/6.คณะครุศาสตร์ จุฬาลงกรณ์มหาวิทยาลัย.png";
+import logo7_21_2_2025 from "/src/assets/partners/21_February_2025/7.บัณฑิตวิทยาลัย มหาลัยจุฬา.jpg";
+import logo8_21_2_2025 from "/src/assets/partners/21_February_2025/8.วิทยาลัยประชากรศาสตร์ จุฬาลงกรณ์มหาวิทยาลัย.jpg";
 import logo9_21_2_2025 from "/src/assets/partners/21_February_2025/9.คณะวิทยาศาสตร์การกีฬา มหาวิทยาลัยจุฬา.jpg";
 import logo10_21_2_2025 from "/src/assets/partners/21_February_2025/10.คณะศิลปกรรมศาสตร์ จุฬาลงกรณ์มหาวิทยาลัย.jpg";
 import logo11_21_2_2025 from "/src/assets/partners/21_February_2025/11.คณะสหเวชศาสตร์ จุฬาลงกรณ์ มหาวิทยาลัย.jpg";
@@ -48,7 +48,7 @@ import logo18_21_2_2025 from "/src/assets/partners/21_February_2025/18.สภา
 import logo19_21_2_2025 from "/src/assets/partners/21_February_2025/19.มหาวิทยาลัยเกษตรศาสตร์ กลม.png";
 import logo20_21_2_2025 from "/src/assets/partners/21_February_2025/20.มหาวิยยาลัยขอนแก่น.png";
 import logo21_21_2_2025 from "/src/assets/partners/21_February_2025/21.มหาลัยเชียงใหม่ มอเชียงใหม่.png";
-import logo22_21_2_2025 from "/src/assets/partners/21_February_2025/22.สถาบันบัณฑิตบริหารธุรกิจศศินทร์แห่งจุฬาลงกรณ์มหาวิทยาลัย.png";
+import logo22_21_2_2025 from "/src/assets/partners/21_February_2025/22.สถาบันบัณฑิตบริหารธุรกิจศศินทร์แห่งจุฬาลงกรณ์มหาวิทยาลัย.jpg";
 import logo23_21_2_2025 from "/src/assets/partners/21_February_2025/23.วิทยาลัยแพทยศาสตร์นานาชาติจุฬาภรณ์ มหาวิทยาลัยธรรมศาสตร์.jpg";
 import logo24_21_2_2025 from "/src/assets/partners/21_February_2025/24.สหเวชศาสตร์ มหาวิทยาลัยบูรพา.jpg";
 import logo25_21_2_2025 from "/src/assets/partners/21_February_2025/25.สภาผู้ปกครองและครูแห่งประเทศไทย.JPG";
@@ -57,7 +57,7 @@ import logo27_21_2_2025 from "/src/assets/partners/21_February_2025/27.สถา
 import logo28_21_2_2025 from "/src/assets/partners/21_February_2025/28.มูลนิธิอนุสรณ์ หม่อมงามจิตต์ บุรฉัตร ในพระราชูปถัม.png";
 import logo29_21_2_2025 from "/src/assets/partners/21_February_2025/29.มูลนิธิตะวันฉาย.png";
 import logo30_21_2_2025 from "/src/assets/partners/21_February_2025/30.มูลนิธิธรรมดี PNG.png";
-import logo31_21_2_2025 from "/src/assets/partners/21_February_2025/31.มูลนิธิสถาบันพลังจิตตานุภาพหลวงพ่อวิริยังค์ สิรินุธโร.png";
+import logo31_21_2_2025 from "/src/assets/partners/21_February_2025/31.มูลนิธิสถาบันพลังจิตตานุภาพหลวงพ่อวิริยังค์ สิรินุธโร.jpg";
 import logo32_21_2_2025 from "/src/assets/partners/21_February_2025/32.มูลนิธิเสถียรธรรมสถาน.jpg";
 import logo33_21_2_2025 from "/src/assets/partners/21_February_2025/33.One love.jpg";
 import logo34_21_2_2025 from "/src/assets/partners/21_February_2025/34.Spiritual Health Foundation.jpg";
@@ -75,21 +75,20 @@ import logo45_21_2_2025 from "/src/assets/partners/21_February_2025/45.กอง
 import logo46_21_2_2025 from "/src/assets/partners/21_February_2025/46.โรงพยาบาลปิยะเวท.jpg";
 import logo47_21_2_2025 from "/src/assets/partners/21_February_2025/47.โรงพยาบาลวิมุตเทพธารินทร์ Jpg (Thai).jpg";
 import logo48_21_2_2025 from "/src/assets/partners/21_February_2025/48.สมิติเวช.jpg";
-
 import logo49_21_2_2025 from "/src/assets/partners/21_February_2025/49.บริษัท_บำรุงราษฎร์_เซอร์วิสเซส_จำกัด.jpg";
 import logo50_21_2_2025 from "/src/assets/partners/21_February_2025/50.บริษัท ไอ.ซี.ซี.อินเตอร์เนชั่นแนล จำกัด (มหาชน).jpg";
 
 // ===== 6 มิถุนายน 2025 : Oxford Mindfulness =====
 import logo1_6_June_2025_Oxford from "/src/assets/partners/6_June_2025_Oxford/1.Oxford_Mindfulness_logo.png";
-import logo2_6_June_2025_Oxford from "/src/assets/partners/6_June_2025_Oxford/2.สมาคมเวชศาสตร์วิถีชีวิตและสุขภาวะไทย TLWA.png";
+import logo2_6_June_2025_Oxford from "/src/assets/partners/6_June_2025_Oxford/2.สมาคมเวชศาสตร์วิถีชีวิตและสุขภาวะไทย TLWA.jpg";
 
 // ===== 6 มิถุนายน 2025 =====
-import logo1_6_June_2025 from "/src/assets/partners/6_June_2025/1.สมาคมเวชศาสตร์วิถีชีวิตและสุขภาวะไทย TLWA.png";
+import logo1_6_June_2025 from "/src/assets/partners/6_June_2025/1.สมาคมเวชศาสตร์วิถีชีวิตและสุขภาวะไทย TLWA.jpg";
 import logo2_6_June_2025 from "/src/assets/partners/6_June_2025/2.UDDC LOGO.png";
 import logo3_6_June_2025 from "/src/assets/partners/6_June_2025/3.File LOGO TWA(1).jpg";
 import logo4_6_June_2025 from "/src/assets/partners/6_June_2025/4.Green Standard black.png";
 import logo5_6_June_2025 from "/src/assets/partners/6_June_2025/5.586506.jpg";
-import logo6_6_June_2025 from "/src/assets/partners/6_June_2025/6.PCA_LOGO.png";
+import logo6_6_June_2025 from "/src/assets/partners/6_June_2025/6.PCA_LOGO.jpg";
 
 // ====== GROUPS Array ======
 const GROUPS = [

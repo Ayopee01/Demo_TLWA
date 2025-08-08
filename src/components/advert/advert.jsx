@@ -2,6 +2,7 @@
 import React from 'react';
 import advertImageXL from '/src/assets/advert/28 กรกฎาคม XL.jpg';
 import advertImageMD from '/src/assets/advert/28 กรกฎาคม MD.jpg';
+import advertImageTL from '/src/assets/advert/28 กรกฎาคม TL.jpg';
 import advertImageSM from '/src/assets/advert/28 กรกฎาคม SM.jpg';
 import advertImageMobile from '/src/assets/advert/28 กรกฎาคม Mobile.jpg';
 
@@ -18,12 +19,22 @@ function Advert({ onEnter }) {
         {/* Desktop (default) */}
         <source
           srcSet={advertImageMD}
+          media="(min-width: 1024px)" // md = 768px up, but lower than 1280px
+        />
+        {/* Desktop (default) */}
+        <source
+          srcSet={advertImageTL}
           media="(min-width: 768px)" // md = 768px up, but lower than 1280px
         />
         {/* Desktop (default) */}
         <source
+          srcSet={advertImageMobile}
+          media="(min-width: 390px)" // sm = 640px up, but lower than 1280px
+        />
+        {/* Desktop (default) */}
+        <source
           srcSet={advertImageSM}
-          media="(min-width: 640px)" // sm = 640px up, but lower than 1280px
+          media="(min-width: 360px)" // sm = 640px up, but lower than 1280px
         />
         {/* Mobile */}
         <img
