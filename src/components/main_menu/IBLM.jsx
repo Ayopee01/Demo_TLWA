@@ -56,69 +56,91 @@ function PillLang({ lang, setLang }) {
 const IBLM_CONTENT = (pdfLink) => ({
     en: (
         <div className="space-y-3 text-base xl:text-lg leading-relaxed text-black">
+            {/* Header EN*/}
             <div>Become Certified in Lifestyle Medicine Practice</div>
             <div>
                 <b>Pathways for Lifestyle Medicine Certification for :</b>
             </div>
             <div>
-                Physicians: Must be credentialled by a reputable university as an MD, DO, MBBS or equivalent.
+                <li>Physicians: Must be credentialled by a reputable university as an MD, DO, MBBS or equivalent.</li>
             </div>
             <div>
-                Professionals: Must hold a PhD or Master’s degree in a health related discipline from a reputable institution.
+                <li>Professionals: Must hold a PhD or Master’s degree in a health related discipline from a reputable institution.</li>
             </div>
             <div>
-                Lifestyle medicine physicians and professionals become IBLM Diplomates by
-                <ol className="list-decimal pl-6">
-                    <li>
-                        Gather your prerequisite 30h of CME from an approved course. We recommend the “Foundations of Lifestyle Medicine – the Lifestyle Medicine Board Review Course (LMBRC). The cost for the non-CME version (we only require the certificate of completion for people outside the USA) is $499, and it is available in English, Spanish, Korean, Chinese and Portuguese. You can find the LMBRC here:{" "}
-                        <a href="https://www.lifestylemedicine.org/boardreview" target="_blank" rel="noopener noreferrer" className="underline text-blue-600 font-medium">Link: lifestylemedicine.org/boardreview</a>
+                {/* Title */}
+                <b>Lifestyle medicine physicians and professionals become IBLM Diplomates by</b>
+                <ol className="list-decimal pl-6 space-y-4">
+                    {/* 1 */}
+                    <li className="space-y-2">
+                        <p>Gather your prerequisite 30h of CME from an approved course. We recommend the “Foundations of Lifestyle Medicine – the Lifestyle Medicine Board Review Course (LMBRC) of the American College of Lifestyle Medicine (ACLM) – eBook format. The cost for the non-CME version (we only require the certificate of completion for people outside the USA) for a Thai citizen is $449.</p>
+                        <p>For the purpose of the IBLM’s Tiered Pricing Matrix, the following are considered as Tier 3 countries, e.g. Myanmar, Cambodia, Laos, Vietnam, Bhutan, and for a citizen of a Tier 3 country, the cost for the non-CME version of LMBRC eBook is $399.</p>
+                        <p>It is available in English, Spanish, Korean, Chinese and Portuguese. Please note that ACLM no longer sends a printed LMBRC manual to purchasers. Anyone signing up for the LMBRC may now print one copy of the eBook.</p>
+                        <p>You can find the LMBRC here : <a href="https://lifestylemedicine.org/education-certification/course-catalog/" target="_blank" rel="noopener noreferrer" className="underline text-blue-600 font-medium">Click Link</a></p>
                     </li>
+
+                    {/* 2 */}
                     <li>
-                        Gather your prerequisite 20h of CME (in-person or virtual) from an approved event in your region. Countries authorized to run IBLM exam hubs also are authorized to run eligible in-person events and conferences. For physicians and professionals licensed to practice in Thailand, we recommend “Lifestyle Medicine and Wellbeing International Conference Bangkok (LMW Bangkok 2025)” 20 h (in-person) approved event :{" "}
-                        <a href="https://www.tlwa.or.th" target="_blank" rel="noopener noreferrer" className="underline text-blue-600 font-medium">Link: tlwa.or.th</a>
+                        <p>Gather your prerequisite 20h of CME (in-person or virtual) from an approved event in your region. Countries authorized to run IBLM exam hubs also are authorized to run eligible in-person events and conferences. For physicians and professionals licensed to practice in Thailand, we recommend “Lifestyle Medicine and Wellbeing International Conference Bangkok (LMW Bangkok 2025)” 20 h (in-person) approved event :{" "}
+                            <a href="https://www.tlwa.or.th" target="_blank" rel="noopener noreferrer" className="underline text-blue-600 font-medium">tlwa.or.th</a></p>
                     </li>
+
+                    {/* 3 */}
                     <li>
-                        Submit documentation of completion of your exam prerequisites 30 or more days before the exam date, using the instructions provided by TLWA, after you sign up for the exam. Please note: physicians must also complete and submit a case study, retrievable via{" "}
+                        <p>Submit documentation of completion of your exam prerequisites 30 or more days before the exam date, using the instructions provided by TLWA, after you sign up for the exam. Please note: physicians must also complete and submit a case study, retrievable via{" "}</p>
                         <a href={pdfLink} target="_blank" rel="noopener noreferrer" className="underline text-blue-600 font-medium">Link: Case Study Form</a>
                     </li>
-                    <li>
-                        Attendance of LMW Bangkok 2025 immediately preceding an exam is exempt from the above 30-day rule.
-                    </li>
-                    <li>
-                        Consider registering as a member of Thai Lifestyle Medicine and Wellbeing Association (TLWA) to receive discounts on association’s activities and membership benefits.
-                    </li>
-                    <li>
-                        Register to enroll for the IBLM exam: October 19, 2025, Bangkok, Thailand -{" "}
-                        <a href="https://www.tlwa.or.th" target="_blank" rel="noopener noreferrer" className="underline text-blue-600 font-medium">Link: tlwa.or.th</a>
-                    </li>
-                    <li>
-                        <b>For the purpose of the IBLM’s Certification Pricing Matrix, Thailand is considered as a Tier 2 country. Fees are to be paid to TLWA if you are a Thai citizen and would like to become a TLWA member :</b>
-                        <ul className="list-disc pl-6">
-                            <li>TLWA lifelong membership fee of 1,750 Baht</li>
-                            <li>IBLM exam registration fee –non-refundable ($99 for physicians; $49 for professionals)</li>
-                            <li>IBLM examination certification fee with TLWA member rebate ($999 – $100 = $899 for physicians; $799- $79 = $ 720 for Professionals)</li>
-                            <li>Production and shipment of the diplomate certificates ($30 per certificate)</li>
-                        </ul>
-                    </li>
-                    <li>
-                        For the purpose of the IBLM’s Certification Pricing Matrix, the following are considered as Tier 3 countries, e.g. Myanmar, Cambodia, Laos, Vietnam, Bhutan. Fees are to be paid to TLWA if you are a citizen of Tier 3 country as explained above and would like to become a TLWA member :
-                        <ul className="list-disc pl-6">
-                            <li>TLWA lifelong membership fee of 1,750 Baht</li>
-                            <li>IBLM exam registration fee –non-refundable ($49 for physicians; $29 for professionals)</li>
-                            <li>IBLM examination certification fee with TLWA member rebate ($699 – $70 = $629 for physicians; $499- $50 = $ 449 for Professionals)</li>
-                            <li>Production and shipment of the diplomate certificates ($30 per certificate)</li>
-                        </ul>
-                    </li>
                 </ol>
-            </div>
-            <div>
-                For IBLM candidates, take the exam which consists of 150 for physicians/120 for professionals multiple choice questions of National Board of Medical Examiners (NBME) standard. The 2025 certification exam will be held on Sunday, October 19th , from 1:30 pm to 5:30 pm at Avani Ratchada Bangkok Hotel, Bangkok.
-                Pass the exam which is graded “on the curve” based upon psychometric assessment after each exam. Exam results are available just before Christmas 2025.
-                Congratulations! Based upon your professional category, you will now be a diplomate of the International Board of Lifestyle Medicine (DipIBLM).
-                Consider signing up for the MOC pathway at the beginning of the following year in order to keep your certification current. You will receive an invitation to do so in early January of each year.
-            </div>
-            <div className="mt-4 text-lg text-red-700">
-                “ CLOSE OF IBLM EXAMINATION REGISTRATION ON SEPTEMBER 30th 2025 ”
+                {/* • */}
+                <li>
+                    Attendance of LMW Bangkok 2025 immediately preceding an exam is exempt from the above 30-day rule.
+                </li>
+                <li>
+                    Consider registering as a member of Thai Lifestyle Medicine and Wellbeing Association (TLWA) to receive discounts on association’s activities and membership benefits.
+                </li>
+                <li>
+                    Register to enroll for the IBLM exam: October 19, 2025, Bangkok, Thailand :{" "}
+                    <a href="https://www.tlwa.or.th" target="_blank" rel="noopener noreferrer" className="underline text-blue-600 font-medium">tlwa.or.th</a>
+                </li>
+                {/* Title */}
+                <div className="pt-5">
+                    <b>For the purpose of the IBLM’s Certification Pricing Matrix, Thailand is considered as a Tier 2 country.  Fees are to be paid to TLWA if you are a Thai citizen and would like to become a TLWA member :</b>
+                    <ol className="list-decimal pl-6 space-y-4">
+                        {/* 1 */}
+                        <li>TLWA lifelong membership fee of 1,750 Baht</li>
+                        {/* 2 */}
+                        <li>IBLM exam registration fee –non-refundable ($99 for physicians; $49 for professionals)</li>
+                        {/* 3 */}
+                        <li>IBLM examination certification fee with TLWA member rebate ($999 – $100 = $899 for physicians; $799- $79 = $ 720 for Professionals)</li>
+                        {/* 4 */}
+                        <li>Production and shipment of the diplomate certificates ($30 per certificate)</li>
+                    </ol>
+
+                    {/* Title */}
+                    <b>For the purpose of the IBLM’s Certification Pricing Matrix, the following are considered as Tier 3 countries, e.g. Myanmar, Cambodia, Laos, Vietnam, Bhutan. Fees are to be paid to TLWA if you are a citizen of Tier 3 country as explained above and would like to become a TLWA member :</b>
+                    <ol className="list-decimal pl-6 space-y-4">
+                        {/* 1 */}
+                        <li>TLWA lifelong membership fee of 1,750 Baht</li>
+                        {/* 2 */}
+                        <li>IBLM exam registration fee –non-refundable ($49 for physicians; $29 for professionals)</li>
+                        {/* 3 */}
+                        <li>IBLM examination certification fee with TLWA member rebate ($699 – $70 = $629 for physicians; $499- $50 = $ 449 for Professionals)</li>
+                        {/* 4 */}
+                        <li>Production and shipment of the diplomate certificates ($30 per certificate)</li>
+                    </ol>
+                </div>
+                {/* Detail */}
+                <div>
+                    <ol className="list-disc pl-6 space-y-4">
+                        <li>For IBLM candidates, take the exam which consists of 150 for physicians/120 for professionals multiple choice questions of National Board of Medical Examiners (NBME) standard. The 2025 certification exam will be held on Sunday, October 19th , from 1:30 pm to 5:30 pm at Avani Ratchada Bangkok Hotel, Bangkok.</li>
+                        <li>Pass the exam which is graded “on the curve” based upon psychometric assessment after each exam. Exam results are available just before Christmas 2025.</li>
+                        <li>Congratulations! Based upon your professional category, you will now be a diplomate of the International Board of Lifestyle Medicine (DipIBLM).</li>
+                        <li>Consider signing up for the MOC pathway at the beginning of the following year in order to keep your certification current. You will receive an invitation to do so in early January of each year.</li>
+                    </ol>
+                </div>
+                <div className="mt-4 font-semibold text-red-500">
+                    “ CLOSE OF IBLM EXAMINATION REGISTRATION ON SEPTEMBER 30th 2025 ”
+                </div>
             </div>
         </div>
     ),
@@ -135,52 +157,62 @@ const IBLM_CONTENT = (pdfLink) => ({
             <div>
                 <b>ข้อกำหนดของการสมัครสอบ IBLM สำหรับแพทย์และโปรเฟชชันนอล</b>
             </div>
-            <ol className="list-decimal pl-6">
-                <li>
-                    เรียนจากหลักสูตร CME ที่ได้รับอนุมัติจาก IBLM ครบจำนวน 30 ชั่วโมง หลักสูตรที่แนะนำคือ “Foundations of Lifestyle Medicine – the Lifestyle Medicine Board Review Course (LMBRC)” ค่าใช้จ่ายสำหรับโปรแกรมที่ไม่ได้รับ CME คือ 499 ดอลลาร์ (IBLM ต้องการเพียงใบรับรองการจบหลักสูตรสำหรับผู้ที่อยู่นอกสหรัฐอเมริกา) หลักสูตร LMBRC ได้จัดทำไว้ในภาคภาษาอังกฤษ สเปน เกาหลี จีน และโปรตุเกส
-                    เว็บไซด์สำหรับค้นหาและสมัครเข้าเรียนในหลักสูตร LMBRC สามารถเข้าดูได้ที่นี่:{" "}
-                    <a href="https://www.lifestylemedicine.org/boardreview" target="_blank" rel="noopener noreferrer" className="underline text-blue-600 font-medium">Link: lifestylemedicine.org/boardreview</a>
+            <ol className="list-decimal pl-6 space-y-4">
+                {/* 1 */}
+                <li className="space-y-2">
+                    <p>เรียนจากหลักสูตร CME ที่ได้รับอนุมัติจาก IBLM ครบจำนวน 30 ชั่วโมง หลักสูตรที่แนะนำคือ “Foundations of Lifestyle Medicine – the Lifestyle Medicine Board Review Course (LMBRC)” ของ American College of Lifestyle Medicine (ACLM) ค่าใช้จ่ายสำหรับโปรแกรมที่ไม่ได้รับ CME คือ 449 ดอลลาร์สหรัฐ สำหรับพลเมืองไทย (IBLM ต้องการเพียงใบรับรองการจบหลักสูตรสำหรับผู้ที่อยู่นอกสหรัฐอเมริกา)</p>
+                    <p>สำหรับ Tiered Pricing Matrix ของ IBLM ประเทศดังต่อไปนี้ถือเป็นประเทศระดับ Tier 3 อาทิ เมียนมาร์ กัมพูชา สปป.ลาว เวียดนาม ภูฏาน ค่าใช้จ่ายสำหรับโปรแกรมที่ไม่ได้รับ CME คือ 399 ดอลล่าร์สหรัฐ สำหรับพลเมืองของประเทศระดับ Tier 3 (IBLM ต้องการเพียงใบรับรองการจบหลักสูตรสำหรับผู้ที่อยู่นอกสหรัฐอเมริกา)</p>
+                    <p>หลักสูตร LMBRC ได้จัดทำไว้ในภาคภาษาอังกฤษ สเปน เกาหลี จีน และโปรตุเกส  โปรดทราบว่า ACLM จะไม่จัดส่งคู่มือ LMBRC ฉบับพิมพ์ให้แก่ผู้ซื้ออีกต่อไป ผู้ที่สมัครเข้าร่วมหลักสูตร LMBRC สามารถพิมพ์สำเนาหนังสืออิเล็กทรอนิกส์ (eBook) ได้ 1 ฉบับ</p>
+                    <p>เว็บไซด์สำหรับค้นหาและสมัครเข้าเรียนในหลักสูตร LMBRC สามารถเข้าดูได้ที่นี่ : <a href="https://lifestylemedicine.org/education-certification/course-catalog/" target="_blank" rel="noopener noreferrer" className="underline text-blue-600 font-medium">คลิกลิงค์</a></p>
                 </li>
+                {/* 2 */}
                 <li>
-                    เข้าร่วมกิจกรรม CME ที่ได้รับอนุมัติ ครบจำนวน 20 ชั่วโมง (ออนไลน์หรือเข้าร่วมด้วยตัวเอง) จากกิจกรรมที่ได้รับอนุมัติภายในภูมิภาคของท่าน
-                    สำหรับแพทย์และโปรเฟชชันนอลที่ได้รับใบอนุญาตประกอบวิชาชีพในประเทศไทย ขอแนะนำให้เข้าร่วมงาน “Lifestyle Medicine and Wellbeing International Conference Bangkok (LMW Bangkok 2025)” ที่ได้รับอนุมัติจาก IBLM แล้วให้ครบ 20 ชั่วโมงแบบที่เข้าร่วมด้วยตนเอง รายละเอียดเพิ่มเติมในเว็บไซด์{" "}
-                    <a href="https://www.tlwa.or.th" target="_blank" rel="noopener noreferrer" className="underline text-blue-600 font-medium">Link: tlwa.or.th</a>
+                    <p>เข้าร่วมกิจกรรม CME ที่ได้รับอนุมัติ ครบจำนวน 20 ชั่วโมง (ออนไลน์หรือเข้าร่วมด้วยตัวเอง) จากกิจกรรมที่ได้รับอนุมัติภายในภูมิภาคของท่าน ประเทศที่ได้รับอนุญาตให้เป็นศูนย์การจัดสอบ IBLM จะได้รับอนุญาตให้จัดกิจกรรมหรือการประชุมแบบที่เข้าร่วมด้วยตนเอง สำหรับแพทย์และโปรเฟชชันนอลที่ได้รับใบอนุญาตประกอบวิชาชีพในประเทศไทย ขอแนะนำให้เข้าร่วมงาน “Lifestyle Medicine and Wellbeing International Conference Bangkok (LMW Bangkok 2025)” ที่ได้รับอนุมัติจาก IBLM แล้วให้ครบ 20 ชั่วโมงแบบที่เข้าร่วมด้วยตนเอง รายละเอียดเพิ่มเติมในเว็บไซด์{" "}
+                        <a href="https://www.tlwa.or.th" target="_blank" rel="noopener noreferrer" className="underline text-blue-600 font-medium">tlwa.or.th</a></p>
+
                 </li>
+                {/* 3 */}
                 <li>
-                    ระยะเวลาการส่งหลักฐานตามข้อกำหนดของการสอบคือ อย่างน้อย 30 วันก่อนวันสอบ โดยให้ปฎิบัติตามคำแนะนำของ TLWA ภายหลังจากที่ได้สมัครสอบแล้ว โปรดทราบ: แพทย์จะต้องกรอกและส่งกรณีศึกษาหนึ่งกรณี ซึ่งสามารถใช้แบบฟอร์มสำหรับกรอกกรณีศึกษาได้จาก{" "}
-                    <a href={pdfLink} target="_blank" rel="noopener noreferrer" className="underline text-blue-600 font-medium">Link: แบบฟอร์มกรณีศึกษา</a>
-                </li>
-                <li>
-                    การเข้าร่วม LMW Bangkok 2025 ก่อนการสอบ จะได้รับการยกเว้นจากกฎ 30 วันดังที่กล่าวข้างต้น
-                </li>
-                <li>
-                    พิจารณาลงทะเบียนเป็นสมาชิกสมาคมเวชศาสตร์วิถีชีวิตและสุขภาวะไทย (TLWA) เพื่อรับส่วนลดในการร่วมกิจกรรมต่างๆของสมาคมและสิทธิประโยชน์ในฐานะสมาชิก
-                </li>
-                <li>
-                    ลงทะเบียนสอบ IBLM  ซึ่งมีกำหนดจัดขึ้นในวันที่ 19 ตุลาคม 2568 เวลา 13.30 – 17.30 น. ณ โรงแรม Avani Ratchada Bangkok กรุงเทพมหานคร ประเทศไทย อ่านข้อมูลเพิ่มเติมได้ในเว็บไซด์{" "}
-                    <a href="https://www.tlwa.or.th" target="_blank" rel="noopener noreferrer" className="underline text-blue-600 font-medium">Link: tlwa.or.th</a>
-                </li>
-                <li>
-                    <b>สำหรับ Certification Pricing Matrix ของ IBLM ประเทศไทยถือเป็นประเทศระดับ Tier 2 ผู้สนใจสมัครสอบซึ่งเป็นชาวไทย สามารถพิจารณาค่าธรรมเนียมที่จะต้องชำระให้กับสมาคม TLWA ดังต่อไปนี้ :</b>
-                    <ul className="list-disc pl-6">
-                        <li>ค่าลงทะเบียนสมาชิกสมาคม TLWA ตลอดชีพ 1,750 บาท</li>
-                        <li>ค่าธรรมเนียมการลงทะเบียนสอบ IBLM – $99 สำหรับแพทย์ และ $49 สำหรับโปรเฟชชันนอล (ไม่สามารถคืนเงินได้หากถอนตัวในภายหลัง)</li>
-                        <li>ค่าธรรมเนียมการสอบ IBLM โดยสามารถหักส่วนลดหากเป็นสมาชิกสมาคม TLWA สำหรับแพทย์ 999 ดอลลาร์ – 100 ดอลลาร์ = 899 ดอลลาร์ สำหรับโปรเฟชชั่นนอล 799 ดอลลาร์ – 79 ดอลลาร์ = 720 ดอลลาร์</li>
-                        <li>ค่าจัดส่งใบรับรอง 30 ดอลลาร์ ต่อ 1 ใบรับรอง</li>
-                    </ul>
-                </li>
-                <li>
-                    สำหรับ Certification Pricing Matrix ของ IBLM ประเทศดังต่อไปนี้ถือเป็นประเทศระดับ Tier 3 อาทิ เมียนมาร์ กัมพูชา สปป.ลาว เวียดนาม ภูฏาน ผู้สนใจสมัครสอบซึ่งเป็นพลเมืองของประเทศระดับ Tier 3 สามารถพิจารณาค่าธรรมเนียมที่จะต้องชำระให้กับสมาคม TLWA ดังรายละเอียดที่ปรากฎใน Section ภาคภาษาอังกฤษ (ด้านบน)
+                    <p>ระยะเวลาการส่งหลักฐานตามข้อกำหนดของการสอบคือ อย่างน้อย 30 วันก่อนวันสอบ โดยให้ปฎิบัติตามคำแนะนำของ TLWA ภายหลังจากที่ได้สมัครสอบแล้ว โปรดทราบ: แพทย์จะต้องกรอกและส่งกรณีศึกษาหนึ่งกรณี ซึ่งสามารถใช้แบบฟอร์มสำหรับกรอกกรณีศึกษาได้จาก{" "}
+                        <a href={pdfLink} target="_blank" rel="noopener noreferrer" className="underline text-blue-600 font-medium">ลิงค์: แบบฟอร์ม</a></p>
+                    <p className="text-red-500">*** หรือสอบถามทางไลน์ OA ***</p>
                 </li>
             </ol>
+            {/* • */}
+            <li>การเข้าร่วม LMW Bangkok 2025 ก่อนการสอบ จะได้รับการยกเว้นจากกฎ 30 วันดังที่กล่าวข้างต้น</li>
+            <li>พิจารณาลงทะเบียนเป็นสมาชิกสมาคมเวชศาสตร์วิถีชีวิตและสุขภาวะไทย (TLWA) เพื่อรับส่วนลดในการร่วมกิจกรรมต่างๆของสมาคมและสิทธิประโยชน์ในฐานะสมาชิก</li>
+            <li>ลงทะเบียนสอบ IBLM  ซึ่งมีกำหนดจัดขึ้นในวันที่ 19 ตุลาคม 2568 เวลา 13.30 – 17.30 น. ณ โรงแรม Avani Ratchada Bangkok กรุงเทพมหานคร ประเทศไทย อ่านข้อมูลเพิ่มเติมได้ในเว็บไซด์{" "}
+                <a href="https://www.tlwa.or.th" target="_blank" rel="noopener noreferrer" className="underline text-blue-600 font-medium">tlwa.or.th</a></li>
+
+            {/* Title */}
+            <b>สำหรับ Certification Pricing Matrix ของ IBLM ประเทศไทยถือเป็นประเทศระดับ Tier 2 ผู้สนใจสมัครสอบซึ่งเป็นชาวไทย สามารถพิจารณาค่าธรรมเนียมที่จะต้องชำระให้กับสมาคม TLWA ดังต่อไปนี้ :</b>
+            <ol className="list-decimal pl-6 space-y-4">
+                {/* 1 */}
+                <li>ค่าลงทะเบียนสมาชิกสมาคม TLWA ตลอดชีพ 1,750 บาท</li>
+                {/* 2 */}
+                <li>ค่าธรรมเนียมการลงทะเบียนสอบ IBLM – $99 สำหรับแพทย์ และ $49 สำหรับโปรเฟชชันนอล (ไม่สามารถคืนเงินได้หากถอนตัวในภายหลัง)</li>
+                {/* 3 */}
+                <li>ค่าธรรมเนียมการสอบ IBLM โดยสามารถหักส่วนลดหากเป็นสมาชิกสมาคม TLWA
+                    สำหรับแพทย์ 999 ดอลลาร์ – 100 ดอลลาร์ = 899 ดอลลาร์
+                    สำหรับโปรเฟชชั่นนอล 799 ดอลลาร์ – 79 ดอลลาร์ = 720 ดอลลาร์
+                    <p className="text-red-500">(จำนวนเงินเป็นสกุลเงินบาท จะขึ้นอยู่กับอัตราแลกเปลี่ยนในวันที่ชำระเงิน)</p></li>
+                {/* 4 */}
+                <li>ค่าจัดส่งใบรับรอง 30 ดอลลาร์ ต่อ 1 ใบรับรอง
+                    <p className="text-red-500">(จำนวนเงินเป็นสกุลเงินบาท จะขึ้นอยู่กับอัตราแลกเปลี่ยนในวันที่ชำระเงิน)</p></li>
+            </ol>
+            {/* Title */}
+            <b>สำหรับ Certification Pricing Matrix ของ IBLM ประเทศดังต่อไปนี้ถือเป็นประเทศระดับ Tier 3 อาทิ เมียนมาร์ กัมพูชา สปป.ลาว เวียดนาม ภูฏาน ผู้สนใจสมัครสอบซึ่งเป็นพลเมืองของประเทศระดับ Tier 3 สามารถพิจารณาค่าธรรมเนียมที่จะต้องชำระให้กับสมาคม TLWA ดังรายละเอียดที่ปรากฎใน Section ภาคภาษาอังกฤษ (EN)</b>
+            {/* Detail */}
             <div>
-                การสอบ IBLM ในปี 2025 จะมีข้อสอบที่ประกอบด้วยคำถามแบบปรนัย สำหรับแพทย์ 150 ข้อ หรือสำหรับโปรเฟชชันนอล 120 ข้อ ซึ่งจัดทำขึ้นตามมาตรฐานของ National Board of Medical Examiners (NBME) การสอบ IBLM ปี 2025 ณ กรุงเทพมหานคร จะจัดขึ้นในวันอาทิตย์ที่ 19 ตุลาคม เวลา 13.30 น. ถึง 17.30 น.
-                การให้เกรดผลสอบ จะพิจารณาจากเส้นโค้งของกราฟผลคะแนน (on the curve) โดยมีพื้นฐานจากการประเมินแบบ psychometric หลังการสอบแต่ละครั้งและจะประกาศผลสอบก่อนวันคริสต์มาสในปีค.ศ. 2025
-                ท่านที่สอบผ่าน จะได้รับสถานะเป็น Diplomate ของ International Board of Lifestyle Medicine (DipIBLM)
-                แนะนำให้พิจารณาเข้าร่วมแนวทางการต่ออายุการรับรอง (Maintenance of Certification Pathway – MOC pathway) ซึ่งท่านจะได้รับข้อมูลส่งถึงท่านในปีถัดไปหลังจากที่สอบเป็นผลสำเร็จแล้ว เพื่อรักษาสถานะการรับรองให้เป็นปัจจุบัน โดยท่านจะได้รับคำเชิญให้เข้าร่วม MOC ในช่วงต้นเดือนมกราคมของแต่ละปี
-            </div>
-            <div className="mt-4 font-semibold text-red-700">
-                “ ปิดการลงทะเบียนสอบ IBLM วันที่ 30 กันยายน 2568 ”
+                <ol className="list-disc pl-6 space-y-4">
+                    <li>การสอบ IBLM ในปี 2025 จะมีข้อสอบที่ประกอบด้วยคำถามแบบปรนัย สำหรับแพทย์ 150 ข้อ หรือสำหรับโปรเฟชชันนอล 120 ข้อ ซึ่งจัดทำขึ้นตามมาตรฐานของ National Board of Medical Examiners (NBME) การสอบ IBLM ปี 2025 ณ กรุงเทพมหานคร จะจัดขึ้นในวันอาทิตย์ที่ 19 ตุลาคม เวลา 13.30 น. ถึง 17.30 น.</li>
+                    <li>การให้เกรดผลสอบ จะพิจารณาจากเส้นโค้งของกราฟผลคะแนน (on the curve) โดยมีพื้นฐานจากการประเมินแบบ psychometric หลังการสอบแต่ละครั้งและจะประกาศผลสอบก่อนวันคริสตมาสในปีค.ศ. 2025</li>
+                    <li>ท่านที่สอบผ่าน จะได้รับสถานะเป็น Diplomate ของ International Board of Lifestyle Medicine (DipIBLM)</li>
+                    <li>แนะนำให้พิจารณาเข้าร่วมแนวทางการต่ออายุการรับรอง (Maintenance of Certification Pathway – MOC pathway) ซึ่งท่านจะได้รับข้อมูลส่งถึงท่านในปีถัดไปหลังจากที่สอบเป็นผลสำเร็จแล้ว เพื่อรักษาสถานะการรับรองให้เป็นปัจจุบัน โดยท่านจะได้รับคำเชิญให้เข้าร่วม MOC ในช่วงต้นเดือนมกราคมของแต่ละปี</li>
+                </ol>
+                <div className="mt-4 font-semibold text-red-500">
+                    “ ปิดการลงทะเบียนสอบ IBLM วันที่ 30 กันยายน 2568 ”
+                </div>
             </div>
         </div>
     ),
