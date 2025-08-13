@@ -1,26 +1,26 @@
 import React, { useState } from "react";
-import { FiFileText, FiMessageCircle } from "react-icons/fi";
-import { motion, useAnimation, useCycle } from 'framer-motion'
+import { FiFileText, FiMessageCircle, FiCheck, FiLayers } from "react-icons/fi";
+import { motion, useCycle } from "framer-motion";
 
 // import line decoration
-import line from '/src/assets/benefits/line-9.png'
+import line from "/src/assets/benefits/line-9.png";
 
 // === Animated วงกลม BG ===
 function AnimatedCircle({ className, style, delay = 0, ...rest }) {
-    const [animation, cycle] = useCycle({ y: 0 }, { y: 40 }, { y: -30 });
-    React.useEffect(() => {
-        const timer = setInterval(cycle, 2400 + delay)
-        return () => clearInterval(timer)
-    }, [cycle, delay])
-    return (
-        <motion.div
-            className={className}
-            style={style}
-            animate={animation}
-            transition={{ duration: 2.2, ease: "easeInOut" }}
-            {...rest}
-        />
-    )
+  const [animation, cycle] = useCycle({ y: 0 }, { y: 40 }, { y: -30 });
+  React.useEffect(() => {
+    const timer = setInterval(cycle, 2400 + delay);
+    return () => clearInterval(timer);
+  }, [cycle, delay]);
+  return (
+    <motion.div
+      className={className}
+      style={style}
+      animate={animation}
+      transition={{ duration: 2.2, ease: "easeInOut" }}
+      {...rest}
+    />
+  );
 }
 
 // PDF path
@@ -29,27 +29,202 @@ const PDF_TEMPLATE = "/iblm/MDDOCertificationCaseStudyTemplate.pdf";
 
 // --- Pill Language Switcher
 function PillLang({ lang, setLang }) {
-    return (
-        <div className="flex justify-start my-2">
-            {/* ปุ่มเปลี่ยนภาษา TH/EN */}
-            <div className="flex border border-indigo-200 rounded-full overflow-hidden shadow-sm ml-2 mb-10">
-                <button
-                    className={`cursor-pointer px-5 py-2 text-base font-semibold transition 
-                ${lang === "th" ? "bg-indigo-500 text-white" : "text-indigo-500 bg-white hover:bg-indigo-50"}`}
-                    onClick={() => setLang("th")}
-                >
-                    TH
-                </button>
-                <button
-                    className={`cursor-pointer px-5 py-2 text-base font-semibold transition 
-                ${lang === "en" ? "bg-indigo-500 text-white" : "text-indigo-500 bg-white hover:bg-indigo-50"}`}
-                    onClick={() => setLang("en")}
-                >
-                    EN
-                </button>
-            </div>
+  return (
+    <div className="flex justify-start my-2">
+      <div className="flex border border-indigo-200 rounded-full overflow-hidden shadow-sm ml-2 mb-10">
+        <button
+          className={`cursor-pointer px-5 py-2 text-base font-semibold transition ${
+            lang === "th"
+              ? "bg-indigo-500 text-white"
+              : "text-indigo-500 bg-white hover:bg-indigo-50"
+          }`}
+          onClick={() => setLang("th")}
+        >
+          TH
+        </button>
+        <button
+          className={`cursor-pointer px-5 py-2 text-base font-semibold transition ${
+            lang === "en"
+              ? "bg-indigo-500 text-white"
+              : "text-indigo-500 bg-white hover:bg-indigo-50"
+          }`}
+          onClick={() => setLang("en")}
+        >
+          EN
+        </button>
+      </div>
+    </div>
+  );
+}
+
+/** ===== Pricing Cards (แบบ Plus/Pro) ===== */
+function PriceLine({ children }) {
+  return (
+    <li className="flex items-start gap-3">
+      <span className="mt-1 rounded-full bg-emerald-500/20 p-1">
+        <FiCheck className="h-4 w-4 text-emerald-400" />
+      </span>
+      <span className="leading-relaxed">{children}</span>
+    </li>
+  );
+}
+
+function PriceBlock({ title, tierBadge, original, member, details, onAddLine }) {
+  return (
+    <div className="relative rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-2xl p-6 md:p-8">
+      {/* หัวข้อ */}
+      <div className="flex items-center justify-between">
+        <h3 className="text-2xl font-bold">{title}</h3>
+        <span className="rounded-full bg-white/10 px-3 py-1 text-xs font-semibold text-white/80">
+          {tierBadge}
+        </span>
+      </div>
+
+      {/* ราคาโปรโมชัน */}
+      <div className="mt-4">
+        <div className="flex items-end gap-2">
+          <span className="text-4xl font-extrabold tracking-tight">${member}</span>
+          <span className="text-sm text-gray-300 mb-1">certification fee</span>
         </div>
-    );
+        <div className="mt-1 text-gray-300">
+          <span className="line-through opacity-70 mr-2">${original}</span>
+          <span className="inline-flex items-center rounded-md bg-emerald-500/20 px-2 py-0.5 text-emerald-300 text-xs font-semibold">
+            Member
+          </span>
+        </div>
+      </div>
+
+      {/* รายการ */}
+      <ul className="mt-6 space-y-3 text-gray-100">
+        {details.map((line, idx) => (
+          <PriceLine key={idx}>{line}</PriceLine>
+        ))}
+      </ul>
+
+      {/* ปุ่ม Add LINE Official */}
+      <div className="mt-8">
+        <button
+          onClick={onAddLine}
+          className="cursor-pointer w-full rounded-xl bg-green-600 hover:bg-green-700 text-white font-semibold py-3 transition inline-flex items-center justify-center gap-2"
+        >
+          <FiMessageCircle className="text-lg" />
+          Add LINE Official
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function PricingTiers({ onAddLine }) {
+  const [tier, setTier] = useState("T2"); // T2 | T3
+
+  // ----- Data -----
+  const T2 = {
+    left: {
+      title: "Physicians",
+      original: 999,
+      member: 899,
+      details: [
+        "TLWA lifelong membership fee of 1,750 Baht",
+        "IBLM exam registration fee – non-refundable $99",
+        "IBLM examination certification fee with TLWA member rebate $999 → $899 (discount $100)",
+        "Production and shipment of the diplomate certificates ($30 per certificate)",
+      ],
+    },
+    right: {
+      title: "Professionals",
+      original: 799,
+      member: 720,
+      details: [
+        "TLWA lifelong membership fee of 1,750 Baht",
+        "IBLM exam registration fee – non-refundable $49",
+        "IBLM examination certification fee with TLWA member rebate $799 → $720 (discount $79)",
+        "Production and shipment of the diplomate certificates ($30 per certificate)",
+      ],
+    },
+  };
+
+  const T3 = {
+    left: {
+      title: "Physicians",
+      original: 699,
+      member: 629,
+      details: [
+        "TLWA lifelong membership fee of 1,750 Baht",
+        "IBLM exam registration fee – non-refundable $49",
+        "IBLM examination certification fee with TLWA member rebate $699 → $629 (discount $70)",
+        "Production and shipment of the diplomate certificates ($30 per certificate)",
+      ],
+    },
+    right: {
+      title: "Professionals",
+      original: 499,
+      member: 449,
+      details: [
+        "TLWA lifelong membership fee of 1,750 Baht",
+        "IBLM exam registration fee – non-refundable $29",
+        "IBLM examination certification fee with TLWA member rebate $499 → $449 (discount $50)",
+        "Production and shipment of the diplomate certificates ($30 per certificate)",
+      ],
+    },
+  };
+
+  const data = tier === "T2" ? T2 : T3;
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.45, ease: "easeOut" }}
+      className="mt-10"
+    >
+      {/* Toggle Tier */}
+      <div className="flex justify-center">
+        <div className="inline-flex rounded-full bg-white/5 p-1 border border-white/10">
+          <button
+            onClick={() => setTier("T2")}
+            className={`cursor-pointer px-5 py-2 text-sm font-semibold rounded-full transition ${
+              tier === "T2" ? "bg-white text-gray-900" : "text-white/80 hover:text-white"
+            }`}
+          >
+            Tier 2
+          </button>
+          <button
+            onClick={() => setTier("T3")}
+            className={`cursor-pointer px-5 py-2 text-sm font-semibold rounded-full transition ${
+              tier === "T3" ? "bg-white text-gray-900" : "text-white/80 hover:text-white"
+            }`}
+          >
+            Tier 3
+          </button>
+        </div>
+      </div>
+
+      {/* การ์ดซ้าย-ขวา */}
+      <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6 max-w-5xl mx-auto">
+        <PriceBlock
+          title={data.left.title}
+          tierBadge={tier === "T2" ? "Tier 2" : "Tier 3"}
+          original={data.left.original}
+          member={data.left.member}
+          details={data.left.details}
+          onAddLine={onAddLine}
+        />
+        <PriceBlock
+          title={data.right.title}
+          tierBadge={tier === "T2" ? "Tier 2" : "Tier 3"}
+          original={data.right.original}
+          member={data.right.member}
+          details={data.right.details}
+          onAddLine={onAddLine}
+        />
+      </div>
+
+      <p className="mt-4 text-center text-sm text-gray-400">
+        * Exchange to THB depends on the rate at the time of payment.
+      </p>
+    </motion.div>
+  );
 }
 
 // -- Full content
@@ -223,135 +398,131 @@ const LINE_QR_URL = "https://qr-official.line.me/gs/M_980winmq_BW.png?oat_conten
 const LINE_LINK = "https://lin.ee/pd1Bpje";
 
 export default function IBLM() {
-    const [popup, setPopup] = useState(false);
-    const [lang, setLang] = useState("en");
-    const [showLine, setShowLine] = useState(false);
+  const [popup, setPopup] = useState(false);
+  const [lang, setLang] = useState("en");
+  const [showLine, setShowLine] = useState(false);
 
-    return (
-        <section id="iblm" className="relative bg-gray-900 text-white py-24 px-4 overflow-hidden">
-            {/* Animated BG decor */}
-            <AnimatedCircle className="absolute -left-32 bottom-0 w-72 h-72 bg-gray-500 opacity-60 rounded-full" delay={0} />
-            <AnimatedCircle className="absolute left-32 top-96 w-6 h-6 bg-gray-500 opacity-40 rounded-full" delay={1400} />
-            <img className='absolute right-0' src={line} alt="" />
-            <div className="max-w-6xl mx-auto px-4 py-10 relative">
+  // ฟังก์ชันเปิด LINE popup ใช้ร่วมกับปุ่มในการ์ด
+  const openLine = () => setShowLine(true);
 
-                {/* Main title */}
-                <h1 className="text-pink-400 font-semibold text-xl mb-2">IBLM</h1>
-                <h2 className="text-6xl font-bold mb-12 max-w-xl">
-                    Become Certified in Lifestyle Medicine Practice
-                </h2>
-                <p className="text-gray-400 font-semibold text-lg max-w-8xl">
-                    Whether you’re a physician or a health professional, the path to becoming an IBLM Diplomate starts here. With accredited courses, hands-on conferences, and a supportive professional community, you can advance your expertise in lifestyle medicine, earn international recognition, and make a lasting impact on health and wellness in Thailand and beyond.
-                </p>
+  return (
+    <section id="iblm" className="relative bg-gray-900 text-white py-24 px-4 overflow-hidden">
+      {/* BG decor */}
+      <AnimatedCircle className="absolute -left-32 bottom-0 w-72 h-72 bg-gray-500 opacity-60 rounded-full" delay={0} />
+      <AnimatedCircle className="absolute left-32 top-96 w-6 h-6 bg-gray-500 opacity-40 rounded-full" delay={1400} />
+      <img className="absolute right-0" src={line} alt="" />
 
-                {/* Read More button */}
-                <button
-                    onClick={() => setPopup(true)}
-                    className="cursor-pointer mt-10 bg-indigo-500 text-white font-semibold w-32 h-12 rounded-xl shadow-lg
-            hover:bg-indigo-700 hover:shadow-xl transition-all duration-300 flex items-center justify-center"
-                >
-                    Read More
-                </button>
+      <div className="max-w-6xl mx-auto px-4 py-10 relative">
+        {/* Main title */}
+        <h1 className="text-pink-400 font-semibold text-xl mb-2">IBLM</h1>
+        <h2 className="text-6xl font-bold mb-12 max-w-xl">
+          Become Certified in Lifestyle Medicine Practice
+        </h2>
 
-                {/* PDF & Line icons */}
-                <div className="flex items-center gap-6 mt-8">
-                    {/* PDF */}
-                    <a
-                        href={PDF_FILE}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-2 text-blue-700 hover:text-blue-900 transition"
-                        title="Open PDF"
-                    >
-                        <FiFileText className="text-3xl" />
-                        <span className="font-medium text-base underline">IBLM Guide PDF</span>
-                    </a>
-                    {/* Line */}
-                    <button
-                        onClick={() => setShowLine(true)}
-                        className="cursor-pointer flex items-center gap-2 text-green-600 hover:text-green-800 transition"
-                        title="Add LINE Official"
-                    >
-                        <FiMessageCircle className="text-3xl" />
-                        <span className="font-medium text-base underline">Add LINE Official</span>
-                    </button>
-                </div>
+        {/* Intro */}
+        <p className="text-gray-400 font-semibold text-lg max-w-8xl">
+          Whether you’re a physician or a health professional, the path to becoming an IBLM Diplomate starts here. With accredited courses,
+          hands-on conferences, and a supportive professional community, you can advance your expertise in lifestyle medicine, earn international
+          recognition, and make a lasting impact on health and wellness in Thailand and beyond.
+        </p>
 
-                {/* Main Info Popup */}
-                {popup && (
-                    <div
-                        className="fixed z-50 inset-0 bg-black/60 flex items-center justify-center"
-                        onClick={() => setPopup(false)}
-                        style={{ cursor: "pointer" }}
-                    >
-                        <div
-                            className="relative bg-white max-w-2xl w-[95vw] max-h-[90vh] rounded-2xl shadow-2xl p-6 xl:p-8 overflow-y-auto animate-fadeIn"
-                            onClick={e => e.stopPropagation()}
-                            style={{ color: "#222" }}
-                        >
-                            {/* ปุ่มปิด (X) มุมขวาบน */}
-                            <button
-                                onClick={() => setPopup(false)}
-                                className="cursor-pointer absolute top-8 right-3 bg-gray-200 hover:bg-red-400 text-gray-500 hover:text-white rounded-full w-9 h-9 flex items-center justify-center transition z-10"
-                                title="Close"
-                            >
-                                <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                                </svg>
-                            </button>
+        {/* Pricing Cards */}
+        <PricingTiers onAddLine={openLine} />
 
-                            {/* Language Switcher */}
-                            <PillLang lang={lang} setLang={setLang} />
-                            {/* Full content */}
-                            <div>{IBLM_CONTENT(PDF_TEMPLATE)[lang]}</div>
-                        </div>
-                    </div>
-                )}
+        {/* แถวล่าง: PDF + Read More (ย้ายลงมาแทน Add LINE เดิม) */}
+        <div className="flex flex-wrap items-center gap-6 mt-8">
+          {/* PDF link */}
+          <a
+            href={PDF_FILE}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-2 text-blue-700 hover:text-blue-900 transition"
+            title="Open PDF"
+          >
+            <FiFileText className="text-3xl" />
+            <span className="font-medium text-base underline">IBLM Guide PDF</span>
+          </a>
 
-                {/* LINE Official Popup */}
-                {showLine && (
-                    <div
-                        className="fixed z-50 inset-0 bg-black/60 flex items-center justify-center"
-                        onClick={() => setShowLine(false)}
-                        style={{ cursor: "pointer" }}
-                    >
-                        <div
-                            className="relative bg-white w-[360px] max-w-[95vw] rounded-2xl shadow-2xl px-8 py-7 animate-fadeIn"
-                            onClick={e => e.stopPropagation()}
-                        >
-                            <div className="text-lg font-semibold text-center mb-3 text-black">LINE Official Account</div>
-                            <div className="text-center font-bold text-green-700 mb-3">{LINE_OFFICIAL_NAME}</div>
-                            <div className="flex justify-center mb-1">
-                                <div className="w-40 h-40 bg-gray-100 flex items-center justify-center rounded-lg shadow-inner border border-gray-200 overflow-hidden">
-                                    {/* QR Code (tag img) */}
-                                    <img src={LINE_QR_URL} alt="QR Code" className="w-full h-full object-contain" />
-                                </div>
-                            </div>
-                            {/* Link Line Official */}
-                            <div className="flex justify-center mt-3">
-                                <a
-                                    href={LINE_LINK}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="underline text-blue-500 font-semibold text-base hover:text-blue-800"
-                                >
-                                    Line Official
-                                </a>
-                            </div>
-                            <div className="text-center text-sm text-gray-600 mt-2">Scan this QR code to add our official LINE account.</div>
-                        </div>
-                    </div>
-                )}
-                {/* Overlay Hover Style */}
-                <style>{`
-                .animate-fadeIn { animation: fadeIn .35s; }
-                @keyframes fadeIn {
-                from { opacity: 0; transform: scale(.96);}
-                to { opacity: 1; transform: scale(1);}
-                }
-                .underline.text-blue-600 { color: #2563eb !important; }
-                `}</style>
+          {/* Read More button (ไอคอนนำหน้า, ตัวอักษรสีขาว) */}
+          <button
+            onClick={() => setPopup(true)}
+            className="cursor-pointer flex items-center gap-2 text-gray-100 hover:text-gray-500 transition"
+            title="Read More"
+          >
+            {/* FiMessageCircle, FiCheck */}
+            <FiLayers className="text-3xl" />
+            <span className="font-medium text-base underline">Read More</span>
+          </button>
+        </div>
+
+        {/* Main Info Popup */}
+        {popup && (
+          <div
+            className="fixed z-50 inset-0 bg-black/60 flex items-center justify-center"
+            onClick={() => setPopup(false)}
+            style={{ cursor: "pointer" }}
+          >
+            <div
+              className="relative bg-white max-w-2xl w-[95vw] max-h-[90vh] rounded-2xl shadow-2xl p-6 xl:p-8 overflow-y-auto animate-fadeIn"
+              onClick={(e) => e.stopPropagation()}
+              style={{ color: "#222" }}
+            >
+              {/* ปุ่มปิด */}
+              <button
+                onClick={() => setPopup(false)}
+                className="cursor-pointer absolute top-8 right-3 bg-gray-200 hover:bg-red-400 text-gray-500 hover:text-white rounded-full w-9 h-9 flex items-center justify-center transition z-10"
+                title="Close"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+
+              {/* Language Switcher */}
+              <PillLang lang={lang} setLang={setLang} />
+              {/* Full content */}
+              <div>{IBLM_CONTENT(PDF_TEMPLATE)[lang]}</div>
             </div>
-        </section>
-    );
+          </div>
+        )}
+
+        {/* LINE Official Popup */}
+        {showLine && (
+          <div
+            className="fixed z-50 inset-0 bg-black/60 flex items-center justify-center"
+            onClick={() => setShowLine(false)}
+            style={{ cursor: "pointer" }}
+          >
+            <div className="relative bg-white w-[360px] max-w-[95vw] rounded-2xl shadow-2xl px-8 py-7 animate-fadeIn" onClick={(e) => e.stopPropagation()}>
+              <div className="text-lg font-semibold text-center mb-3 text-black">LINE Official Account</div>
+              <div className="text-center font-bold text-green-700 mb-3">T.L.W.A.</div>
+              <div className="flex justify-center mb-1">
+                <div className="w-40 h-40 bg-gray-100 flex items-center justify-center rounded-lg shadow-inner border border-gray-200 overflow-hidden">
+                  <img src="https://qr-official.line.me/gs/M_980winmq_BW.png?oat_content=qr" alt="QR Code" className="w-full h-full object-contain" />
+                </div>
+              </div>
+              <div className="flex justify-center mt-3">
+                <a
+                  href="https://lin.ee/pd1Bpje"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="underline text-blue-500 font-semibold text-base hover:text-blue-800"
+                >
+                  Line Official
+                </a>
+              </div>
+              <div className="text-center text-sm text-gray-600 mt-2">Scan this QR code to add our official LINE account.</div>
+            </div>
+          </div>
+        )}
+
+        {/* Styles */}
+        <style>{`
+          .animate-fadeIn { animation: fadeIn .35s; }
+          @keyframes fadeIn { from { opacity: 0; transform: scale(.96);} to { opacity: 1; transform: scale(1);} }
+          .underline.text-blue-600 { color: #2563eb !important; }
+        `}</style>
+      </div>
+    </section>
+  );
 }
