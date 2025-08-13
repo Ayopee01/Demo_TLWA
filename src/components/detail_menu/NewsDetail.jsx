@@ -10,10 +10,9 @@ function getNewsTypeLabel(type) {
   if (!type) return "-";
   switch ((type || "").toLowerCase()) {
     case "news":
-      return "ข่าวสาร";
-    case "blog":
+      return "News";
     case "article":
-      return "บทความ";
+      return "Article";
     case "lmweek":
       return "LM Week";
     default:
@@ -44,7 +43,7 @@ export default function NewsDetail() {
       label: getNewsTypeLabel(type)
     });
     return [
-      { value: "all", label: "ทั้งหมด" },
+      { value: "all", label: "All" },
       ...allTypes.map(mapLabel)
     ];
   }, [newsList]);
@@ -91,7 +90,7 @@ export default function NewsDetail() {
         <div className="flex items-center gap-3">
           <FiGlobe className="text-indigo-500 text-3xl" />
           <h1 className="text-3xl font-extrabold tracking-tight text-gray-900">
-            ข่าวและบทความ
+            News and Articles
           </h1>
         </div>
         <div className="flex flex-wrap items-center gap-3 mt-2 md:mt-0">

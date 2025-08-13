@@ -69,7 +69,7 @@ export default function NewsDetail_ID() {
     Array.isArray(detail.authors) && detail.authors.length > 0 && (
       <div className="w-full flex flex-col items-center mt-14 mb-6">
         <h2 className="flex items-center gap-2 font-bold text-base text-blue-700 mb-2">
-          <FiUser /> ผู้เขียนบทความ
+          <FiUser /> Article Author
         </h2>
         <div className="flex flex-row flex-wrap gap-10 justify-center w-full">
           {detail.authors.map((a, i) => (
@@ -103,9 +103,9 @@ export default function NewsDetail_ID() {
         <div className="mb-5">
           <Link
             to="/news"
-            className="inline-flex items-center text-indigo-600 hover:underline mb-6"
+            className="inline-flex items-center text-indigo-600 hover:text-indigo-800 mb-6"
           >
-            <FiArrowLeft className="mr-2" /> กลับหน้าข่าวทั้งหมด
+            <FiArrowLeft className="mr-2" /> Back to All News
           </Link>
         </div>
 
@@ -122,9 +122,9 @@ export default function NewsDetail_ID() {
                   {news.news_type === "lmweek"
                     ? "LM Week"
                     : news.news_type === "news"
-                    ? "ข่าวสาร"
+                    ? "News"
                     : news.news_type === "article"
-                    ? "บทความ"
+                    ? "Article"
                     : news.news_type}
                 </span>
               )}
@@ -219,7 +219,7 @@ export default function NewsDetail_ID() {
                 <FiChevronLeft />
               </button>
               <span className="text-lg font-semibold">
-                หน้า {page} / {totalPages}
+                Page {page} / {totalPages}
               </span>
               <button
                 onClick={() => setPage(page + 1)}
