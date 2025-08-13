@@ -35,7 +35,7 @@ import useScrollToSection from "./hooks/useScrollToSection";
 import ScrollToTop from "./components/function/ScrollToTop";
 
 // Advert/ใช้สำหรับมีปกวันสำคัญต่างๆ
-import Advert from "./components/advert/advert";
+// import Advert from "./components/advert/advert";
 
 function MainContent({ setModal }) {
   useScrollToSection();
@@ -67,9 +67,9 @@ function App() {
   const location = useLocation();
   const isHome = location.pathname === "/";
 
-  if (isHome && showIntro) {
-    return <Advert onEnter={() => setShowIntro(false)} />;
-  }
+  // if (isHome && showIntro) {
+  //   return <Advert onEnter={() => setShowIntro(false)} />;
+  // }
 
   return (
     <>
