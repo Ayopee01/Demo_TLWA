@@ -23,7 +23,7 @@ import Footer from "./components/main_menu/Footer";
 
 // Detail Menu
 import About from "./components/detail_menu/About";
-import CourseDetail from "./components/detail_menu/CourseDetail";
+import CourseDetail from "./components/detail_menu/CourseDetailMain";
 import NewsDetail from "./components/detail_menu/NewsDetail";
 import NewsDetail_ID from "./components/detail_menu/NewsDetail_ID";   // <-- Import ที่นี่
 import MediaDetail from "./components/detail_menu/MediaDetail";
@@ -98,7 +98,7 @@ function App() {
 
         {/* Course detail page */}
         <Route
-          path="/courses/:typeId"
+          path="/courses/:courseId"
           element={
             <>
               <Navbar
