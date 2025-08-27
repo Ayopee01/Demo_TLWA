@@ -224,7 +224,7 @@ export default function ConferenceCatalog() {
               lineHeight: "1.25",
             }}
           >
-            <span className="block sm:whitespace-normal line-clamp-2">
+            <span className="cursor-pointer block sm:whitespace-normal line-clamp-2 lg:pt-5">
               {current?.title}
             </span>
           </button>

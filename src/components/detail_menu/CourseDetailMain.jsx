@@ -203,12 +203,11 @@ export default function CourseDetailMain({ setModal }) {
                 onClick={handleBuy}
                 disabled={!canBuy && !!user}
                 className={`mt-6 w-full inline-flex items-center justify-center gap-2 rounded-2xl px-5 py-3 font-semibold transition
-                  ${
-                    user
-                      ? canBuy
-                        ? "bg-indigo-600 hover:bg-indigo-700 text-white"
-                        : "bg-gray-300 cursor-not-allowed text-gray-600"
-                      : "bg-gray-900 text-white hover:bg-black"
+                  ${user
+                    ? canBuy
+                      ? "bg-indigo-600 hover:bg-indigo-700 text-white"
+                      : "bg-gray-300 cursor-not-allowed text-gray-600"
+                    : "bg-gray-900 text-white hover:bg-black"
                   }`}
                 title={user ? (canBuy ? "Add to Cart" : "Not yet for sale") : "Sign in to buy"}
               >
@@ -300,9 +299,8 @@ function InfoChip({ icon, title, text, href }) {
   return (
     <Wrapper
       {...wrapperProps}
-      className={`flex items-start gap-3 rounded-2xl px-4 py-4 bg-white border border-gray-200 shadow-sm ${
-        href ? "transition hover:bg-gray-50" : ""
-      }`}
+      className={`flex items-start gap-3 rounded-2xl px-4 py-4 bg-white border border-gray-200 shadow-sm ${href ? "transition hover:bg-gray-50" : ""
+        }`}
     >
       <div className="text-xl mt-1 text-gray-500">{icon}</div>
       <div className="leading-tight">
