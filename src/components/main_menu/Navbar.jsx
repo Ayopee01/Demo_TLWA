@@ -168,7 +168,7 @@ function Navbar({ onLoginClick, onAccountClick }) {
                 className="cursor-pointer font-medium bg-indigo-500 text-white px-8 py-2 rounded-xl hover:bg-indigo-600 transition"
                 onClick={onLoginClick}
               >
-                Log in
+                Sign in
               </button>
             ) : (
               <div ref={dropdownRef} className="relative flex items-center">
