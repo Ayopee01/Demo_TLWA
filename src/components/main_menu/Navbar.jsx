@@ -1,10 +1,10 @@
 // src/components/main_menu/Navbar.jsx
-
 import React, { useState, useRef, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { FaUserCircle, FaChevronDown } from "react-icons/fa";
-import MemberSection from "../login/MemberSection";
-import AccountModal from "../login/AccountModal";
+// ❌ ไม่ต้อง import Modal แบบเดิมแล้ว (จะเปิดผ่าน route)
+// import MemberSection from "../login/MemberSection";
+// import AccountModal from "../login/AccountModal";
 import { useUser } from "../../contexts/UserContext";
 import logo from "/src/assets/logo/tlwa_logo.webp";
 
@@ -13,11 +13,9 @@ const navLinks = [
   { label: "Home", href: "#hero" },
   { label: "Conference", href: "#conference" },
   { label: "IBLM", href: "#iblm" },
-  // { label: "Benefits", href: "#benefits" },
   { label: "News", href: "#news" },
   { label: "Media", href: "#media" },
   { label: "Partners", href: "#partners" },
-  // { label: "Rules and Regulations", href: "#rules" },
   { label: "Contact", href: "#contact" },
 ];
 
@@ -48,12 +46,14 @@ function Navbar({ onLoginClick, onAccountClick }) {
   const navigate = useNavigate();
   const location = useLocation();
 
+  // ===== helper: เปิด route แบบ modal เมื่อกดจากในเว็บ =====
+  const openAsModal = (path) =>
+    navigate(path, { state: { backgroundLocation: location } });
+
   // State
   const [open, setOpen] = useState(false);
   const [dropdown, setDropdown] = useState(false);
   const [mobileUserDropdown, setMobileUserDropdown] = useState(false);
-  const [showMemberModal, setShowMemberModal] = useState(false);
-  const [showAccountModal, setShowAccountModal] = useState(false);
 
   const dropdownRef = useRef(null);
   const [hideNav, setHideNav] = useState(false);
@@ -107,7 +107,7 @@ function Navbar({ onLoginClick, onAccountClick }) {
     e.preventDefault();
     setOpen(false);
     if (location.pathname !== "/") {
-      navigate(`/${href}`);
+      navigate(`/${href}`); // -> "/#hero"
     } else {
       setTimeout(() => {
         const section = document.querySelector(href);
@@ -153,20 +153,19 @@ function Navbar({ onLoginClick, onAccountClick }) {
                         ? "w-full opacity-100"
                         : "w-0 opacity-0 group-hover:opacity-100 group-hover:w-full"}
                     `}
-                    style={{
-                      transitionProperty: "width, opacity"
-                    }}
-                  ></span>
+                    style={{ transitionProperty: "width, opacity" }}
+                  />
                 </a>
               </li>
             ))}
           </ul>
+
           {/* Desktop: Login/User */}
           <div className="hidden xl:flex items-center">
             {!user ? (
               <button
                 className="cursor-pointer font-medium bg-indigo-500 text-white px-8 py-2 rounded-xl hover:bg-indigo-600 transition"
-                onClick={onLoginClick}
+                onClick={() => openAsModal("/login")}
               >
                 Sign in
               </button>
@@ -187,7 +186,7 @@ function Navbar({ onLoginClick, onAccountClick }) {
                       <li>
                         <button
                           className="w-full text-left px-5 py-2 hover:bg-indigo-50 cursor-pointer"
-                          onClick={() => { setDropdown(false); setShowMemberModal(true); }}
+                          onClick={() => { setDropdown(false); openAsModal("/member"); }}
                         >
                           Member
                         </button>
@@ -195,7 +194,7 @@ function Navbar({ onLoginClick, onAccountClick }) {
                       <li>
                         <button
                           className="w-full text-left px-5 py-2 hover:bg-indigo-50 cursor-pointer"
-                          onClick={() => { setDropdown(false); setShowAccountModal(true); }}
+                          onClick={() => { setDropdown(false); openAsModal("/account"); }}
                         >
                           Account
                         </button>
@@ -214,6 +213,7 @@ function Navbar({ onLoginClick, onAccountClick }) {
               </div>
             )}
           </div>
+
           {/* Mobile Hamburger */}
           <button
             className="xl:hidden flex items-center justify-center w-12 h-12 rounded-full bg-gray-100 border border-gray-300 cursor-pointer focus:outline-none hover:bg-gray-300"
@@ -246,8 +246,8 @@ function Navbar({ onLoginClick, onAccountClick }) {
           ${open ? "translate-x-0" : "-translate-x-full"}
         `}
         style={{
-          height: "calc(100dvh - 100px)", // <<-- รองรับมือถือ 100%
-          minHeight: 420, // ไม่เตี้ยเกิน
+          height: "calc(100dvh - 100px)",
+          minHeight: 420,
           paddingBottom: "env(safe-area-inset-bottom, 24px)",
           maxHeight: "calc(100dvh - 100px)",
         }}
@@ -275,16 +275,14 @@ function Navbar({ onLoginClick, onAccountClick }) {
               </li>
             ))}
           </ul>
+
           {/* ปุ่ม Log in/User อยู่ล่างสุดจริง 100% */}
           <div className="mt-auto mb-6 px-6">
             {!user ? (
               <button
                 className="w-full cursor-pointer font-medium bg-indigo-500 text-white px-8 py-2 rounded-xl hover:bg-indigo-600 transition"
-                onClick={() => { setOpen(false); onLoginClick(); }}
-                style={{
-                  minHeight: 48,
-                  marginBottom: "env(safe-area-inset-bottom, 12px)",
-                }}
+                onClick={() => { setOpen(false); openAsModal("/login"); }}
+                style={{ minHeight: 48, marginBottom: "env(safe-area-inset-bottom, 12px)" }}
               >
                 Log in
               </button>
@@ -314,7 +312,9 @@ function Navbar({ onLoginClick, onAccountClick }) {
                         <button
                           className="w-full text-left px-5 py-2 hover:bg-indigo-50 rounded-t-xl cursor-pointer"
                           onClick={() => {
-                            setOpen(false); setShowMemberModal(true); setMobileUserDropdown(false);
+                            setOpen(false);
+                            setMobileUserDropdown(false);
+                            openAsModal("/member");
                           }}
                         >
                           Member
@@ -324,7 +324,9 @@ function Navbar({ onLoginClick, onAccountClick }) {
                         <button
                           className="w-full text-left px-5 py-2 hover:bg-indigo-50 cursor-pointer"
                           onClick={() => {
-                            setOpen(false); setShowAccountModal(true); setMobileUserDropdown(false);
+                            setOpen(false);
+                            setMobileUserDropdown(false);
+                            openAsModal("/account");
                           }}
                         >
                           Account
@@ -334,7 +336,9 @@ function Navbar({ onLoginClick, onAccountClick }) {
                         <button
                           className="w-full text-left px-5 py-2 hover:bg-red-50 text-red-500 rounded-b-xl cursor-pointer"
                           onClick={() => {
-                            setOpen(false); logoutUser(); setMobileUserDropdown(false);
+                            setOpen(false);
+                            setMobileUserDropdown(false);
+                            logoutUser();
                           }}
                         >
                           Logout
@@ -349,9 +353,9 @@ function Navbar({ onLoginClick, onAccountClick }) {
         </nav>
       </div>
 
-      {/* Popup Modals */}
-      <MemberSection open={showMemberModal} onClose={() => setShowMemberModal(false)} />
-      <AccountModal open={showAccountModal} onClose={() => setShowAccountModal(false)} />
+      {/* ❌ ตัด Popup Modals แบบ state ออก (จะเปิดผ่าน route แทน) */}
+      {/* <MemberSection open={showMemberModal} onClose={() => setShowMemberModal(false)} />
+      <AccountModal open={showAccountModal} onClose={() => setShowAccountModal(false)} /> */}
     </>
   );
 }
