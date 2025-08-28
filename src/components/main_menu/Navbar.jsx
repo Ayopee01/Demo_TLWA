@@ -1,7 +1,7 @@
 // src/components/main_menu/Navbar.jsx
 
-import React, { useState, useRef, useEffect } from "react";
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import React, { useState, useRef, useEffect, useMemo } from "react";
+import { Link, useNavigate, useLocation, useSearchParams } from "react-router-dom";
 import { FaUserCircle, FaChevronDown } from "react-icons/fa";
 import MemberSection from "../login/MemberSection";
 import AccountModal from "../login/AccountModal";
@@ -47,17 +47,74 @@ function Navbar({ onLoginClick, onAccountClick }) {
   const { user, logoutUser } = useUser();
   const navigate = useNavigate();
   const location = useLocation();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   // State
   const [open, setOpen] = useState(false);
   const [dropdown, setDropdown] = useState(false);
   const [mobileUserDropdown, setMobileUserDropdown] = useState(false);
+
   const [showMemberModal, setShowMemberModal] = useState(false);
   const [showAccountModal, setShowAccountModal] = useState(false);
 
   const dropdownRef = useRef(null);
   const [hideNav, setHideNav] = useState(false);
   const prevScrollY = useRef(window.scrollY);
+
+  // ===== helpers: URL param modal sync =====
+  const modalFromUrl = useMemo(() => (searchParams.get("modal") || "").toLowerCase(), [searchParams]);
+  const setModalParam = (name, extra = {}) => {
+    const next = new URLSearchParams(searchParams);
+    if (name) {
+      next.set("modal", name);
+      // support token if ever needed (not used here)
+      if (extra.token) next.set("token", extra.token);
+      else next.delete("token");
+    } else {
+      next.delete("modal");
+      next.delete("token");
+    }
+    setSearchParams(next, { replace: false });
+  };
+  const openByUrl = (name) => setModalParam(name);
+  const closeByUrl = () => setModalParam("");
+
+  // เปิด/ปิด Member/Account ตาม ?modal=...
+  useEffect(() => {
+    if (modalFromUrl === "member" || modalFromUrl === "account") {
+      if (!user) {
+        // ถ้ายังไม่ล็อกอิน ให้รีไดเรกต์ไป modal=login
+        openByUrl("login");
+        setShowMemberModal(false);
+        setShowAccountModal(false);
+        return;
+      }
+      setShowMemberModal(modalFromUrl === "member");
+      setShowAccountModal(modalFromUrl === "account");
+    } else {
+      setShowMemberModal(false);
+      setShowAccountModal(false);
+    }
+  }, [modalFromUrl, user]); // eslint-disable-line
+
+  // ถ้า logout ระหว่างที่ modal member/account เปิดอยู่ ให้ปิดและเปลี่ยนเป็น login
+  useEffect(() => {
+    if (!user && (showMemberModal || showAccountModal)) {
+      setShowMemberModal(false);
+      setShowAccountModal(false);
+      openByUrl("login");
+    }
+  }, [user]); // eslint-disable-line
+
+  // lock scroll เมื่อมี drawer หรือ modal ใด ๆ เปิด
+  useEffect(() => {
+    const el = document.documentElement;
+    const shouldLock = open || showMemberModal || showAccountModal;
+    const prev = el.style.overflow;
+    if (shouldLock) el.style.overflow = "hidden";
+    else el.style.overflow = prev || "";
+    return () => { el.style.overflow = prev || ""; };
+  }, [open, showMemberModal, showAccountModal]);
 
   // Hide nav on scroll (desktop)
   useEffect(() => { if (open) setHideNav(false); }, [open]);
@@ -107,14 +164,35 @@ function Navbar({ onLoginClick, onAccountClick }) {
     e.preventDefault();
     setOpen(false);
     if (location.pathname !== "/") {
+      // ไปหน้า Home พร้อม hash เดิม
       navigate(`/${href}`);
     } else {
       setTimeout(() => {
         const section = document.querySelector(href);
-        if (section) {
-          section.scrollIntoView({ behavior: "smooth", block: "start" });
-        }
+        if (section) section.scrollIntoView({ behavior: "smooth", block: "start" });
       }, 20);
+    }
+  };
+
+  // ===== Click handlers for Member/Account with URL =====
+  const openMember = () => {
+    setDropdown(false);
+    setOpen(false);
+    if (!user) {
+      openByUrl("login");
+    } else {
+      openByUrl("member");
+    }
+  };
+  const openAccount = () => {
+    setDropdown(false);
+    setOpen(false);
+    if (!user) {
+      openByUrl("login");
+    } else {
+      // ถ้าต้องการให้ควบคุมจาก App ส่วนกลางก็สามารถเรียก onAccountClick?.() แทนได้
+      openByUrl("account");
+      if (typeof onAccountClick === "function") onAccountClick(); // optional: compatibility
     }
   };
 
@@ -153,10 +231,8 @@ function Navbar({ onLoginClick, onAccountClick }) {
                         ? "w-full opacity-100"
                         : "w-0 opacity-0 group-hover:opacity-100 group-hover:w-full"}
                     `}
-                    style={{
-                      transitionProperty: "width, opacity"
-                    }}
-                  ></span>
+                    style={{ transitionProperty: "width, opacity" }}
+                  />
                 </a>
               </li>
             ))}
@@ -164,12 +240,13 @@ function Navbar({ onLoginClick, onAccountClick }) {
           {/* Desktop: Login/User */}
           <div className="hidden xl:flex items-center">
             {!user ? (
-              <button
+              <Link
+                to="/?modal=login"
                 className="cursor-pointer font-medium bg-indigo-500 text-white px-8 py-2 rounded-xl hover:bg-indigo-600 transition"
-                onClick={onLoginClick}
+                onClick={() => { if (typeof onLoginClick === "function") onLoginClick(); }}
               >
                 Sign in
-              </button>
+              </Link>
             ) : (
               <div ref={dropdownRef} className="relative flex items-center">
                 <button
@@ -178,27 +255,31 @@ function Navbar({ onLoginClick, onAccountClick }) {
                   tabIndex={0}
                 >
                   <FaUserCircle className="text-2xl text-indigo-500" />
-                  <span className="font-medium text-indigo-900">{user.firstName} {user.lastName}</span>
+                  <span className="font-medium text-indigo-900">
+                    {user.firstName} {user.lastName}
+                  </span>
                   <FaChevronDown className="ml-1 text-indigo-500" />
                 </button>
                 {dropdown && (
                   <div className="absolute right-0 top-12 mt-2 w-44 bg-white border rounded-xl shadow z-50">
                     <ul className="py-2 text-sm text-indigo-900">
                       <li>
-                        <button
-                          className="w-full text-left px-5 py-2 hover:bg-indigo-50 cursor-pointer"
-                          onClick={() => { setDropdown(false); setShowMemberModal(true); }}
+                        <Link
+                          to="/?modal=member"
+                          className="block px-5 py-2 hover:bg-indigo-50 cursor-pointer"
+                          onClick={(e) => { e.preventDefault(); openMember(); }}
                         >
                           Member
-                        </button>
+                        </Link>
                       </li>
                       <li>
-                        <button
-                          className="w-full text-left px-5 py-2 hover:bg-indigo-50 cursor-pointer"
-                          onClick={() => { setDropdown(false); setShowAccountModal(true); }}
+                        <Link
+                          to="/?modal=account"
+                          className="block px-5 py-2 hover:bg-indigo-50 cursor-pointer"
+                          onClick={(e) => { e.preventDefault(); openAccount(); }}
                         >
                           Account
-                        </button>
+                        </Link>
                       </li>
                       <li>
                         <button
@@ -246,8 +327,8 @@ function Navbar({ onLoginClick, onAccountClick }) {
           ${open ? "translate-x-0" : "-translate-x-full"}
         `}
         style={{
-          height: "calc(100dvh - 100px)", // <<-- รองรับมือถือ 100%
-          minHeight: 420, // ไม่เตี้ยเกิน
+          height: "calc(100dvh - 100px)",
+          minHeight: 420,
           paddingBottom: "env(safe-area-inset-bottom, 24px)",
           maxHeight: "calc(100dvh - 100px)",
         }}
@@ -278,16 +359,14 @@ function Navbar({ onLoginClick, onAccountClick }) {
           {/* ปุ่ม Log in/User อยู่ล่างสุดจริง 100% */}
           <div className="mt-auto mb-6 px-6">
             {!user ? (
-              <button
-                className="w-full cursor-pointer font-medium bg-indigo-500 text-white px-8 py-2 rounded-xl hover:bg-indigo-600 transition"
-                onClick={() => { setOpen(false); onLoginClick(); }}
-                style={{
-                  minHeight: 48,
-                  marginBottom: "env(safe-area-inset-bottom, 12px)",
-                }}
+              <Link
+                to="/?modal=login"
+                className="w-full block text-center cursor-pointer font-medium bg-indigo-500 text-white px-8 py-2 rounded-xl hover:bg-indigo-600 transition"
+                onClick={() => { setOpen(false); if (typeof onLoginClick === "function") onLoginClick(); }}
+                style={{ minHeight: 48, marginBottom: "env(safe-area-inset-bottom, 12px)" }}
               >
                 Log in
-              </button>
+              </Link>
             ) : (
               <div className="relative w-full flex justify-center">
                 <button
@@ -295,7 +374,9 @@ function Navbar({ onLoginClick, onAccountClick }) {
                   onClick={() => setMobileUserDropdown((d) => !d)}
                 >
                   <FaUserCircle className="text-2xl text-indigo-500" />
-                  <span className="font-medium text-indigo-900 truncate">{user.firstName} {user.lastName}</span>
+                  <span className="font-medium text-indigo-900 truncate">
+                    {user.firstName} {user.lastName}
+                  </span>
                   <FaChevronDown className="ml-1 text-indigo-500" />
                 </button>
                 {mobileUserDropdown && (
@@ -311,24 +392,22 @@ function Navbar({ onLoginClick, onAccountClick }) {
                   >
                     <ul className="py-1 text-sm text-indigo-900">
                       <li>
-                        <button
-                          className="w-full text-left px-5 py-2 hover:bg-indigo-50 rounded-t-xl cursor-pointer"
-                          onClick={() => {
-                            setOpen(false); setShowMemberModal(true); setMobileUserDropdown(false);
-                          }}
+                        <Link
+                          to="/?modal=member"
+                          className="block px-5 py-2 hover:bg-indigo-50 rounded-t-xl cursor-pointer"
+                          onClick={(e) => { e.preventDefault(); openMember(); setMobileUserDropdown(false); }}
                         >
                           Member
-                        </button>
+                        </Link>
                       </li>
                       <li>
-                        <button
-                          className="w-full text-left px-5 py-2 hover:bg-indigo-50 cursor-pointer"
-                          onClick={() => {
-                            setOpen(false); setShowAccountModal(true); setMobileUserDropdown(false);
-                          }}
+                        <Link
+                          to="/?modal=account"
+                          className="block px-5 py-2 hover:bg-indigo-50 cursor-pointer"
+                          onClick={(e) => { e.preventDefault(); openAccount(); setMobileUserDropdown(false); }}
                         >
                           Account
-                        </button>
+                        </Link>
                       </li>
                       <li>
                         <button
@@ -349,9 +428,15 @@ function Navbar({ onLoginClick, onAccountClick }) {
         </nav>
       </div>
 
-      {/* Popup Modals */}
-      <MemberSection open={showMemberModal} onClose={() => setShowMemberModal(false)} />
-      <AccountModal open={showAccountModal} onClose={() => setShowAccountModal(false)} />
+      {/* Popup Modals — คุมด้วย URL param */}
+      <MemberSection
+        open={showMemberModal}
+        onClose={() => { closeByUrl(); setShowMemberModal(false); }}
+      />
+      <AccountModal
+        open={showAccountModal}
+        onClose={() => { closeByUrl(); setShowAccountModal(false); }}
+      />
     </>
   );
 }
