@@ -2,9 +2,12 @@
 import { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { useUser } from "../../contexts/UserContext";
+import { FiEye, FiEyeOff } from "react-icons/fi";
 
 const THAI_REGEX = /^[\u0E00-\u0E7F\s]+$/;
 const ENGLISH_REGEX = /^[A-Za-z\s]+$/;
+// อนุญาตเฉพาะอังกฤษ/ตัวเลข/อักขระพิเศษทั่วไป (ไม่เอาเว้นวรรค/อักษรไทย)
+const PASSWORD_ALLOWED_REGEX = /^[A-Za-z0-9!@#$%^&*()_\-+=\[{\]}|\\:;"',.<>/?`~]+$/;
 
 export default function AccountModal({ open, onClose }) {
   const { user, updateUser } = useUser();
@@ -20,10 +23,14 @@ export default function AccountModal({ open, onClose }) {
     address: "",
     phone: "",
     email: "",
+    password: "",
+    confirmPassword: "",
   });
   const [errors, setErrors] = useState({});
   const [popup, setPopup] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [showPw, setShowPw] = useState(false);
+  const [showPw2, setShowPw2] = useState(false);
 
   useEffect(() => {
     if (user && open) {
@@ -36,6 +43,8 @@ export default function AccountModal({ open, onClose }) {
         address: user.address || "",
         phone: user.phone || "",
         email: user.email || "",
+        password: "",
+        confirmPassword: "",
       });
       setErrors({});
       setPopup("");
@@ -57,6 +66,23 @@ export default function AccountModal({ open, onClose }) {
     if (!form.address) newErrors.address = "กรุณากรอกที่อยู่";
     if (!form.phone) newErrors.phone = "กรุณากรอกเบอร์โทรศัพท์";
     else if (!/^0\d{8,9}$/.test(form.phone)) newErrors.phone = "กรุณากรอกให้ครบ 9-10 หลัก";
+
+    // รีเซ็ตรหัสผ่าน (กรอกเมื่อจะเปลี่ยนเท่านั้น)
+    const wantsChange = form.password.length > 0 || form.confirmPassword.length > 0;
+    if (wantsChange) {
+      if (!form.password) newErrors.password = "กรุณากรอกรหัสผ่านใหม่";
+      if (!form.confirmPassword) newErrors.confirmPassword = "กรุณากรอกยืนยันรหัสผ่าน";
+      if (form.password && form.password.length < 6) {
+        newErrors.password = "รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร";
+      }
+      if (form.password && !PASSWORD_ALLOWED_REGEX.test(form.password)) {
+        newErrors.password = "อนุญาตเฉพาะ A-Z, a-z, 0-9 และอักขระพิเศษ (ไม่รองรับเว้นวรรค/อักษรไทย)";
+      }
+      if (!newErrors.password && !newErrors.confirmPassword && form.password !== form.confirmPassword) {
+        newErrors.confirmPassword = "รหัสผ่านทั้งสองช่องต้องตรงกัน";
+      }
+    }
+
     return newErrors;
   };
 
@@ -83,7 +109,11 @@ export default function AccountModal({ open, onClose }) {
 
     setSubmitting(true);
     try {
-      await axios.put(`${API_URL}/api/users/${user.id}`, form, { withCredentials: true });
+      const payload = { ...form };
+      delete payload.confirmPassword;
+      if (!payload.password) delete payload.password;
+
+      await axios.put(`${API_URL}/api/users/${user.id}`, payload, { withCredentials: true });
 
       const resUser = await axios.get(`${API_URL}/api/users/${user.id}`, { withCredentials: true });
       const userFresh = resUser.data?.user;
@@ -224,6 +254,7 @@ export default function AccountModal({ open, onClose }) {
               />
             </div>
           </div>
+
           {/* Right Column */}
           <div className="flex-1 flex flex-col gap-3 min-w-0">
             {/* Email */}
@@ -238,6 +269,7 @@ export default function AccountModal({ open, onClose }) {
                 disabled
               />
             </div>
+
             {/* Phone */}
             <div>
               <label className="block mb-1 text-gray-700 font-medium text-sm">เบอร์โทรศัพท์</label>
@@ -252,6 +284,65 @@ export default function AccountModal({ open, onClose }) {
                 disabled={submitting}
               />
             </div>
+
+            {/* Reset Password (อยู่เหนือ 'ที่อยู่') — ไม่มีกรอบ ให้จัดเรียงแบบเดียวกับฟิลด์อื่น */}
+            <div>
+              <label className="block mb-1 text-gray-700 font-medium text-sm">
+                Reset Password (optional)
+              </label>
+              {/* <p className="text-xs text-red-500 mb-2">หากไม่ต้องการเปลี่ยนให้เว้นว่างไว้</p> */}
+
+              {/* Password */}
+              <div className="mb-2">
+                {errors.password && <div className="text-red-500 text-xs mb-1">{errors.password}</div>}
+                <div className="relative">
+                  <input
+                    name="password"
+                    type={showPw ? "text" : "password"}
+                    className={`w-full border px-3 py-2 pr-10 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400 transition ${errors.password ? 'border-red-400 focus:ring-red-400' : 'border-gray-300 focus:border-blue-400'}`}
+                    value={form.password}
+                    onChange={handleChange}
+                    placeholder="รหัสผ่านใหม่"
+                    disabled={submitting}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPw((v) => !v)}
+                    aria-label={showPw ? "Hide password" : "Show password"}
+                    className="absolute inset-y-0 right-2 my-auto text-gray-500 hover:text-gray-700"
+                    tabIndex={-1}
+                  >
+                    {showPw ? <FiEyeOff className="w-5 h-5" /> : <FiEye className="w-5 h-5" />}
+                  </button>
+                </div>
+              </div>
+
+              {/* Confirm Password */}
+              <div>
+                {errors.confirmPassword && <div className="text-red-500 text-xs mb-1">{errors.confirmPassword}</div>}
+                <div className="relative">
+                  <input
+                    name="confirmPassword"
+                    type={showPw2 ? "text" : "password"}
+                    className={`w-full border px-3 py-2 pr-10 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400 transition ${errors.confirmPassword ? 'border-red-400 focus:ring-red-400' : 'border-gray-300 focus:border-blue-400'}`}
+                    value={form.confirmPassword}
+                    onChange={handleChange}
+                    placeholder="ยืนยันรหัสผ่านใหม่"
+                    disabled={submitting}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPw2((v) => !v)}
+                    aria-label={showPw2 ? "Hide password" : "Show password"}
+                    className="absolute inset-y-0 right-2 my-auto text-gray-500 hover:text-gray-700"
+                    tabIndex={-1}
+                  >
+                    {showPw2 ? <FiEyeOff className="w-5 h-5" /> : <FiEye className="w-5 h-5" />}
+                  </button>
+                </div>
+              </div>
+            </div>
+
             {/* Address */}
             <div>
               <label className="block mb-1 text-gray-700 font-medium text-sm">ที่อยู่</label>
